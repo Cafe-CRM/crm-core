@@ -25,15 +25,15 @@
         <td>
             <button type="button" class="btn btn-info" data-toggle="modal" th:href="'#repayDebt' +${debts.id}">Вернуть</button>
         </td>
-        <td sec:authorize="hasAuthority('BOSS')">
+        <!--<td sec:authorize="hasAuthority('BOSS')">
             <button type="button" class="btn btn-danger" data-toggle="modal" th:href="'#debtDeleteBoss' +${debts.id}"><span class="glyphicon glyphicon-trash"></span></button>
         </td>
         <td sec:authorize="!hasAuthority('BOSS') and hasAuthority('MANAGER')">
             <button type="button" class="btn btn-danger" data-toggle="modal" th:href="'#debtDeleteManager' +${debts.id}"><span class="glyphicon glyphicon-trash"></span></button>
-        </td>
+        </td>-->
 
         <!--Modals-->
-        <div class="modal fade" tabindex="-1" role="dialog" th:id="'debtDeleteManager'+${debts.id}" th:fragment="modalDeleteManager">
+        <!--<div class="modal fade" tabindex="-1" role="dialog" th:id="'debtDeleteManager'+${debts.id}" th:fragment="modalDeleteManager">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -52,8 +52,8 @@
                         </button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Нет</button>
                     </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
+                </div>
+            </div>
         </div>
 
         <div class="modal fade" tabindex="-1" role="dialog" th:id="'debtDeleteBoss'+${debts.id}" th:fragment="modalDeleteBoss">
@@ -70,9 +70,9 @@
                                 id="deleteDebtBoss" th:onclick="'removeDebtBoss(\'' + ${debts.id} + '\');'">Да</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Нет</button>
                     </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div>
+                </div>
+            </div>
+        </div>-->
 
         <div class="modal fade" tabindex="-1" role="dialog" th:id="'repayDebt'+${debts.id}" th:fragment="modalRepayDebt">
             <div class="modal-dialog" role="document">

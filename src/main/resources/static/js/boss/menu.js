@@ -8,9 +8,13 @@ $(document).on('click', '#saveNewProductData', function () {
     var setSelfCost = $("#addSelfCost" + id).val();
 
     if (!productDataValidating(setName, setCost, setSelfCost) || !validateStaffPercent(id)) {
-        var errorMessage = '<h4 style="color:red;" align="center">Неверный формат данных!</h4>' +
-            '<h5 style="color:red;" align="center">Поле название обязательно</h5>'+
-            '<h5 style="color:red;" align="center">Себестоимость и Цена должны быть больше либо равны 0</h5>';
+        var errorMessage = '<h4 style="color:red;" align="center">Неверный формат данных!</h4>';
+        if(setName == ''){
+            errorMessage = '<h5 style="color:red;" align="center">Поле название обязательно</h5>';
+        }
+        if(!(setCost ^ 0 === setCost) || !(setSelfCost ^ 0 === setSelfCost)){
+            errorMessage += '<h5 style="color:red;" align="center">Себестоимость и Цена должны быть больше либо равны 0 (не используйте запятые)</h5>';
+        }
         $('.messageAdd' + id).html(errorMessage).show();
         return false;
     }
