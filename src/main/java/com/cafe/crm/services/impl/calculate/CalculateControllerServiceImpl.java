@@ -348,7 +348,10 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			Product product = (productService.findOne(layerProduct.getProductId()));
 			Map<Ingredients, Double> receipt = product.getRecipe();
 			if (!receipt.isEmpty()) {
-				receipt.forEach((k, v) -> deletedIng.merge(k, v, (v1, v2) -> v1+ v2));
+				boolean isDeleted = layerProduct.getClients().stream().noneMatch(Client::isState);
+				if (isDeleted) {
+					receipt.forEach((k, v) -> deletedIng.merge(k, v, (v1, v2) -> v1 + v2));
+				}
 			}
 		}
 		ingredientsService.retrieveIngredientAmount(deletedIng);
