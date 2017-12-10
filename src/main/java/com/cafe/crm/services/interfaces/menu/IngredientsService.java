@@ -24,4 +24,6 @@ public interface IngredientsService {
 	Double getRecipeCost(Map<Ingredients, Double> recipe);
 
 	void reduceIngredientAmount(Map<Ingredients, Double> recipe);
+
+	void retrieveIngredientAmount(Map<Ingredients, Double> recipe);
 }

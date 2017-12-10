@@ -6,12 +6,12 @@ import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.card.Card;
-import com.cafe.crm.models.client.Calculate;
-import com.cafe.crm.models.client.Client;
-import com.cafe.crm.models.client.Debt;
-import com.cafe.crm.models.client.TimerOfPause;
+import com.cafe.crm.models.client.*;
+import com.cafe.crm.models.menu.Ingredients;
+import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.models.property.Property;
 import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.services.interfaces.board.BoardService;
 import com.cafe.crm.services.interfaces.calculate.CalculateControllerService;
 import com.cafe.crm.services.interfaces.calculate.CalculatePriceService;
@@ -21,6 +21,8 @@ import com.cafe.crm.services.interfaces.card.CardService;
 import com.cafe.crm.services.interfaces.client.ClientService;
 import com.cafe.crm.services.interfaces.debt.DebtService;
 import com.cafe.crm.services.interfaces.email.EmailService;
+import com.cafe.crm.services.interfaces.menu.IngredientsService;
+import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.utils.TimeManager;
@@ -52,6 +54,8 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	private final Logger logger;
 	private final TimerOfPauseService timerOfPauseService;
 	private final PriceNameProperties priceNameProperties;
+	private final ProductService productService;
+	private final IngredientsService ingredientsService;
 
 	@Autowired
 	public CalculateControllerServiceImpl(DebtService debtService,
@@ -66,7 +70,9 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 										  ShiftService shiftService,
 										  CardService cardService,
 										  TimerOfPauseService timerOfPauseService,
-										  PriceNameProperties priceNameProperties) {
+										  PriceNameProperties priceNameProperties,
+										  ProductService productService,
+										  IngredientsService ingredientsService) {
 		this.debtService = debtService;
 		this.calculatePriceService = calculatePriceService;
 		this.emailService = emailService;
@@ -80,6 +86,8 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		this.cardService = cardService;
 		this.timerOfPauseService = timerOfPauseService;
 		this.priceNameProperties = priceNameProperties;
+		this.productService = productService;
+		this.ingredientsService = ingredientsService;
 	}
 
 	@Override
@@ -310,11 +318,14 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			return;
 		}
 		List<Client> clients = clientService.findByIdIn(clientsId);
+		List<LayerProduct> products = new ArrayList<>();
 		for (Client client : clients) {
+			products.addAll(client.getLayerProducts());
 			client.setDeleteState(true);
 			client.setState(false);
 			logger.info("Удаление клиента c описанием:" + client.getDescription() + "и id: " + client.getId());
 		}
+		checkIngredients(products);
 		clientService.saveAll(clients);
 		boolean flag = false;
 		Calculate calculate = calculateService.getOne(calculateId);
@@ -329,6 +340,18 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			calculate.setState(false);
 			calculateService.save(calculate);
 		}
+	}
+
+	private void checkIngredients(List<LayerProduct> products) {
+		Map<Ingredients, Double> deletedIng = new HashMap<>();
+		for (LayerProduct layerProduct : products) {
+			Product product = (productService.findOne(layerProduct.getProductId()));
+			Map<Ingredients, Double> receipt = product.getRecipe();
+			if (!receipt.isEmpty()) {
+				receipt.forEach((k, v) -> deletedIng.merge(k, v, (v1, v2) -> v1+ v2));
+			}
+		}
+		ingredientsService.retrieveIngredientAmount(deletedIng);
 	}
 
 	@Override

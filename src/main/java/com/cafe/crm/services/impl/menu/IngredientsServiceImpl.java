@@ -125,4 +125,12 @@ public class IngredientsServiceImpl implements IngredientsService {
 			save(entry.getKey());
 		}
 	}
+
+	@Override
+	public void retrieveIngredientAmount(Map<Ingredients, Double> recipe) {
+		for (Map.Entry<Ingredients, Double> entry : recipe.entrySet()) {
+			entry.getKey().setAmount(entry.getKey().getAmount() + entry.getValue());
+			save(entry.getKey());
+		}
+	}
 }
