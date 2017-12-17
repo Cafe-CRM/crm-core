@@ -172,6 +172,15 @@ public class CalculateController {
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
 
+	@RequestMapping(value = {"/close-new-sum-client"}, method = RequestMethod.POST)
+	public ResponseEntity closeNewSumClient(@RequestParam(name = "newAmount") Double modifiedAmount,
+											@RequestParam(name = "password") String password,
+											@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
+											@RequestParam("calculateId") Long calculateId) {
+		calculateControllerService.closeNewSumClient(modifiedAmount, password, clientsId, calculateId);
+		return ResponseEntity.ok("Клиенты рассчитаны!");
+	}
+
 	@RequestMapping(value = {"/close-client-debt"}, method = RequestMethod.POST)
 	public ResponseEntity closeClientDebt(@RequestParam(name = "clientsId[]") long[] clientsId,
 	                                      @RequestParam("calculateId") Long calculateId,

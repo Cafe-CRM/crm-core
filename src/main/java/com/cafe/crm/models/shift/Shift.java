@@ -28,7 +28,7 @@ public class Shift extends BaseEntity {
 	@Column(name = "shift_date")
 	private LocalDate shiftDate;
 
-	@Column(name = "checkValue")
+	@Column(name = "check_value")
 	private Integer checkValue;// after change on set<>
 
 	@OneToMany(fetch = FetchType.EAGER)
@@ -44,6 +44,12 @@ public class Shift extends BaseEntity {
 
 	@Column(name = "bank_cash_box")
 	private double bankCashBox;
+
+	@Column(name = "loss_recalculation")
+	private double lossRecalculation;
+
+	@Column(name = "profit_recalculation")
+	private double profitRecalculation;
 
 	@ManyToMany(mappedBy = "shifts", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	private List<User> users;
@@ -117,6 +123,22 @@ public class Shift extends BaseEntity {
 
 	public void setCashBox(double cashBox) {
 		this.cashBox = cashBox;
+	}
+
+	public double getLossRecalculation() {
+		return lossRecalculation;
+	}
+
+	public void setLossRecalculation(double lossRecalculation) {
+		this.lossRecalculation = lossRecalculation;
+	}
+
+	public double getProfitRecalculation() {
+		return profitRecalculation;
+	}
+
+	public void setProfitRecalculation(double profitRecalculation) {
+		this.profitRecalculation = profitRecalculation;
 	}
 
 	public double getProfit() {

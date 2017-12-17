@@ -5,9 +5,11 @@
 
 <div th:fragment="checkModal">
 
-    <style> .cent {
+    <style>
+        .cent {
         text-align: center;
-    } </style>
+        }
+    </style>
     <div>
         <button th:onclick="'ajaxModal(\'' + ${calculate.id} + '\', \'' + ${cardEnable} + '\');'" style="float: right" class="btn btn-danger">
             Рассчитать
@@ -50,52 +52,94 @@
                     </div>
                     <div style="width: 968px;">
                         <div class="row">
-                            <div class="col-md-1">
-
+                            <div class="col-md-8" style="margin-right: 7px;">
                                 <button type="button" data-toggle="modal"
                                         th:attr="data-target='#enterDebtorName'+${calculate.id }"
                                         style="font-size:20px;" class="btn btn-warning">Рассчитать в долг
                                 </button>
+                                <button type="button" data-toggle="modal"
+                                        th:attr="data-target='#changePriceAmount'+${calculate.id }"
+                                        style="font-size:20px; float: right; margin-right: 160px;"
+                                        class="btn btn btn-primary">Изменить итоговую сумму
+                                </button>
+                            </div>
 
-                                <div th:id="'enterDebtorName' + ${calculate.id}" class="modal fade" role="dialog">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                <p class="messageAd" style="display: none;" th:id="'debtorNameError' + ${calculate.id}"></p>
-                                            </div>
+                            <div th:id="'changePriceAmount' + ${calculate.id}" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <p class="newAmountError" style="display: none;" th:id="'newAmountError' + ${calculate.id}"></p>
+                                        </div>
 
-                                            <div class="modal-body">
-                                                <form class="form-horizontal" role="form">
-                                                    <div class="form-group">
-                                                        <label th:for="'debtorName' + ${calculate.id}" class="col-md-4 control-label">Имя должника</label>
-                                                        <div class="col-md-5">
-                                                            <input class="form-control" th:id="'debtorName' + ${calculate.id}"
-                                                                   name="user" required="" placeholder="Имя должника"/>
-                                                        </div>
+                                        <div class="modal-body">
+                                            <form class="form-horizontal" role="form">
+                                                <div class="form-group">
+                                                    <label th:for="'newAmount' + ${calculate.id}" class="col-md-4 control-label">Новая сумма</label>
+                                                    <div class="col-md-5">
+                                                        <input class="form-control" th:id="'newAmount' + ${calculate.id}"
+                                                               name="newAmount" required="" placeholder="Новая сумма" value="0"/>
                                                     </div>
-                                                    <div class="form-group">
-                                                        <label th:for="'paidAmount' + ${calculate.id}" class="col-md-4 control-label">Уплаченная сумма</label>
-                                                        <div class="col-md-5">
-                                                            <input class="form-control" th:id="'paidAmount' + ${calculate.id}"
-                                                                   name="paidAmount" required="" placeholder="Уплаченная сумма" value="0"/>
-                                                        </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label th:for="'masterPassword' + ${calculate.id}" class="col-md-4 control-label">Мастер-пароль</label>
+                                                    <div class="col-md-5">
+                                                        <input class="form-control" th:id="'masterPassword' + ${calculate.id}"
+                                                               name="masterPassword" required="" placeholder="Введите пароль" type="password"/>
                                                     </div>
-                                                </form>
+                                                </div>
+                                            </form>
 
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button"
-                                                        th:onclick="'closeClientDebt(\'' + ${calculate.id} + '\');'"
-                                                        style="font-size:20px;" class="btn btn-danger">ОК
-                                                </button>
-                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button"
+                                                    th:onclick="'closeClientWithNewAmount(\'' + ${calculate.id} + '\')'"
+                                                    style="font-size:20px;" class="btn btn-danger">Рассчитать
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-md-1 col-md-offset-7">
+                            <div th:id="'enterDebtorName' + ${calculate.id}" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <p class="messageAd" style="display: none;" th:id="'debtorNameError' + ${calculate.id}"></p>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <form class="form-horizontal" role="form">
+                                                <div class="form-group">
+                                                    <label th:for="'debtorName' + ${calculate.id}" class="col-md-4 control-label">Имя должника</label>
+                                                    <div class="col-md-5">
+                                                        <input class="form-control" th:id="'debtorName' + ${calculate.id}"
+                                                               name="user" required="" placeholder="Имя должника"/>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label th:for="'paidAmount' + ${calculate.id}" class="col-md-4 control-label">Уплаченная сумма</label>
+                                                    <div class="col-md-5">
+                                                        <input class="form-control" th:id="'paidAmount' + ${calculate.id}"
+                                                               name="paidAmount" required="" placeholder="Уплаченная сумма" value="0"/>
+                                                    </div>
+                                                </div>
+                                            </form>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button"
+                                                    th:onclick="'closeClientDebt(\'' + ${calculate.id} + '\');'"
+                                                    style="font-size:20px;" class="btn btn-danger">ОК
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-md-1">
                                 <th:block th:if="${cardEnable}">
                                     <p style="font-size: 30px;">Карты:<br/>Кэш:</p>
                                 </th:block>

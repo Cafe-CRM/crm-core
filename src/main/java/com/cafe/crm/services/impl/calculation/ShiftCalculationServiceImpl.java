@@ -437,6 +437,8 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		for (Receipt receipt : receiptAmount){
 			allPrice +=receipt.getReceiptAmount();
 		}
+		allPrice += shift.getProfitRecalculation();
+		allPrice -= shift.getLossRecalculation();
 		return allPrice;
 	}
 

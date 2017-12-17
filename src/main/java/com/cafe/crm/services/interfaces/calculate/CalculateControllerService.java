@@ -22,6 +22,8 @@ public interface CalculateControllerService {
 
 	void closeClient(long[] clientsId, Long calculateId);
 
+	void closeNewSumClient(Double modifiedAmount, String password, long[] clientsId, Long calculateId);
+
 	void closeClientDebt(String debtorName, long[] clientsId, Long calculateId, Double amountOfDebt);
 
 	Long addCardOnClient(Long calculateId, Long clientId, Long cardId);

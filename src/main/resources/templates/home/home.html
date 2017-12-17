@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
 </head>
 <body>
+<div th:replace="bossnavbar :: bossNavbar"></div>
 Домашняя страница
 </body>
 </html>

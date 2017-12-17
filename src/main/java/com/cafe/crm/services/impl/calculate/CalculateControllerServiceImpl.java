@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Logger;
 import com.cafe.crm.configs.property.PriceNameProperties;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
+import com.cafe.crm.exceptions.modifiedAmountException.ModifiedAmountException;
 import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.card.Card;
 import com.cafe.crm.models.client.*;
@@ -26,8 +27,10 @@ import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.utils.TimeManager;
+import org.codehaus.groovy.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +59,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	private final PriceNameProperties priceNameProperties;
 	private final ProductService productService;
 	private final IngredientsService ingredientsService;
+	private final PasswordEncoder encoder;
 
 	@Autowired
 	public CalculateControllerServiceImpl(DebtService debtService,
@@ -72,7 +76,8 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 										  TimerOfPauseService timerOfPauseService,
 										  PriceNameProperties priceNameProperties,
 										  ProductService productService,
-										  IngredientsService ingredientsService) {
+										  IngredientsService ingredientsService,
+										  PasswordEncoder encoder) {
 		this.debtService = debtService;
 		this.calculatePriceService = calculatePriceService;
 		this.emailService = emailService;
@@ -88,6 +93,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		this.priceNameProperties = priceNameProperties;
 		this.productService = productService;
 		this.ingredientsService = ingredientsService;
+		this.encoder = encoder;
 	}
 
 	@Override
@@ -248,6 +254,44 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 		findLeastOneOpenClientAndCloseCalculation(calculateId);
 		sendBalanceInfoAfterDeduction(listClient, balanceBeforeDeduction);
+	}
+
+	@Override
+	public void closeNewSumClient(Double modifiedAmount, String password, long[] clientsId, Long calculateId) {
+		if (clientsId == null) {
+			throw new ClientDataException("Ошибка передачи клиентских ID");
+		}
+
+		if (modifiedAmount == null || password.equals("")) {
+			throw new ClientDataException("Поле суммы и пароля не могут быть пустыми!");
+		}
+
+		Property property = propertyService.findByName("masterKey");
+
+		if (!encoder.matches(password, property.getValue())) {
+			throw new ModifiedAmountException("Пароли не совпадают!");
+		}
+
+		double allPrice = 0;
+		Shift lastShift = shiftService.getLast();
+		List<Client> listClient = clientService.findByIdIn(clientsId);
+
+		for (Client client : listClient) {
+			allPrice += client.getAllPrice();
+		}
+
+		if (modifiedAmount < 0) {
+			throw new ModifiedAmountException("Нельзя указывать отрицательную сумму!");
+		} else if (modifiedAmount > allPrice){
+			double difference = modifiedAmount - allPrice;
+			lastShift.setProfitRecalculation(difference);
+		} else {
+			double difference = allPrice - modifiedAmount;
+			lastShift.setLossRecalculation(difference);
+		}
+
+		shiftService.saveAndFlush(lastShift);
+		closeClient(clientsId, calculateId);
 	}
 
 	private void findLeastOneOpenClientAndCloseCalculation(Long calculateId) {

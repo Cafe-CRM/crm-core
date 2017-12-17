@@ -496,6 +496,36 @@ function setClientTimeUnpause(clientId) {
     });
 }
 
+function closeClientWithNewAmount(calculateId) {
+    var checkedValue = document.getElementsByClassName('class' + calculateId);
+    var arrayID = [];
+    for(var i = 0 ; i < checkedValue.length ; i++) {
+        if(checkedValue[i].checked){
+            arrayID.push(checkedValue[i].value);
+        }
+    }
+    var  formData = {
+        newAmount : $('#newAmount' + calculateId).val(),
+        password : $('#masterPassword' + calculateId).val(),
+        clientsId : arrayID,
+        calculateId : calculateId
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/close-new-sum-client",
+        data: formData,
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+}
+
 function closeClient(calculateId) {
 
     var checkedValue = document.getElementsByClassName('class' + calculateId);
