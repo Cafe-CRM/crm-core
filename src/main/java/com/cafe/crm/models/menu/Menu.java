@@ -1,12 +1,14 @@
 package com.cafe.crm.models.menu;
 
+import com.cafe.crm.models.BaseEntity;
+
 import javax.persistence.*;
 import java.util.Set;
 
 
 @Entity
 @Table(name = "menu")
-public class Menu {
+public class Menu extends BaseEntity {
 
     @Id
     @GeneratedValue

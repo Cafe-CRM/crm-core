@@ -33,13 +33,14 @@
                     </div>
                     <div class="col-md-1  col-md-offset-2">
                         <h4>Количество</h4>
-                        <input th:type="number" min="1" max="2147483647" value="0" th:field="*{amount}"/>
+                        <input  min="1" max="2147483647" value="0" th:field="*{amount}" id="ingAmountInput"/>
                         <p style="color: black ; font-weight:bold" th:if="${#fields.hasErrors('amount')}"
                            th:errors="*{amount}">error message</p>
                     </div>
                     <div class="col-md-1  col-md-offset-2">
                         <h4>Стоимость</h4>
-                        <input th:type="number" min="0" max="2147483647" value="0" th:field="*{price}"/>
+                        <input th:type="number" min="0" max="2147483647" value="0" th:field="*{price}"
+                               id="ingCostInput"/>
                         <p style="color: black ; font-weight:bold" th:if="${#fields.hasErrors('price')}"
                            th:errors="*{price}">error message</p>
                     </div>
@@ -72,23 +73,24 @@
             </thead>
             <tbody class="searchableIng">
             <tr th:each="ingr:${list}">
-                <td th:text="${ingr.id}"></td>
-                <td th:text="${ingr.name}"></td>
-                <td th:text="${ingr.amount}"></td>
-                <td th:text="${ingr.dimension}"></td>
-                <td th:text="${ingr.price * ingr.amount}"></td>
-                <td th:text="${ingr.price}"></td>
+                <td th:align="center" th:text="${ingr.id}"></td>
+                <td th:align="center" th:text="${ingr.name}"></td>
+                <td th:align="center" th:text="${ingr.amount}"></td>
+                <td th:align="center" th:text="${ingr.dimension}"></td>
+                <!--<td th:text="${ingr.price * ingr.amount}"></td>-->
+                <td th:align="center"><span th:text="${#numbers.formatDecimal(ingr.price*ingr.amount, 1, 'COMMA', 1, 'POINT')}"></span></td>
+                <td th:align="center"><span th:text="${#numbers.formatDecimal(ingr.price, 1, 'COMMA', 1, 'POINT')}"></span></td>
                 <td>
                     <form action="/boss/menu/ingredients/add" th:method="POST">
                         <input th:type="hidden" name="id" th:value="${ingr.id}"/>
-                        <input required="" name="add" style="width:75px" th:type="number" min="1" max="2147483647"/>
+                        <input required="" name="add" style="width:75px" th:type="text"/>
                         <button>Добавить</button>
                     </form>
                 </td>
                 <td>
                     <form action="/boss/menu/ingredients/deduct" th:method="POST">
                         <input th:type="hidden" name="id" th:value="${ingr.id}"/>
-                        <input required="" name="deduct" style="width:75px" th:type="number" min="1" max="2147483647"/>
+                        <input required="" name="deduct" style="width:75px"/>
                         <button>Вычесть</button>
                     </form>
                 </td>

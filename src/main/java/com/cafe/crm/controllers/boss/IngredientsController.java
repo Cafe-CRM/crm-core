@@ -60,11 +60,11 @@ public class IngredientsController {
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public String addAmount(@RequestParam("add") Integer amount, @RequestParam("id") Long id) {
+	public String addAmount(@RequestParam("add") Double amount, @RequestParam("id") Long id) {
 
 		Ingredients ingredients = ingredientsService.getOne(id);
 		if (ingredients != null && amount > 0) {
-			int am = ingredients.getAmount();
+			double am = ingredients.getAmount();
 			ingredients.setAmount(am + amount);
 			ingredientsService.save(ingredients);
 		}
@@ -72,11 +72,11 @@ public class IngredientsController {
 	}
 
 	@RequestMapping(value = "/deduct", method = RequestMethod.POST)
-	public String deductAmount(@RequestParam("deduct") Integer amount, @RequestParam("id") Long id) {
+	public String deductAmount(@RequestParam("deduct") Double amount, @RequestParam("id") Long id) {
 
 		Ingredients ingredients = ingredientsService.getOne(id);
 		if (ingredients != null && amount > 0) {
-			int am = ingredients.getAmount();
+			double am = ingredients.getAmount();
 			if (am - amount >= 0) {
 				ingredients.setAmount(am - amount);
 			}

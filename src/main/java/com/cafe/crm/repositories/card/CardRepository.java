@@ -9,23 +9,25 @@ import java.util.List;
 
 public interface CardRepository extends JpaRepository<Card, Long> {
 
-    @Query("SELECT u FROM Card u WHERE u.id =:id")
-    Card getCardById(@Param("id") Long id);
+	@Query("SELECT u FROM Card u WHERE u.id =:id")
+	Card getCardById(@Param("id") Long id);
 
-    Card findByEmail(String email);
+	List<Card> findByCompanyId(Long companyId);
 
-    Card findBySurname(String name);
+	Card findByEmailAndCompanyId(String email, Long companyId);
 
-    Card findByPhoneNumber(String phone);
+	Card findBySurnameAndCompanyId(String name, Long companyId);
 
-    Card findByNameAndSurname(String name, String surname);
+	Card findByPhoneNumberAndCompanyId(String phone, Long companyId);
 
-    Card findBySurnameAndName(String surname, String name);
+	Card findByNameAndSurnameAndCompanyId(String name, String surname, Long companyId);
 
-    @Query("SELECT u FROM Card u WHERE u.surname =:name")
-    List<Card> findByListSurname(@Param("name") String name);
+	Card findBySurnameAndNameAndCompanyId(String surname, String name, Long companyId);
 
-    List<Card> findByEmailNotNullAndAdvertisingIsTrue();
+	@Query("SELECT u FROM Card u WHERE u.surname = :name AND u.company.id = :companyId")
+	List<Card> findByListSurnameAndCompanyId(@Param("name") String name, @Param("companyId") Long companyId);
+
+	List<Card> findByCompanyIdAndEmailNotNullAndAdvertisingIsTrue(Long companyId);
 
 }
 

@@ -2,8 +2,11 @@ package com.cafe.crm.services.impl.client;
 
 import com.cafe.crm.models.card.Card;
 import com.cafe.crm.models.client.Client;
+import com.cafe.crm.models.company.Company;
 import com.cafe.crm.repositories.client.ClientRepository;
 import com.cafe.crm.services.interfaces.client.ClientService;
+import com.cafe.crm.services.interfaces.company.CompanyService;
+import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,19 +19,33 @@ import java.util.Set;
 public class ClientServiceImpl implements ClientService {
 
 	private final ClientRepository clientRepository;
+	private final CompanyService companyService;
+	private final CompanyIdCache companyIdCache;
 
 	@Autowired
-	public ClientServiceImpl(ClientRepository clientRepository) {
+	public ClientServiceImpl(ClientRepository clientRepository, CompanyService companyService, CompanyIdCache companyIdCache) {
+		this.companyService = companyService;
 		this.clientRepository = clientRepository;
+		this.companyIdCache = companyIdCache;
+	}
+
+	private void setCompanyId(Client client) {
+		Long companyId = companyIdCache.getCompanyId();
+		Company company = companyService.findOne(companyId);
+		client.setCompany(company);
 	}
 
 	@Override
 	public void save(Client client) {
+		setCompanyId(client);
 		clientRepository.saveAndFlush(client);
 	}
 
 	@Override
 	public void saveAll(List<Client> clients) {
+		for (Client client: clients){
+			setCompanyId(client);
+		}
 		clientRepository.save(clients);
 	}
 
@@ -39,7 +56,7 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public List<Client> getAll() {
-		return clientRepository.findAll();
+		return clientRepository.findByCompanyId(companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -49,7 +66,7 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public List<Client> getAllOpen() {
-		return clientRepository.getAllOpen();
+		return clientRepository.getAllOpenAndCompanyId(companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -65,6 +82,11 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public Set<Card> findCardByClientIdIn(long[] clientsIds) {
 		return clientRepository.findCardByClientIdIn(clientsIds);
+	}
+
+	@Override
+	public Client getLast() {
+		return clientRepository.getLastAndCompanyId(companyIdCache.getCompanyId());
 	}
 
 	@Transactional

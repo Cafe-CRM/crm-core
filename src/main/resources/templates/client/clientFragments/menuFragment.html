@@ -35,7 +35,6 @@
                         </div>
                     </div>
 
-
                     <div style="background: rgb(241,241,241);border-radius: 5px;float: left;height: 560px;width:150px;overflow: auto;box-shadow: 0 0 2px 0.1px ">
 
                         <center id="mycateg" style="font-size: 25px;">
@@ -49,17 +48,14 @@
 
                             <div th:each="categor : ${listMenu}">
                                 <a style="color: black" th:id="'categor'+${categor.id}" data-toggle="tab"
-                                   th:href="'#panel' + ${categor.id}" th:text="${categor.name}"></a>
+                                   th:href="'#panel' + ${categor.id} + ${calculate.id}" th:text="${categor.name}"></a>
                             </div>
                         </center>
                     </div>
 
-
                     <div style=" float: left;margin-left:15px;background: rgb(255,255,255);width: 500px;height: 560px; border-radius: 5px;overflow: auto;">
 
                         <div class="tab-content">
-
-
                             <div th:id="'allPanel' + ${calculate.id}" class="tab-pane active">
                                 <table class="table mytable">
                                     <thead>
@@ -84,7 +80,7 @@
                                                 <div th:if="${product.category.floatingPrice}">
                                                     <input type="number" style="width: 6em;" step="0.01"
                                                            class="form-control input-sm" placeholder="цена"
-                                                           th:id="'inputPriceInAll' + ${product.id}"
+                                                           th:id="'inputPriceInAll' + ${product.id} + ${calculate.id}"
                                                            required="required"/>
                                                 </div>
                                                 <div th:unless="${product.category.floatingPrice}"
@@ -128,7 +124,7 @@
                                 </table>
                             </div>
                             <p th:each="cat : ${listMenu}">
-                            <div th:id="'panel' + ${cat.id}" class="tab-pane">
+                            <div th:id="'panel' + ${cat.id} + ${calculate.id}" class="tab-pane">
 
                                 <table class="table mytable">
                                     <thead>
@@ -152,7 +148,7 @@
                                                 <div th:if="${cat.floatingPrice}">
                                                     <input type="number" style="width: 6em;" step="0.01"
                                                            class="form-control input-sm" placeholder="цена"
-                                                           th:id="'inputPriceInCategory' + ${prod.id}"
+                                                           th:id="'inputPriceInCategory' + ${prod.id} + ${calculate.id}"
                                                            required="required"/>
                                                 </div>
                                                 <div th:unless="${cat.floatingPrice}"

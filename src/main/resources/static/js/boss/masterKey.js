@@ -9,7 +9,7 @@ function setMasterKey() {
         }
         $.ajax({
             type: "POST",
-            url: "/boss/settings/masterKey/addMasterKey",
+            url: "/boss/settings/masterKey/editMasterKey",
             data: formData,
             success: function (result) {
                 var modal = $('#successModal');

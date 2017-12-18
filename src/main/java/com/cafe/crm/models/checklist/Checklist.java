@@ -1,5 +1,7 @@
 package com.cafe.crm.models.checklist;
 
+import com.cafe.crm.models.BaseEntity;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -8,7 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "checklist_for_shift")
-public class Checklist {
+public class Checklist extends BaseEntity {
 
 	@Id
 	@GeneratedValue

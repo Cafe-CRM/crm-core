@@ -30,7 +30,7 @@
                 <td th:id="'allB' + ${prod.id}"><p th:text="${prod.name}"></p></td>
                 <td th:id="'allC' + ${prod.id}"><p th:text="${prod.description}"></p></td>
                 <td th:id="'allD' + ${prod.id}"><p th:text="${!prod.category.floatingPrice} ? ${prod.cost} : 'Плавающая'"></p></td>
-                <td th:id="'allE' + ${prod.id}"><p th:text="${prod.selfCost}"></p></td>
+                <td th:id="'allE' + ${prod.id}"><p th:text="${#numbers.formatDecimal(prod.selfCost, 1, 'COMMA', 1, 'POINT')}"></p></td>
                 <td class="col-lg-2">
 
                     <div class="dropdown">
@@ -102,7 +102,7 @@
                                         <input type="text" class="form-control"
                                                th:id="selfCost + ${prod.id}" name="selfCost"
                                                pattern="\d+" title="только цифры"
-                                                th:value="${prod.selfCost}"/>
+                                                th:value="${#numbers.formatDecimal(prod.selfCost, 1, 'COMMA', 1, 'POINT')}"/>
                                     </div>
                                 </div>
                                 <button id="saveEditProductDataAll" type="button" name="upd"

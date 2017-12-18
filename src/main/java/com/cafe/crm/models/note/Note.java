@@ -1,5 +1,6 @@
 package com.cafe.crm.models.note;
 
+import com.cafe.crm.models.BaseEntity;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.Entity;
@@ -7,7 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class Note {
+public class Note extends BaseEntity {
 
 	@Id
 	@GeneratedValue

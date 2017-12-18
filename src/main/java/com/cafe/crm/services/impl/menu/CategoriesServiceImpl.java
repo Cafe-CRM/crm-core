@@ -1,9 +1,12 @@
 package com.cafe.crm.services.impl.menu;
 
+import com.cafe.crm.models.company.Company;
 import com.cafe.crm.models.menu.Category;
 import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.repositories.menu.CategoryRepository;
+import com.cafe.crm.services.interfaces.company.CompanyService;
 import com.cafe.crm.services.interfaces.menu.CategoriesService;
+import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +18,19 @@ import java.util.List;
 public class CategoriesServiceImpl implements CategoriesService {
 
 	private final CategoryRepository categoryRepository;
+	private final CompanyService companyService;
+	private final CompanyIdCache companyIdCache;
 
 	@Autowired
-	public CategoriesServiceImpl(CategoryRepository categoryRepository) {
+	public CategoriesServiceImpl(CategoryRepository categoryRepository, CompanyService companyService, CompanyIdCache companyIdCache) {
 		this.categoryRepository = categoryRepository;
+		this.companyService = companyService;
+		this.companyIdCache = companyIdCache;
 	}
 
 	@Override
 	public List<Category> findAll() {
-		return categoryRepository.findAll();
+		return categoryRepository.findByCompanyId(companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -31,8 +38,15 @@ public class CategoriesServiceImpl implements CategoriesService {
 		return categoryRepository.findOne(id);
 	}
 
+	private void setCompany(Category category){
+		Long companyId = companyIdCache.getCompanyId();
+		Company company = companyService.findOne(companyId);
+		category.setCompany(company);
+	}
+
 	@Override
 	public void saveAndFlush(Category category) {
+		setCompany(category);
 		categoryRepository.saveAndFlush(category);
 	}
 
@@ -43,7 +57,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
 	@Override
 	public List<Category> sortProductListAndGetAllCategories() {
-		List<Category> allCategories = categoryRepository.findAll();
+		List<Category> allCategories = categoryRepository.findByCompanyId(companyIdCache.getCompanyId());
 		List<Category> categoriesWithSortedProducts = new ArrayList<>();
 		for (Category category : allCategories) {
 			List<Product> products = category.getProducts();

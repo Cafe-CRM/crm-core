@@ -8,8 +8,9 @@ import java.util.List;
 
 public interface CostCategoryRepository extends JpaRepository<CostCategory, Long> {
 
-	CostCategory findByNameIgnoreCase(String name);
+	CostCategory findByNameIgnoreCaseAndCompanyId(String name, long companyId);
 
-	List<CostCategory> findByNameStartingWith(String startName);
+	List<CostCategory> findByNameStartingWithAndCompanyId(String startName, long companyId);
 
+	List<CostCategory> findByCompanyId(Long companyId);
 }

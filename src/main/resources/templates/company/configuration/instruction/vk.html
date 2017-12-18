@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Инструкция по ВК</title>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+</head>
+<body>
+<div class="container" style="background-color: white">
+    <div class="row">
+        <blockquote>
+            <p>Инструкция по ВК настройкам для взаимодействия с Vk API.</p>
+            <p>Первоначально нужно зарегестрировать свое приложение по этой <a href="https://vk.com/editapp?act=create" target="_blank">ссылке</a> (платформа: Standalone-приложение).</p>
+            <p>
+                Перед выполнением запросов к API необходимо получить ключ доступа access_token.
+                Необходимо перенаправить браузер пользователя по адресу https://oauth.vk.com/authorize.
+                <br/>
+                Пример запроса:
+                <pre>https://oauth.vk.com/authorize?client_id=1&amp;display=page&amp;redirect_uri=https://oauth.vk.com/blank.html&amp;scope=offline,messages&amp;response_type=token&amp;v=5.68&amp;state=123456
+                </pre>
+                Где:
+                <ul>
+                    <li>client_id (Application ID) - идентификатор вашего приложения, можно посмотреть в настройках вашего приложения в VK.</li>
+                    <li>display - тип отображения страницы авторизации</li>
+                    <li>redirect_uri - адрес, на который будет переадресован пользователь после прохождения авторизации, по умолчанию: https://oauth.vk.com/blank.html</li>
+                    <li>
+                        scope - битовая маска настроек доступа приложения(для не ограниченного по времени токена указать offline)</li>
+                    <li>response_type - тип ответа, который необходимо получить</li>
+                    <li>v - версия API</li>
+                    <li>state - произвольная строка, которая будет возвращена вместе с результатом авторизации. Для возможности отправлять сообщения в scope должен быть параметр messages</li>
+                </ul>
+                После успешного входа на сайт пользователю будет предложено авторизовать приложение, разрешив доступ к необходимым настройкам, запрошенным при помощи параметра scope. После успешной авторизации приложения браузер пользователя будет перенаправлен по адресу redirect_uri, указанному при открытии диалога авторизации. При этом ключ доступа к API access_token и другие параметры будут переданы в URL-фрагменте ссылки.
+            </p>
+            <p>
+                Для того, чтобы получить chat-id: заходим в нужный чат, url будет иметь вид vk.com/im?sel=c5 и наш chat_id будет 5 (! не с5).
+                <br/>
+                Пример : <br/> <img th:src="@{/company/configuration/instruction/image/chat-id}" alt="chat-id" style="width: 800px; height: 600px"/>
+            </p>
+        </blockquote>
+    </div>
+</div>
+</body>
+</html>

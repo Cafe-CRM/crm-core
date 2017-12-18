@@ -1,5 +1,6 @@
 package com.cafe.crm.models.menu;
 
+import com.cafe.crm.models.BaseEntity;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.Entity;
@@ -11,7 +12,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "ingredients")
-public class Ingredients {
+public class Ingredients extends BaseEntity {
 
 	@Id
 	@GeneratedValue
@@ -26,7 +27,7 @@ public class Ingredients {
 	private String dimension;
 
 	@NotNull(message = "Заполните поле")
-	private Integer amount = 0;
+	private Double amount = 0D;
 
 	private Double price = 0D;
 
@@ -34,14 +35,14 @@ public class Ingredients {
 
 	}
 
-	public Ingredients(String name, String dimension, Integer amount, Double price) {
+	public Ingredients(String name, String dimension, Double amount, Double price) {
 		this.name = name;
 		this.dimension = dimension;
 		this.amount = amount;
 		this.price = price;
 	}
 
-	public Ingredients(Long id, String name, String dimension, Integer amount) {
+	public Ingredients(Long id, String name, String dimension, Double amount) {
 		this.id = id;
 		this.name = name;
 		this.dimension = dimension;
@@ -73,11 +74,11 @@ public class Ingredients {
 	}
 
 
-	public Integer getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
 
-	public void setAmount(Integer amount) {
+	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
 

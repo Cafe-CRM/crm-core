@@ -93,7 +93,7 @@ $(document).ready(function () {
 function isBlank(str) {
     return str.length === 0 || str.trim() === ""
 }
-
+/*
 function removeDebtBoss(id) {
     var url = '/manager/tableDebt/deleteBoss';
 
@@ -130,7 +130,7 @@ function removeDebtManager(id) {
         }
     });
 }
-
+*/
 function repayDebt(id) {
     var url = '/manager/tableDebt/repay';
 

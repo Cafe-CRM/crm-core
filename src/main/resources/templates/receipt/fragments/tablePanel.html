@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+<div class="panel panel-default" th:fragment="panel">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-md-1">
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalAddDebts">
+                    Добавить
+                </button>
+            </div>
+            <div class="row">
+                <form id="formSearch" method="post" th:action="@{/manager/tableReceipt}">
+                    <div class="col-md-3 col-md-offset-1">
+                        <input type="text" class="form-control" aria-label="Название" placeholder="Поиск по имени"
+                               th:value="${receiptComment} ? ${receiptComment} : '' " th:name="receiptComment" id="searchReceiptComment"/>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="input-group date" id="datePickerFrom">
+                                        <input type='text' class="form-control" id="fromDate" placeholder="С начала"
+                                               th:value="${fromDate} ? ${#temporals.format(fromDate, 'dd-MM-yyyy')} : '' "
+                                               name="fromDate"/>
+                                        <span class="input-group-addon add-on">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="input-group date" id="datePickerTo">
+                                        <input type='text' class="form-control" id="toDate" placeholder="До конца"
+                                               th:value="${toDate} ? ${#temporals.format(toDate, 'dd-MM-yyyy')} : ''"
+                                               name="toDate"/>
+                                        <span class="input-group-addon add-on">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary">Найти</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div th:replace="receipt/fragments/table :: receiptsTable" th:remove="tag"></div>
+</div>
+
+</body>
+</html>

@@ -54,7 +54,7 @@
                 <td><p th:text="${shift.id}"></p></td>
                 <td><p th:text="${shift.shiftDate}"></p></td>
                 <td><p th:text="${shift.getUsersNames()}"></p></td>
-                <td><p th:text="${shift.cashBox}"></p></td>
+                <td><p th:text="${shift.cashBox} + ${shift.bankCashBox}"></p></td>
                 <td><p th:text="${shift.profit}"></p></td>
                 <td class="col-lg-2"><a class="btn btn-primary btn-info"
                                         th:href="'/boss/statistics/search/shiftDetail/' + ${shift.id}">Подробнее</a>

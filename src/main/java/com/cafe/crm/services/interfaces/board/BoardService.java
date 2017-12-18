@@ -6,16 +6,17 @@ import java.util.List;
 
 public interface BoardService {
 
-    void save(Board board);
+	Board save(Board board);
 
-    void delete(Board board);
+	void delete(Board board);
 
-    List<Board> getAll();
+	List<Board> getAll();
 
-    Board getOne(Long id);
+	Board getOne(Long id);
 
-    void deleteById(Long id);
+	void deleteById(Long id);
 
-    List<Board> getAllOpen();
+	List<Board> getAllOpen();
 
+	boolean isExist();
 }

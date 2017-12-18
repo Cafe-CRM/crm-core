@@ -43,7 +43,7 @@ public class CardStatisticController {
 
 		model.addAttribute("cards", cards);
 
-		return "card/statistic/all-cards";
+		return "card/calculation/all-cards";
 	}
 
 	@RequestMapping(value = "/card/statistic/{id}", method = RequestMethod.GET)
@@ -61,7 +61,7 @@ public class CardStatisticController {
 		model.addAttribute("totalPaid", totalPaid);
 		model.addAttribute("listOfPaymentHistory", listOfPaymentHistory);
 
-		return "card/statistic/specific-card";
+		return "card/calculation/specific-card";
 	}
 
 	private PaymentHistory convertToPaymentHistory(Client client) {

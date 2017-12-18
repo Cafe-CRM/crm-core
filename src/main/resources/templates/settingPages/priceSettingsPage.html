@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/navSetting.css}"/>
+</head>
+<body>
+<div th:replace="bossnavbar :: bossNavbar"></div>
+<div th:replace="settingPages/navSetting :: navSetting"></div>
+<div th:replace="media/advertisingDispatch :: advertising"></div>
+<div class="container" style="padding-top: 50px">
+    <div class="col-md-8 col-md-offset-2">
+        <h1 th:align="center" style="color: #5bc0de;margin-bottom: 85px;">Прочие настройки</h1>
+        <table class="table" style="background: white;border-radius: 5px;box-shadow: 0 0 2px 1px;">
+            <thead>
+            <div class="errorMessage"></div>
+            <tr>
+                <th style="text-align:  center;">Название</th>
+                <th style="text-align:  center;">Значение</th>
+                <th style="text-align:  center;">Обновить</th>
+            </tr>
+            </thead>
+            <tbody class="searchable">
+            <th:block  th:each="property: ${properties}">
+                <tr style="font-size: 20px">
+                    <form th:id="'formProperty'+${property.id}">
+                        <input type="hidden" th:value="${property.id}" name="id"/>
+                        <input type="hidden" th:value="${property.name}" name="name"/>
+                        <td th:align="center" th:text="${property.name}"></td>
+
+
+                        <td th:align="center">
+                            <input style="width: 100px" type="number" required="" class="form-control form2" name="value"
+                                   th:value="${property.value}" title="только цифры" min="0" th:id="'inputPriceProperty'+${property.id}"/>
+                        </td>
+                        <td th:align="center" >
+                            <button type="button" th:attr="data-id=${property.id}" class="btn btn-success center-block buttonPropertyRefresh">Обновить</button>
+                        </td>
+                    </form>
+                </tr>
+            </th:block>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script th:src="@{/js/mail.js}"></script>
+<script type="text/javascript" th:src="@{/js/setting/page/nav-setting.js}"></script>
+<script type="text/javascript" th:src="@{/js/setting/page/price.js}"></script>
+</body>
+</html>

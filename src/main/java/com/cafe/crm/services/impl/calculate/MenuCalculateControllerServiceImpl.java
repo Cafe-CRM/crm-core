@@ -9,14 +9,12 @@ import com.cafe.crm.services.interfaces.calculate.MenuCalculateControllerService
 import com.cafe.crm.services.interfaces.client.ClientService;
 import com.cafe.crm.services.interfaces.layerproduct.LayerProductService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
+import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Transactional
@@ -130,7 +128,7 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 		return products;
 	}
 
-	private void calculatePriceMenu(long calculateId) {
+	public void calculatePriceMenu(long calculateId) {
 		Calculate calculate = calculateService.getAllOpenOnCalculate(calculateId);
 		List<Client> clients = calculate.getClient();
 		for (Client client : clients) {

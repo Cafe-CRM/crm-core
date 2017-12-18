@@ -1,11 +1,14 @@
 package com.cafe.crm.controllers.shift;
 
 
+import com.cafe.crm.dto.CalculateDTO;
 import com.cafe.crm.dto.ShiftCloseDTO;
 import com.cafe.crm.dto.ShiftView;
 import com.cafe.crm.exceptions.transferDataException.TransferException;
+import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.User;
+import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.email.EmailService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
@@ -25,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 @Controller
@@ -38,15 +42,19 @@ public class ShiftController {
     private final EmailService emailService;
     private final VkService vkService;
     private final ChecklistService checklistService;
+    private final ShiftCalculationService shiftCalculationService;
 
     @Autowired
-    public ShiftController(ShiftService shiftService, TimeManager timeManager, EmailService emailService, VkService vkService, UserService userService, ChecklistService checklistService) {
+    public ShiftController(ShiftService shiftService, TimeManager timeManager, EmailService emailService,
+						   VkService vkService, UserService userService, ChecklistService checklistService,
+						   ShiftCalculationService shiftCalculationService) {
         this.shiftService = shiftService;
         this.timeManager = timeManager;
         this.emailService = emailService;
         this.vkService = vkService;
         this.userService = userService;
         this.checklistService = checklistService;
+        this.shiftCalculationService = shiftCalculationService;
     }
 
     @Transactional
@@ -96,12 +104,16 @@ public class ShiftController {
     @RequestMapping(value = "/shift/settings", method = RequestMethod.GET)
     public String showShiftSettingsPage(Model model) {
         Shift lastShift = shiftService.getLast();
+		List<CalculateDTO> calculates = shiftCalculationService.getCalculates(lastShift);
         model.addAttribute("usersOnShift", lastShift.getUsers());
         model.addAttribute("usersNotOnShift", shiftService.getUsersNotOnShift());
-        model.addAttribute("closeShiftView", shiftService.createShiftView(lastShift));
-        model.addAttribute("calculates", lastShift.getCalculates());
-        model.addAttribute("clients", lastShift.getClients());
+        model.addAttribute("closeShiftView", shiftCalculationService.createShiftView(lastShift));
+        model.addAttribute("calculates", calculates);
+        model.addAttribute("clientOnDetail", shiftCalculationService.getClientsOnDetails(lastShift.getCalculates()));
+        model.addAttribute("clients", shiftCalculationService.getClients(lastShift));
         model.addAttribute("closeChecklist", checklistService.getAllForCloseShift());
+        model.addAttribute("repaidDebts", shiftService.getLast().getRepaidDebts());
+        model.addAttribute("receipts", shiftService.getLast().getReceipts());
         return "shift/shiftSettings";
     }
 
@@ -121,18 +133,17 @@ public class ShiftController {
 
     @RequestMapping(value = "/shift/close", method = RequestMethod.GET)
     public String showShiftClosePage(Model model) {
-        model.addAttribute("closeShiftView", shiftService.createShiftView(shiftService.getLast()));
+        model.addAttribute("closeShiftView", shiftCalculationService.createShiftView(shiftService.getLast()));
         return "shift/shiftClose";
     }
 
     @RequestMapping(value = "/shift/close", method = RequestMethod.POST)
     public String closeShift(ShiftCloseDTO shiftCloseDTO) {
         Shift lastShift = shiftService.getLast();
-        ShiftView shiftView = shiftService.createShiftView(lastShift);
+        ShiftView shiftView = shiftCalculationService.createShiftView(lastShift);
         if (!shiftView.getActiveCalculate().isEmpty()) {
             return "redirect:shift/shiftClose";
         }
-        lastShift.getRepaidDebts().clear();
         Double allPrice = shiftView.getAllPrice();
         Double payWithCard = shiftView.getCard();
         addPercentBonusesToUsers(shiftCloseDTO, shiftView);
@@ -186,7 +197,7 @@ public class ShiftController {
     @RequestMapping(value = "/shift/recalculation", method = RequestMethod.POST)
     public List<Object> recalculation(@RequestParam(name = "usersBonuses") Integer usersBonuses) {
         Shift lastShift = shiftService.getLast();
-        ShiftView shiftView = shiftService.createShiftView(lastShift);
+        ShiftView shiftView = shiftCalculationService.createShiftView(lastShift);
         int salaryWorkerOnShift = shiftView.getUsersTotalShiftSalary() + usersBonuses;
         Double totalCashBox = shiftView.getTotalCashBox() - usersBonuses;
         List<Object> result = new ArrayList<>();
@@ -202,7 +213,7 @@ public class ShiftController {
         if (transferBankCashBox > lastShift.getCashBox()) {
             throw new TransferException("Сумма превышает допустимое значение средств в кассе!");
         } else {
-            shiftService.transferFromBankToCashBox(transferBankCashBox);
+			shiftCalculationService.transferFromBankToCashBox(transferBankCashBox);
             List<Object> shiftRecalculationType = new ArrayList<>();
             shiftRecalculationType.add(lastShift.getCashBox());
             shiftRecalculationType.add(lastShift.getBankCashBox());
@@ -217,7 +228,7 @@ public class ShiftController {
         if (transferCashBox > lastShift.getBankCashBox()) {
             throw new TransferException("Сумма превышает допустимое значение средств  на карте!");
         } else {
-            shiftService.transferFromCashBoxToBank(transferCashBox);
+			shiftCalculationService.transferFromCashBoxToBank(transferCashBox);
             List<Object> shiftRecalculationType = new ArrayList<>();
             shiftRecalculationType.add(lastShift.getCashBox());
             shiftRecalculationType.add(lastShift.getBankCashBox());

@@ -1,18 +1,18 @@
 package com.cafe.crm.models.cost;
 
+import com.cafe.crm.models.BaseEntity;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "cost_category")
-public class CostCategory {
+public class CostCategory extends BaseEntity {
 	@Id
 	@GeneratedValue
 	private Long id;
 
 	@NotBlank(message = "Поле \"Название\" не может быть пустым")
-	@Column(unique = true)
 	private String name;
 
 	public CostCategory() {

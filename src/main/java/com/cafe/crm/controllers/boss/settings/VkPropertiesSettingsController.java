@@ -1,11 +1,12 @@
 package com.cafe.crm.controllers.boss.settings;
 
 import com.cafe.crm.configs.property.VkProperties;
-import com.cafe.crm.models.property.AllSystemProperty;
-import com.cafe.crm.services.interfaces.property.SystemPropertyService;
+import com.cafe.crm.models.property.Property;
+import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,36 +20,40 @@ import java.io.IOException;
 @RequestMapping("/boss/settings/vk-properties-setting")
 public class VkPropertiesSettingsController {
 
-    @Autowired
-    private SystemPropertyService systemPropertyService;
+	private final PropertyService propertyService;
+	private final VkProperties generalVkProperties;
 
-    @Autowired
-    private VkProperties generalVkProperties;
+	@Value("${property.name.vk}")
+	private String vkPropertyName;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView vkPropertiesSettingPage() throws IOException {
-        ModelAndView modelAndView = new ModelAndView("settingPages/vkPropertiesSettingPage");
-        modelAndView.addObject("vkProperties",getVkPropertiesFromDB());
-        return modelAndView;
-    }
+	@Autowired
+	public VkPropertiesSettingsController(PropertyService propertyService, VkProperties generalVkProperties) {
+		this.propertyService = propertyService;
+		this.generalVkProperties = generalVkProperties;
+	}
 
-    @RequestMapping(value = "/edit", method = RequestMethod.POST)
-    public String editVkProperties(@ModelAttribute(value="vkProperties") VkProperties newVkProperties,
-                                   HttpServletRequest request) throws JsonProcessingException {
+	@RequestMapping(method = RequestMethod.GET)
+	public ModelAndView vkPropertiesSettingPage() throws IOException {
+		ModelAndView modelAndView = new ModelAndView("settingPages/vkPropertiesSettingPage");
+		modelAndView.addObject("vkProperties", getVkPropertiesFromDB());
+		return modelAndView;
+	}
 
-        String jsonStrProperty = new ObjectMapper().writeValueAsString(newVkProperties);
-        AllSystemProperty systemProperty = systemPropertyService.findOne("vk");
-        systemProperty.setProperty(jsonStrProperty);
+	@RequestMapping(value = "/edit", method = RequestMethod.POST)
+	public String editVkProperties(@ModelAttribute(value = "vkProperties") VkProperties newVkProperties,
+								   HttpServletRequest request) throws JsonProcessingException {
+		String vkPropertyValueAsString = new ObjectMapper().writeValueAsString(newVkProperties);
+		Property property = propertyService.findByName(vkPropertyName);
+		property.setValue(vkPropertyValueAsString);
+		propertyService.save(property);
+		VkProperties.copy(newVkProperties, generalVkProperties);
 
-        systemPropertyService.save(systemProperty);
-        VkProperties.copy(newVkProperties,generalVkProperties);
+		return "redirect:" + request.getHeader("Referer");
+	}
 
-        return "redirect:" + request.getHeader("Referer");
-    }
-
-    public VkProperties getVkPropertiesFromDB() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        AllSystemProperty allSystemProperty = systemPropertyService.findOne("vk");
-        return mapper.readValue(allSystemProperty.getProperty(), VkProperties.class);
-    }
+	private VkProperties getVkPropertiesFromDB() throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		Property property = propertyService.findByName(vkPropertyName);
+		return mapper.readValue(property.getValue(), VkProperties.class);
+	}
 }

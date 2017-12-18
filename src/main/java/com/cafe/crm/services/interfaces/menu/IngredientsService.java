@@ -19,9 +19,11 @@ public interface IngredientsService {
 
 	Ingredients findByName(String name);
 
-	Map<Ingredients, Integer> createRecipe(WrapperOfProduct wrapper);
+	Map<Ingredients, Double> createRecipe(WrapperOfProduct wrapper);
 
-	Double getRecipeCost(Map<Ingredients, Integer> recipe);
+	Double getRecipeCost(Map<Ingredients, Double> recipe);
 
-	void reduceIngredientAmount(Map<Ingredients, Integer> recipe);
+	void reduceIngredientAmount(Map<Ingredients, Double> recipe);
+
+	void retrieveIngredientAmount(Map<Ingredients, Double> recipe);
 }

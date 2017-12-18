@@ -13,6 +13,8 @@ public interface CostService {
 
 	void update(Cost cost);
 
+	void delete(Long id);
+
 	void offVisibleStatus(Long id);
 
 	void offVisibleStatus(long[] ids);

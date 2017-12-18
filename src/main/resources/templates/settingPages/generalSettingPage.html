@@ -38,7 +38,6 @@
                 <tr style="font-size: 20px">
                     <form th:id="'formProperty'+${property.id}">
                         <input type="hidden" th:value="${property.id}" name="id"/>
-                        <input type="hidden" th:value="${property.unit}" name="unit"/>
                         <input type="hidden" th:value="${property.name}" name="name"/>
                         <td th:align="center" th:text="${property.name}"></td>
 

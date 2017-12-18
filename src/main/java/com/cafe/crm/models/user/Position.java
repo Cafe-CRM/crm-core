@@ -1,6 +1,9 @@
 package com.cafe.crm.models.user;
 
 
+import com.cafe.crm.dto.PositionDTO;
+import com.cafe.crm.models.BaseEntity;
+import com.yc.easytransformer.annotations.Transform;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
@@ -9,13 +12,14 @@ import javax.validation.constraints.Min;
 
 @Entity
 @Table(name = "positions")
-public class Position {
+@Transform(PositionDTO.class)
+public class Position extends BaseEntity {
 	@Id
 	@GeneratedValue
 	private Long id;
 
 	@NotBlank(message = "Поле \"name\" не может быть пустым")
-	@Column(unique = true, nullable = false)
+	@Column(nullable = false)
 	private String name;
 
 	@Column(name = "percent")

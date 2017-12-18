@@ -25,6 +25,7 @@
                 <li><a href="/manager/shift/settings">Настройки</a></li>
                 <li><a href="/manager/cost">Расходы</a></li>
                 <li><a href="/manager/tableDebt">Долги</a></li>
+                <li><a href="/manager/tableReceipt">Приходы</a></li>
                 <li><a data-toggle="modal" th:href="'#newPass'">Пароль</a></li>
                 <li th:if="${#lists.isEmpty(closeChecklist)}"><a th:href="@{/manager/shift/close}">Закрытие смены</a></li>
                 <li th:if="${not #lists.isEmpty(closeChecklist)}"><a data-toggle="modal" th:href="'#checklistOnCloseModal'">Закрытие смены</a></li>

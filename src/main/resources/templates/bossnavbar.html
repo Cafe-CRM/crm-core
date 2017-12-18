@@ -15,8 +15,8 @@
         <a style="font-size: 20px;" class="navbar-brand">Cafe-CRM</a>
     </div>
     <div style="font-size: 17px;margin-top: 5px;" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav ">
-            <li sec:authorize="hasAuthority('BOSS')">
+        <ul class="nav navbar-nav " sec:authorize="hasAuthority('BOSS')">
+            <li>
                 <a class="glyphicon glyphicon-refresh" th:href="@{/manager}"
                    style="padding-left: 10px;    padding-top: 8px;"></a>
             </li>
@@ -25,7 +25,6 @@
                 <ul class="dropdown-menu">
                     <li><a href="/boss/menu">Меню</a></li>
                     <li><a href="/boss/menu/ingredients">Ингредиенты</a></li>
-                    <li><a href="/boss/cost/category">Категории расходов</a></li>
                 </ul>
             </li>
             <!-- <li><a href="/boss/statistics">Статистика</a></li>-->
@@ -38,7 +37,8 @@
                 </ul>
             </li>
             <li><a href="/boss/user/accounting">Сотрудники</a></li>
-            <li><a href="/boss/settings/general-setting">Настройки</a></li>
+            <li><a href="/boss/cost/category">Категории расходов</a></li>
+            <li><a href="/boss/settings/price-setting">Настройки</a></li>
             <li th:if="${cardEnable}"><a href="/boss/card/generationPage">Генерация карт</a></li>
             <li th:if="${cardEnable}"><a data-toggle="modal" th:href="'#advertising'">Реклама</a></li>
         </ul>

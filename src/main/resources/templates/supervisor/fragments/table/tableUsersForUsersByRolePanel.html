@@ -1,0 +1,43 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:src="@{/js/filter.js}"></script>
+</head>
+
+<body>
+<div class="table" style="border-radius:5px" th:fragment="usersByRole">
+    <table class="table table-striped" id="tableUsersByRole">
+        <tr>
+            <th class="col-md-1"></th>
+            <th class="col-md-3"> Имя</th>
+            <th class="col-md-3"> Фамилия</th>
+            <th class="col-md-3"></th>
+            <th class="col-md-3"></th>
+            <th class="col-md-3"></th>
+            <th class="col-md-1"></th>
+        </tr>
+        <tbody class="searchableWorker">
+        <tr th:each="user : ${usersByRole.value}">
+            <td class="col-md-1"></td>
+            <td class="col-md-3" th:text="${user.firstName}"></td>
+            <td class="col-md-3" th:text="${user.lastName}"></td>
+            <td class="col-md-3">
+                <div th:replace="supervisor/fragments/modal/modalEditUserForUsersByRolePanel :: editUser"
+                     th:remove="tag"></div>
+            </td>
+            <td class="col-md-3">
+                <div th:replace="supervisor/fragments/modal/modalDeleteUserForUsersByRolePanel :: deleteUser"
+                     th:remove="tag"></div>
+            </td>
+            <td class="col-md-3">
+                <div th:replace="supervisor/fragments/modal/modalPromptPasswordByRole :: passwordPromptByRole"
+                     th:remove="tag"></div>
+            </td>
+            <td class="col-md-1"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

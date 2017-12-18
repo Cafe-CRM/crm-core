@@ -2,6 +2,7 @@ package com.cafe.crm.services.interfaces.debt;
 
 
 import com.cafe.crm.models.client.Debt;
+import com.cafe.crm.models.shift.Shift;
 
 import java.time.LocalDate;
 import java.util.List;

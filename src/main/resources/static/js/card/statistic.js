@@ -19,7 +19,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     $(".clickable-row").click(function () {
-        window.location = '/boss/card/statistic/' + $(this).data('id');
+        window.location = '/boss/card/calculation/' + $(this).data('id');
     });
 });
 

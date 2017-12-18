@@ -1,11 +1,14 @@
 package com.cafe.crm.services.impl.position;
 
 import com.cafe.crm.exceptions.user.PositionDataException;
+import com.cafe.crm.models.company.Company;
 import com.cafe.crm.models.user.Position;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.repositories.position.PositionRepository;
+import com.cafe.crm.services.interfaces.company.CompanyService;
 import com.cafe.crm.services.interfaces.position.PositionService;
 import com.cafe.crm.services.interfaces.user.UserService;
+import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,33 +19,45 @@ public class PositionServiceImpl implements PositionService {
 
 	private final PositionRepository positionRepository;
 	private final UserService userService;
+	private final CompanyService companyService;
+	private final CompanyIdCache companyIdCache;
 
 	@Autowired
-	public PositionServiceImpl(PositionRepository positionRepository, UserService userService) {
+	public PositionServiceImpl(PositionRepository positionRepository, UserService userService, CompanyService companyService, CompanyIdCache companyIdCache) {
 		this.positionRepository = positionRepository;
 		this.userService = userService;
+		this.companyService = companyService;
+		this.companyIdCache = companyIdCache;
+	}
+
+	private void setCompany(Position position) {
+		Long companyId = companyIdCache.getCompanyId();
+		Company company = companyService.findOne(companyId);
+		position.setCompany(company);
 	}
 
 	@Override
 	public void save(Position position) {
+		setCompany(position);
 		checkForUniqueName(position);
 		positionRepository.saveAndFlush(position);
 	}
 
 	@Override
 	public List<Position> findAll() {
-		return positionRepository.findAll();
+		return positionRepository.findByCompanyId(companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public List<Position> findAllWithEnabledPercent() {
-		return positionRepository.findByIsPositionUsePercentOfSalesIsTrue();
+		return positionRepository.findByIsPositionUsePercentOfSalesIsTrueAndCompanyId(companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public void update(Position position) {
 		checkForNotNew(position);
 		checkForUniqueName(position);
+		setCompany(position);
 		positionRepository.saveAndFlush(position);
 	}
 
@@ -61,7 +76,7 @@ public class PositionServiceImpl implements PositionService {
 
 	@Override
 	public Position findByName(String name) {
-		return positionRepository.findByName(name);
+		return positionRepository.findByNameAndCompanyId(name, companyIdCache.getCompanyId());
 	}
 
 	@Override

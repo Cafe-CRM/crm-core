@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="referralBonus">
+    <div class="row">
+        <h2 align="center">Установка реферального бонуса</h2>
+        <div class="errorMessage"></div>
+        <br/>
+    </div>
+    <div class="row">
+        <div class="form-group" align="center">
+            <label class="col-md-5 col-md-offset-2"><h4>Реферальный бонус</h4></label>
+            <div class="col-md-3 ">
+                <input type="number" class="form-control" name="refBonus" placeholder="Бонус" id="inputPriceRefBonus" title="только цифры" min="0" required="required"/>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/company/configuration/step/refferalBonus.js}"></script>
+</div>
+</body>
+</html>

@@ -6,9 +6,11 @@ import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.cost.Cost;
 import com.cafe.crm.models.note.NoteRecord;
 import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.models.shift.UserSalaryDetail;
 import com.cafe.crm.models.template.Template;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.email.EmailService;
+import com.cafe.crm.services.interfaces.salary.UserSalaryDetailService;
 import com.cafe.crm.services.interfaces.template.TemplateService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.services.interfaces.vk.VkService;
@@ -35,7 +37,6 @@ import java.util.*;
  * Перед выполнением запросов к API необходимо получить ключ доступа access_token.<br/>
  * Необходимо перенаправить браузер пользователя по адресу https://oauth.vk.com/authorize.<br/>
  * Пример запроса:<br/>
- * https://oauth.vk.com/authorize?client_id=6172460&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=messages,offline&response_type=token&v=5.68&state=123456
  * (@link https://oauth.vk.com/authorize?client_id=1&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=messages,offline&response_type=token&v=5.68&state=123456}
  * Где, client_id - идентификатор вашего приложения,
  * 		display - тип отображения страницы авторизации,
@@ -72,14 +73,16 @@ public class VkServiceImpl implements VkService {
 	private final VkProperties vkProperties;
 	private final EmailService emailService;
 	private final UserService userService;
+	private final UserSalaryDetailService userSalaryDetailService;
 
 	@Autowired
-	public VkServiceImpl(TemplateService templateService, RestTemplate restTemplate, VkProperties vkProperties, EmailService emailService, UserService userService) {
+	public VkServiceImpl(TemplateService templateService, RestTemplate restTemplate, VkProperties vkProperties, EmailService emailService, UserService userService, UserSalaryDetailService userSalaryDetailService) {
 		this.templateService = templateService;
 		this.restTemplate = restTemplate;
 		this.vkProperties = vkProperties;
 		this.emailService = emailService;
 		this.userService = userService;
+		this.userSalaryDetailService = userSalaryDetailService;
 	}
 
 	@Override
@@ -140,20 +143,21 @@ public class VkServiceImpl implements VkService {
 	}
 
 	private String getComment(String comment) {
-		return StringUtils.isEmpty(comment) ? "\nКомментарий :\nОтсутсвует!" : "\nКомментарий :\n" + comment;
+		return StringUtils.isEmpty(comment) ? "" : "\nКомментарий :\n" + comment + "\n";
 	}
 
 	private double formatCostsAndGetSalariesCost(Shift shift, StringBuilder salaries) {
 		DecimalFormat df = new DecimalFormat("#.##");
 		double salaryCost = 0d;
 		for (User user : shift.getUsers()) {
+			UserSalaryDetail userOnShiftSalary = userSalaryDetailService.findFirstByUserIdAndShiftId(user.getId(), shift.getId());
 			salaries
 				.append(user.getFirstName())
 				.append(" ")
 				.append(user.getLastName())
-				.append(" - ").append(df.format(user.getShiftSalary() + user.getBonus()))
+				.append(" - ").append(df.format(userOnShiftSalary.getSalary()))
 				.append(System.getProperty("line.separator"));
-			salaryCost += user.getShiftSalary() + user.getBonus();
+			salaryCost += userOnShiftSalary.getSalary();
 		}
 		if (salaries.length() > 0) {
 			salaries.deleteCharAt(salaries.length() - 1);
@@ -163,11 +167,16 @@ public class VkServiceImpl implements VkService {
 		return salaryCost;
 	}
 
-	private double formatCostsAndGetOtherCosts(List<Cost> costs, StringBuilder otherCosts) {
+	private double formatCostsAndGetOtherCosts(Set<Cost> costs, StringBuilder otherCosts) {
 		DecimalFormat df = new DecimalFormat("#.##");
 		double otherCost = 0d;
+		boolean needGiveNameToOtherCosts = true;
 		for (Cost cost : costs) {
 			otherCost += cost.getPrice() * cost.getQuantity();
+			if (needGiveNameToOtherCosts) {
+				otherCosts.append("\nПрочие расходы:\n");
+			}
+			needGiveNameToOtherCosts = false;
 			otherCosts
 				.append(cost.getName())
 				.append(" - ").append(df.format(cost.getPrice() * cost.getQuantity()))
@@ -175,8 +184,6 @@ public class VkServiceImpl implements VkService {
 		}
 		if (otherCosts.length() > 0) {
 			otherCosts.deleteCharAt(otherCosts.length() - 1);
-		} else {
-			otherCosts.append("Отсутствуют!");
 		}
 		return otherCost;
 	}
@@ -231,10 +238,13 @@ public class VkServiceImpl implements VkService {
 	}
 
 	private String getNotes(List<NoteRecord> noteRecords) {
+		if ((noteRecords == null) || (noteRecords.size() == 0)) {
+			return "";
+		}
 		StringBuilder sb = new StringBuilder();
 		for (NoteRecord noteRecord : noteRecords) {
 			sb.append(noteRecord.getName()).append(" : ").append(noteRecord.getValue()).append(System.getProperty("line.separator"));
 		}
-		return sb.toString();
+		return "\nЗаметки :\n" + sb.toString();
 	}
 }

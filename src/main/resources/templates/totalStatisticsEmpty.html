@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+    <link rel="stylesheet" th:href="@{/css/costs.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/statisticTabs.css}" type="text/css"/>
+</head>
+<body>
+<div th:replace="bossnavbar :: bossNavbar"></div>
+
+<div class="col-md-7 col-sm-offset-3">
+    <div style="margin-top: 10%; text-align: center;">
+        <h2 style="color: floralwhite;">Нет данных для отображения статистики</h2>
+    </div>
+    <hr/>
+    <div class="tabbed">
+        <input type="radio" name="tabs" id="tab-nav-1" checked=""/>
+        <label for="tab-nav-1">Клиенты</label>
+        <input type="radio" name="tabs" id="tab-nav-2"/>
+        <label for="tab-nav-2">Смены</label>
+        <input type="radio" name="tabs" id="tab-nav-3"/>
+        <label for="tab-nav-3">Сотрудники</label>
+        <input type="radio" name="tabs" id="tab-nav-4"/>
+        <label for="tab-nav-4">Прочие расходы</label>
+        <input type="radio" name="tabs" id="tab-nav-5"/>
+        <label for="tab-nav-5">Долги</label>
+
+        <div class="tabs">
+            <div class="table">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th> Общий чек</th>
+                            <th> Оплата наличными</th>
+                            <th> Оплата по клубной карте</th>
+                            <th> Стоимость прочего меню</th>
+                            <th> Стоимость грязного меню</th>
+                            <th> Стоимость времени</th>
+                        </tr>
+
+                        </thead>
+                        <tbody id="clients">
+
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th> Дата</th>
+                            <th></th>
+                            <th> Касса</th>
+                            <th></th>
+                            <th> Прибыль грязными</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="table">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th> ФИО</th>
+                            <th> Должность</th>
+                            <th> Зарплата</th>
+                            <th> Бонус</th>
+                            <th> Оклад за смену</th>
+                            <th> Количество смен</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="table">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th> Дата</th>
+                            <th> Описание</th>
+                            <th> Категория</th>
+                            <th> Цена</th>
+                            <th> Количество</th>
+                            <th> Сумма</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th> Всего</th>
+                            <th> Дата</th>
+                            <th> Прайс</th>
+                            <th> Должник</th>
+                            <th> Состояние</th>
+                        </tr>
+                        </thead>
+                        <tbody id="givenPrice">
+
+                        </tbody>
+                        <tbody id="repaidPrice">
+
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/bossChangePassword :: BossChangePassword">
+</div>
+<div th:replace="media/advertisingDispatch :: advertising"></div>
+<script th:src="@{/js/mail.js}"></script>
+<script th:src="@{/js/clients/clients.js}"></script>
+<script th:src="@{/js/totalStatistics.js}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.6/prefixfree.min.js"></script>
+</body>
+</html>

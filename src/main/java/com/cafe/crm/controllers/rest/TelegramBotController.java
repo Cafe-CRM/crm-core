@@ -1,11 +1,13 @@
 package com.cafe.crm.controllers.rest;
 
-import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.board.BoardService;
 import com.cafe.crm.services.interfaces.calculate.CalculateService;
+import com.cafe.crm.services.interfaces.client.ClientService;
 import com.cafe.crm.services.interfaces.user.UserService;
+import com.cafe.crm.utils.JsonField;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +21,13 @@ public class TelegramBotController {
 
 	private final BoardService boardService;
 	private final UserService userService;
+	private final ClientService clientService;
 
 	@Autowired
-	public TelegramBotController(BoardService boardService, UserService userService) {
+	public TelegramBotController(BoardService boardService, UserService userService, ClientService clientService) {
 		this.boardService = boardService;
 		this.userService = userService;
+		this.clientService = clientService;
 	}
 
 	@Autowired
@@ -31,14 +35,15 @@ public class TelegramBotController {
 
 	@RequestMapping(value = "/manager/rest/Table", method = RequestMethod.GET)
 	@ResponseBody
-	public List<Board> getListOpenTables() {
+	@JsonView(JsonField.Board.class)
+	public List<com.cafe.crm.models.board.Board> getListOpenTables() {
 		return boardService.getAllOpen();
 	}
 
 	@RequestMapping(value = "/manager/rest/clientsNumber", method = RequestMethod.GET)
 	@ResponseBody
 	public Integer getIdLastClient() {
-		return calculateService.getAllOpen().stream().map(Calculate::getClient).mapToInt(List::size).sum();
+		return Integer.parseInt(clientService.getLast().getId().toString());
 	}
 
 	@RequestMapping(value = "/authenticationTelegramBotUsers", method = RequestMethod.POST)
@@ -46,10 +51,8 @@ public class TelegramBotController {
 	public User checkAuthCredentials(@RequestParam(value = "username") String username,
 	                                        @RequestParam(value = "password") String password) {
 		User userInDB;
-		if (matchEmail(username)) {
-			userInDB = userService.findByEmail(username);
-		} else if (matchPhone(username)) {
-			userInDB = userService.findByPhone(username);
+		if (matchEmail(username) || matchPhone(username)) {
+			userInDB = userService.findByUsername(username);
 		} else {
 			return new User();
 		}

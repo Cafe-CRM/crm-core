@@ -34,7 +34,6 @@ public class CalculateController {
 	private final CalculateService calculateService;
 	private final BoardService boardService;
 	private final ProductService productService;
-	private final ShiftService shiftService;
 	private final DiscountService discountService;
 	private final CategoriesService categoriesService;
 	private final ChecklistService checklistService;
@@ -45,7 +44,6 @@ public class CalculateController {
 		this.clientService = clientService;
 		this.categoriesService = categoriesService;
 		this.calculateService = calculateService;
-		this.shiftService = shiftService;
 		this.boardService = boardService;
 		this.discountService = discountService;
 		this.calculateControllerService = calculateControllerService;
@@ -181,18 +179,6 @@ public class CalculateController {
 	                                      @RequestParam(value = "paidAmount", required = false) Double paidAmount) {
 		calculateControllerService.closeClientDebt(debtorName, clientsId, calculateId, paidAmount);
 		return ResponseEntity.ok("Долг добавлен!");
-	}
-
-	@RequestMapping(value = {"/change-round-state"}, method = RequestMethod.POST)
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void changeRoundState(@RequestParam("calculateId") Long calculateId) {
-		Calculate calculate = calculateService.getAllOpenOnCalculate(calculateId);
-		if (calculate.isRoundState()) {
-			calculate.setRoundState(false);
-		} else {
-			calculate.setRoundState(true);
-		}
-		calculateService.save(calculate);
 	}
 
 	@ExceptionHandler(value = {DebtDataException.class, ClientDataException.class})

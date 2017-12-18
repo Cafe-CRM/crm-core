@@ -1,8 +1,11 @@
 package com.cafe.crm.models.client;
 
+import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.card.Card;
 import com.cafe.crm.models.discount.Discount;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.yc.easytransformer.annotations.NotTransform;
+import com.yc.easytransformer.annotations.Transform;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -15,7 +18,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "clients")
-public class Client {
+@Transform(Client.class)
+public class Client extends BaseEntity {
 	@Id
 	@GeneratedValue
 	private Long id;
@@ -28,6 +32,7 @@ public class Client {
 
 	private boolean pausedIndex = false;     // true - if was pause
 
+	@NotTransform
 	private LocalDateTime timeStart;
 
 	private boolean state = true;// Open or Closed
@@ -45,6 +50,7 @@ public class Client {
 
 	private Double cache = 0D;// ready money
 
+	@NotTransform
 	private LocalTime passedTime;
 
 	private Double priceMenu = 0D;
@@ -52,6 +58,7 @@ public class Client {
 	private Double priceTime = 0D;
 
 	@NotNull
+	@NotTransform
 	private Double payWithCard = 0D;
 
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -59,12 +66,15 @@ public class Client {
 	@JoinTable(name = "client_layer_product",
 			joinColumns = {@JoinColumn(name = "client_id", referencedColumnName = "id")},
 			inverseJoinColumns = {@JoinColumn(name = "layer_product_id", referencedColumnName = "id")})
+	@NotTransform
 	private List<LayerProduct> layerProducts;
 
 	@ManyToOne
+	@NotTransform
 	private Card card;
 
 	@ManyToOne
+	@NotTransform
 	private Discount discountObj;
 
 	public Client() {

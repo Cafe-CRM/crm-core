@@ -1,7 +1,11 @@
 package com.cafe.crm.models.client;
 
+import com.cafe.crm.dto.CalculateDTO;
+import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.card.Card;
+import com.yc.easytransformer.annotations.NotTransform;
+import com.yc.easytransformer.annotations.Transform;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -10,7 +14,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "calculation")
-public class Calculate {
+@Transform(CalculateDTO.class)
+public class Calculate extends BaseEntity {
 	@Id
 	@GeneratedValue
 	private Long id;
@@ -21,17 +26,16 @@ public class Calculate {
 
 	private boolean state = true; // Open or Closed
 
-	private boolean roundState = true;
-
 	private boolean isPause = false;  // now is paused ?
 
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER)
 	private List<Client> client;
 
 	@ManyToOne
 	private Board board;
 
 	@ManyToMany
+	@NotTransform
 	private List<Card> cards;
 
 	public Calculate() {
@@ -43,14 +47,6 @@ public class Calculate {
 
 	public void setPause(boolean pause) {
 		isPause = pause;
-	}
-
-	public boolean isRoundState() {
-		return roundState;
-	}
-
-	public void setRoundState(boolean roundState) {
-		this.roundState = roundState;
 	}
 
 	public List<Card> getCards() {

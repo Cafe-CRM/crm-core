@@ -147,9 +147,9 @@ public class CostController {
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> delete(@RequestParam(name = "costId") Long id) {
-		costService.offVisibleStatus(id);
+		costService.delete(id);
 
-		return ResponseEntity.ok("Товар успешно удален!");
+		return ResponseEntity.ok("Расход успешно удален!");
 	}
 
 	@RequestMapping(value = "/delete/all", method = RequestMethod.POST)

@@ -10,7 +10,7 @@ $(document).ready(function () {
                 data: formData,
                 success: function (data) {
 
-                    var successMessage = '<h3 style="color:green;" align="center">' + "Вы успешно перевели сумму на карту: " + $("#transferBankCashBox").val() + '</h3>';
+                    var successMessage = '<h3 style="color:lightblue;" align="center">' + "Вы успешно перевели сумму на карту: " + $("#transferBankCashBox").val() + '</h3>';
                     $('.messageAd').html(successMessage).show();
                     $('#cashBox').text(data[0]);
                     $('#bankCashBox').text(data[1]);
@@ -41,7 +41,7 @@ $(document).ready(function () {
                 data: formData,
                 success: function (data) {
 
-                    var successMessage = '<h3 style="color:green;" align="center">' + "Вы успешно перевели сумму в кассу: " + $("#transferCashBox").val() + '</h3>';
+                    var successMessage = '<h3 style="color:lightblue;" align="center">' + "Вы успешно перевели сумму в кассу: " + $("#transferCashBox").val() + '</h3>';
                     $('.messageAd').html(successMessage).show();
                     $('#cashBox').text(data[0]);
                     $('#bankCashBox').text(data[1]);

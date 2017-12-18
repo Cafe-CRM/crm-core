@@ -1,17 +1,6 @@
-# Database settings
 spring:
-  datasource:
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/world?serverTimezone=Europe/Moscow
-    username: root
-    password: root
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.MySQL5Dialect
-    show-sql: false
-    database: default
+  profiles:
+    active: "dev"
   thymeleaf:
     cache: false
     encoding: UTF-8
@@ -41,6 +30,9 @@ logging:
 
 time:
  server: ntp.xs4all.nl,ntp04.oal.ul.pt,ntp02.oal.ul.pt,time-a.nist.gov
+
+defaultUser:
+  roles: BOSS,MANAGER
 
 advertising:
   mail:
@@ -88,3 +80,21 @@ vk:
 
 card:
  enable: false  # Включить, отключить рекламу (true false)
+
+reCaptcha:
+  apiUrl: https://www.google.com/recaptcha/api/siteverify
+  secretKey: 6LcmCzMUAAAAAAnMaxexPbqr8oNzYzke-gcPTYFz
+
+
+
+property:
+  name:
+    masterKey: masterKey
+    price:
+      firstHour: Цена за первый час
+      nextHours: Цена за последующие часы
+      refBonus: Реферальный бонус
+    vk: vk
+
+mail:
+  default-smtp: smtp.gmail.com

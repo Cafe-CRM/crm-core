@@ -1,0 +1,70 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+
+<head>
+    <title>Общая админка</title>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+    <link rel="stylesheet" th:href="@{/css/accounting.css}" type="text/css"/>
+    <link rel="stylesheet"
+          href="http://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css"/>
+    <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
+</head>
+
+<body>
+<div th:replace="bossnavbar :: bossNavbar"></div>
+<div class="container">
+    <div class="tab-content" style="margin-top:80px">
+        <div roles="tabpanel" class="tab-pane fade in active" id="vtab1">
+            <div class="row">
+                <div class="col-sm-12">
+                    <ul id="nav-tabs-wrapper" class="nav nav-tabs nav-tabs-horizontal">
+                        <li class="active" style="width: 280px"><a href="#allUserTab" data-toggle="tab"><h4
+                                style="color: #5bc0de">Таблица Всех Пользователей</h4></a></li>
+                        <li th:each="usersByRole : ${usersByRoles}"><a
+                                th:href="'#htab' + ${usersByRole.key.id}" style="width: 280px" data-toggle="tab"><h4
+                                style="color: #5bc0de"
+                                th:text="'С ролью ' + ${usersByRole.key.name}"></h4></a></li>
+                        <li><a href="#allRoleTab" style="width: 280px" data-toggle="tab"><h4 style="color: #5bc0de">
+                            Таблица Всех Ролей</h4></a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div roles="tabpanel" class="tab-pane fade in active" id="allUserTab">
+                            <h1 class="custom" style="color: #5bc0de" align="center">Таблица Всех Пользователей</h1>
+                            <h3 align="center" style="color: #5bc0de">Фильтр По Всем Полям</h3>
+                            <input id="filter" style="margin-bottom: 10px" type="text" class="form-control"
+                                   placeholder="Поиск по полям"/>
+                            <div th:replace="supervisor/fragments/table/tableUsersForAllUsersPanel :: userList"></div>
+                        </div>
+                        <div th:each="usersByRole : ${usersByRoles}" th:remove="tag">
+                            <div roles="tabpanel" class="tab-pane fade" th:id="'htab' + ${usersByRole.key.id}">
+                                <h1 class="custom" style="color: #5bc0de" align="center"
+                                    th:text="'С ролью ' + ${usersByRole.key.name}"></h1>
+                                <h3 align="center" style="color: #5bc0de">Фильтр По Всем Полям</h3>
+                                <input id="filter2" style="margin-bottom: 10px" type="text" class="form-control"
+                                       placeholder="Поиск по полям"/>
+                                <div th:replace="supervisor/fragments/table/tableUsersForUsersByRolePanel :: usersByRole"></div>
+                            </div>
+                        </div>
+                        <div roles="tabpanel" class="tab-pane fade" id="allRoleTab">
+                            <h1 class="custom" style="color: #5bc0de" align="center">Таблица Всех Ролей</h1>
+                            <h3 align="center" style="color: #5bc0de">Фильтр По Всем Полям</h3>
+                            <input id="filter4" style="margin-bottom: 10px" type="text" class="form-control"
+                                   placeholder="Поиск по полям"/>
+                            <div th:replace="supervisor/fragments/table/tableRoles :: tableRole"></div>
+                            <div th:replace="supervisor/fragments/modal/modalAddRole :: addRole"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/bossChangePassword :: BossChangePassword"></div>
+<div th:replace="media/advertisingDispatch :: advertising"></div>
+<script th:src="@{/js/supervisor/supervisor.js}"></script>
+<script th:src="@{/js/filter.js}"></script>
+<script th:src="@{/js/mail.js}"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="mail">
+    <div class="row">
+        <h2 align="center">Установка gmail почты</h2>
+        <div class="errorMessage"></div>
+        <br/>
+    </div>
+    <div class="row">
+        <div class="form-group" align="center">
+            <label class="col-md-5 col-md-offset-2"><h4>Название настроек</h4></label>
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="settingsName" placeholder="Название настроек" id="inputMailSettingsName" required="required"/>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group" align="center">
+            <label class="col-md-5 col-md-offset-2"><h4>Email</h4></label>
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="email" placeholder="Адрес электронной почты" id="inputMailEmail" pattern="^[\w.+\-]+@gmail\.com$"
+                       title="Не верный формат e-mail, пример mail@gmail.com" required="required"/>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group" align="center">
+            <label class="col-md-5 col-md-offset-2"><h4>Пароль</h4></label>
+            <div class="col-md-4">
+                <input type="password" class="form-control" name="password" placeholder="Пароль" id="inputMailPassword" required="required"/>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/company/configuration/step/mail.js}"></script>
+</div>
+</body>
+</html>

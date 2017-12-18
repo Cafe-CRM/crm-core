@@ -11,35 +11,34 @@
 
 <div class="container" style="margin-top: 5%;">
 
-    <h2 align="center" style="color: #5bc0de">Дата смены: <span th:text="${shiftView.shiftDate}"></span></h2>
+    <h2 align="center" style="color: #5bc0de">Дата смены: <span th:text="${detailStatisticView.shiftDate}"></span></h2>
 </div>
 <hr></hr>
 
 <div class="container" style="width: 70%">
     <div class="col-md-2" style="margin-left: 10%">
         <h4 style="color: #5bc0de;">Касса</h4>
-        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(shiftView.cashBox,0)}"></span>
+        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(detailStatisticView.cashBox,0)}"></span>
         <br></br>
     </div>
     <div class="col-md-2 ">
         <h4 style="color: #5bc0de;">Прибыль грязными</h4>
-        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(shiftView.allPrice,0)}"></span>
+        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(detailStatisticView.allPrice,0)}"></span>
         <br></br>
     </div>
     <div class="col-md-2 ">
         <h4 style="color: #5bc0de;">Прочие расходы</h4>
-        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(allOtherCost,0)}"></span>
+        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(detailStatisticView.allOtherCost,0)}"></span>
         <br></br>
     </div>
     <div class="col-md-2 ">
         <h4 style="color: #5bc0de;">Зарплатные расходы</h4>
-        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(allSalaryCost,0)}"></span>
+        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(detailStatisticView.allSalaryCost,0)}"></span>
         <br></br>
     </div>
-
     <div class="col-md-2 ">
         <h4 style="color: #5bc0de;">Количество клиентов</h4>
-        <span style="color: white;font-size: 30px" th:text="${shiftView.clients.size()}"></span>
+        <span style="color: white;font-size: 30px" th:text="${detailStatisticView.clientsNumber}"></span>
         <br/>
     </div>
 </div>
@@ -53,11 +52,13 @@
 
     <div id="billsOnShift" class="collapse">
         <div class="table">
-            <table class="table table-striped" th:each="calc : ${shiftView.allCalculate}">
+            <table class="table table-striped" th:each="calc : ${detailStatisticView.allCalculate}">
                 <thead>
                 <tr>
                     <th> Описание</th>
                     <th> Описание стола</th>
+                    <th> Время посадки</th>
+                    <th> Общая стоимость счетов</th>
                     <th> Количество клиентов</th>
                     <th style="width: 90px"></th>
                 </tr>
@@ -67,6 +68,8 @@
                     <td th:if="${calc.description}==null" th:text="Описание+' '+ отсутствует"></td>
                     <td th:if="${calc.description}!=null" th:text="${calc.description}"></td>
                     <td th:each="board:${calc.board}" th:text="${board.name}"></td>
+                    <td th:text="${#temporals.format(calc.client.get(0).timeStart, 'dd.MM HH:mm')}"></td>
+                    <td th:id="commonPrice+${calc.id}"></td>
                     <td th:text="${calc.client.size()}"></td>
                     <td class="tr-wrapper" style="text-align: left">
                         <button th:id="'billsButton' + ${calc.id}" type="button" class="btn btn-info" style="margin-bottom: 1%">
@@ -75,34 +78,35 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="tr-wrapper" colspan="4">
+                    <td class="tr-wrapper" colspan="6">
                         <div th:id="'billsOnShift' + ${calc.id}" style="display: none">
                             <table class="table table-striped nested-table">
                                 <thead>
                                 <tr>
-                                    <th> Время посадки</th>
                                     <th> Проведенное время</th>
                                     <th> Стоимость времени</th>
                                     <th> Скидка</th>
                                     <th> Скидка по карте</th>
-                                    <th> Общая стоимость счета</th>
                                     <th> Оплата наличными</th>
                                     <th> Стоимость меню</th>
                                     <th th:if="${cardEnable}"> Оплата по клубной карте</th>
                                 </tr>
                                 </thead>
-                                <tbody th:each="client : ${calc.client}">
-                                <tr>
-                                    <td th:text="${client.timeStart}"></td>
+                                <tbody th:id="clients+${calc.id}">
+                                <tr th:each="client : ${calc.client}">
                                     <td th:text="${client.passedTime}"></td>
                                     <td th:text="${client.priceTime}"></td>
                                     <td th:text="${client.discount}"></td>
                                     <td th:text="${client.discountWithCard}"></td>
-                                    <td th:text="${client.allPrice}"></td>
                                     <td th:text="${client.cache}"></td>
                                     <td th:text="${client.priceMenu}"></td>
                                     <td th:if="${cardEnable}" th:text="${client.payWithCard}"></td>
 
+                                    <script th:inline="javascript" type="text/javascript">
+                                        jQuery(document).ready( function() {
+                                            setPrice([[${client.allPrice}]]);
+                                        });
+                                    </script>
                                 </tr>
                                 </tbody>
                             </table>
@@ -116,51 +120,20 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
                 </tfoot>
                 <script th:inline="javascript" type="text/javascript">
                     jQuery(document).ready( function() {
                         var buttonId = '#billsButton' + [[${calc.id}]];
                         var billsOnShiftId = '#billsOnShift' + [[${calc.id}]];
+                        insertTotalPrice('commonPrice'+[[${calc.id}]]);
                         jQuery(buttonId).click(function(){
                                 $(billsOnShiftId).slideToggle('fast');
                         });
                     });
                 </script>
-            </table>
-        </div>
-    </div>
-
-
-
-    <center>
-        <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#salary" style="margin-bottom: 1%">Зарплатные расходы
-        </button>
-    </center>
-    <div id="salary" class="collapse">
-        <div class="table">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th> Дата</th>
-                    <th> ФИО</th>
-                    <th> Зарплата</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="user : ${shiftView.usersOnShift}">
-                    <td th:text="${shiftView.shiftDate}"></td>
-                    <td th:text="${user.firstName + ' ' + user.lastName}"></td>
-                    <td th:text="${user.shiftSalary + user.bonus}"></td>
-                </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                </tfoot>
             </table>
         </div>
     </div>
@@ -181,7 +154,7 @@
                     <th> Сумма</th>
                 </tr>
                 </thead>
-                <tbody th:each="listOfOtherCosts : ${listOfOtherCosts}">
+                <tbody th:each="listOfOtherCosts : ${detailStatisticView.otherCost}">
                 <tr>
                     <td th:text="${listOfOtherCosts.date}"></td>
                     <td th:text="${listOfOtherCosts.name}"></td>
@@ -197,6 +170,39 @@
                 <tr>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <center>
+        <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#debts" style="margin-bottom: 1%">
+            Долги и приходы
+        </button>
+    </center>
+    <div id="debts" class="collapse">
+        <div class="table">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th> Возврат долга</th>
+                    <th> Остаток долга</th>
+                    <th> Приходы за смену</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td th:text="${#numbers.formatInteger(detailStatisticView.repaidDebts,0)}"></td>
+                    <td th:text="${#numbers.formatInteger(detailStatisticView.givenDebts,0)}"></td>
+                    <td th:text="${#numbers.formatInteger(detailStatisticView.receiptsSum,0)}"></td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -226,7 +232,7 @@
                     <th> Бонус</th>
                 </tr>
                 </thead>
-                <tbody th:each="user : ${shiftView.usersOnShift}">
+                <tbody th:each="user : ${detailStatisticView.usersOnShift}">
                 <tr>
                     <td th:text="${user.firstName}"></td>
                     <td th:text="${user.lastName}"></td>
@@ -234,7 +240,7 @@
                     <td th:text="${user.email}"></td>
                     <td th:text="${user.phone}"></td>
                     <td th:text="${user.shiftSalary}"></td>
-                    <td th:text="${user.salary + user.bonus}"></td>
+                    <td th:text="${user.salary}"></td>
                     <td th:text="${user.bonus}"></td>
                 </tr>
                 </tbody>
@@ -254,5 +260,6 @@
         </div>
     </div>
 </div>
+<script th:src="@{/js/shiftDetail.js}"></script>
 </body>
 </html>

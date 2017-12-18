@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+
+<div th:fragment="addRole" th:remove="tag">
+    <button type="button" class="btn btn-lg btn-primary btn-block"
+            data-toggle="modal" data-target="#modalNewRole">Добавить Новую Роль
+    </button>
+    <!-- Modal -->
+    <div id="modalNewRole" class="modal fade" roles="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Форма Добавления Новой Роли</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="errorMessage"></div>
+                    <form class="formAddRole form-horizontal">
+                        <div class="form-group">
+                            <label for="role" class="col-md-4 control-label">Название роли</label>
+                            <div class="col-md-6">
+                                <input type="text" id="role" class="form-control" placeholder="Введите название роли"
+                                       required="required" autofocus="" name="name" pattern=".{1,}"
+                                       title="Поле Роль не должно быть пустым"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <button class="btn btn-lg btn-primary btn-block" type="submit">Добавить Роль В Базу
+                            Данных
+                        </button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

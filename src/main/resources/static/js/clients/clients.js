@@ -248,7 +248,7 @@ function createLayerProductAjax(prodId, calcId) {
 
 function createLayerProductWithFloatingPriceAjax(prodId, calcId, inputId) {
     $('#productId' + calcId).val(prodId);
-    var price = $(('#' + inputId) + prodId).val();
+    var price = $(('#' + inputId) + prodId + calcId).val();
     if (price == "" || price <= 0) {
         return false;
     }
@@ -414,20 +414,6 @@ function prog(calcId) {
         }, 10);
 }
 
-function roundState(calcId, state) {
-    if (state == 'true') {
-        $('#rek' + calcId).html('<p style="margin: 0;font-size: 20px">Не округлено</p>');
-        $('#rek' + calcId).attr('onclick', 'roundState(' + '"' + calcId + '"' + ',' + '"' + false + '"' + ')');
-    } else {
-        $('#rek' + calcId).html('<p style="margin: 0;font-size: 20px">Округлено</p>');
-        $('#rek' + calcId).attr('onclick', 'roundState(' + '"' + calcId + '"' + ',' + '"' + true + '"' + ')')
-    }
-    $('#formRoundState' + calcId).submit();
-    setTimeout(function () {
-        ajaxForCalculate(calcId)
-    }, 500);
-}
-
 function closeClientDebt(calculateId) {
     if (isBlank($('#debtorName' + calculateId).val())) {
         var errorMessage = '<h4 style="color:red;" align="center">' + 'Обязательно укажите имя должника!' + '</h4>';
@@ -479,55 +465,6 @@ function removeDebtBoss(id) {
     var request = $.post(url, {debtId: id}, function () {
         location.reload();
     });
-}
-
-function getSumPay() {
-    var totalSum = [0, 0, 0, 0];
-    Array.from(document.getElementById("clients").rows).forEach(
-        function(item) {
-        if(item.querySelector('.commonCheck')) {
-            totalSum[0] += +item.querySelector('.commonCheck').innerHTML;
-        }
-        if(item.querySelector('.cashPayment')) {
-            totalSum[1] += +item.querySelector('.cashPayment').innerHTML;
-        }
-        if(item.querySelector('.menuCost')) {
-            totalSum[2] += +item.querySelector('.menuCost').innerHTML;
-        }
-        if(item.querySelector('.timeCost')) {
-            totalSum[3] += +item.querySelector('.timeCost').innerHTML;
-        }
-    });
-    document.getElementById("commonCheckSum").innerHTML += " " + totalSum[0];
-    document.getElementById("cashPaymentSum").innerHTML += " " + totalSum[1];
-    document.getElementById("menuCostSum").innerHTML += " " + totalSum[2];
-    document.getElementById("timeCostSum").innerHTML += " " + totalSum[3];
-}
-function getSumPayWith() {
-    var totalSum = [0, 0, 0, 0, 0];
-    Array.from(document.getElementById("clients").rows).forEach(function(item) {
-        if(item.querySelector('.commonCheck')) {
-            totalSum[0] += +item.querySelector('.commonCheck').innerHTML;
-        }
-        if(item.querySelector('.cashPayment')) {
-            totalSum[1] += +item.querySelector('.cashPayment').innerHTML;
-        }
-        if(item.querySelector('.clubCardPayment')) {
-            totalSum[2] += +item.querySelector('.clubCardPayment').innerHTML;
-        }
-        if(item.querySelector('.menuCost')) {
-            totalSum[3] += +item.querySelector('.menuCost').innerHTML;
-        }
-        if(item.querySelector('.timeCost')) {
-            totalSum[4] += +item.querySelector('.timeCost').innerHTML;
-        }
-    });
-    document.getElementById("commonCheckSum").innerHTML += " " + totalSum[0];
-    document.getElementById("cashPaymentSum").innerHTML += " " + totalSum[1];
-    document.getElementById("clubCardPaymentSum").innerHTML += " " + totalSum[2];
-    document.getElementById("menuCostSum").innerHTML += " " + totalSum[3];
-    document.getElementById("timeCostSum").innerHTML += " " + totalSum[4];
-
 }
 
 function setClientTimePause(clientId) {

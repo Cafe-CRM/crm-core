@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="vk">
+    <h3>Настройка получения сообщений из CRM в беседу VK</h3>
+    <br/>
+    <input type="button" class="btn btn-info" id="showVKInputButton" value="Ввести данные для настройки сообщений в VK"
+           style="width:400px;"/>
+    <br/>
+    <br/>
+    <input type="button" class="btn btn-info" id="appRegistrationButton" value="Инструкция по настройке сообщений в VK"
+           style="width:400px;"/>
+    <div id="VKSettingsInput">
+        <div class="row">
+            <div class="form-group" align="center">
+                <label class="col-md-5 col-md-offset-2"><h4>Access token</h4></label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="accessToken" placeholder="Токен доступа"
+                           id="inputAccessToken" required="required"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group" align="center">
+                <label class="col-md-5 col-md-offset-2"><h4>Application ID</h4></label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="applicationId" placeholder="Идентификатор устройства"
+                           id="inputApplicationId" required="required"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group" align="center">
+                <label class="col-md-5 col-md-offset-2"><h4>Chat ID</h4></label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="chatId" placeholder="Идентификатор чата"
+                           id="inputChatId" required="required"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group" align="center">
+                <label class="col-md-5 col-md-offset-2"><h4>Template name</h4></label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="messageName" placeholder="Название сообщения"
+                           id="inputMessageName" required="required" value="daily-report"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group" align="center">
+                <label class="col-md-5 col-md-offset-2"><h4>API Version</h4></label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="apiVersion" placeholder="Версия API"
+                           id="inputApiVersion" required="required" value="5.68"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="appRegistrationBlock">
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 10px; margin-bottom: 10px">
+                Регистрируйте приложение, которое будет пересылать сообщения из CRM в беседу VK,
+                по <a href="https://vk.com/editapp?act=create" target="_blank">ссылке</a> <br/>
+                Выбирайте "Платформа": "Standalone-приложение" <br/>
+                После регистрации приложения переходите в меню "Настройки"<br/>
+                Меняйте "Состояние" на "Приложение включено и видно всем". Нажмите "Сохранить изменения"<br/>
+                Копируйте "ID приложения" в поле ниже и нажмите ОК
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" class="form-control" placeholder="ID приложения"
+                       id="appID" style="margin-left: 10px"/>
+            </div>
+            <div class="col-md-4">
+                <input type="button" class="btn btn-info" id="appIDButton" value="OK"/>
+            </div>
+        </div>
+    </div>
+
+    <div id="VKTokenBlock">
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 10px; margin-bottom: 10px">
+                <div style="margin-bottom: 0px" id="VKTokenLink"></div>
+                В открывшейся странице нажимайте кнопку "Разрешить" <br/>
+                Скопируйте значение адресной строки браузера в поле ниже и нажимайте ОК
+            </div>
+        </div>
+        <div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" placeholder="Значение адресной строки"
+                       id="VKTokenLine" />
+            </div>
+            <div class="col-md-4">
+                <input type="button" class="btn btn-info" id="parseTokenButton" value="OK"/>
+            </div>
+        </div>
+    </div>
+
+    <div id="VKMessageNameBlock">
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 10px; margin-bottom: 10px">
+                Название сообщения в VK<br/>
+            </div>
+        </div>
+        <div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" placeholder="Название сообщения"
+                       id="VKMessageName" value="daily-report"/>
+            </div>
+            <div class="col-md-4">
+                <input type="button" class="btn btn-info" id="VKMessageNameButton" value="OK"/>
+            </div>
+        </div>
+    </div>
+
+    <div id="VKChatBlock">
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 10px; margin-bottom: 10px">
+                Создайте беседу в VK, в которую будут приходить сообщения из CRM <br/>
+                 <a href="https://vk.com/page-2158488_47147528" target="_blank">Инструкция по созданию беседы</a> <br/>
+                После создания беседы скопируйте значение адресной строки браузера в поле ниже и нажмите ОК
+            </div>
+        </div>
+        <div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" placeholder="Значение адресной строки"
+                       id="VKChatIDLine"/>
+            </div>
+            <div class="col-md-4">
+                <input type="button" class="btn btn-info" id="parseChatIDButton" value="OK"/>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/company/configuration/step/vk.js}"></script>
+</div>
+</body>
+</html>

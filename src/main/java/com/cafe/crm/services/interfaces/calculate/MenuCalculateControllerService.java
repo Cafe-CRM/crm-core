@@ -16,6 +16,7 @@ public interface MenuCalculateControllerService {
 
     Set<LayerProduct> getProductOnCalculate(long calculateId);
 
+	void calculatePriceMenu(long calculateId);
 }
 
 

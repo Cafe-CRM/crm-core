@@ -1,6 +1,8 @@
 package com.cafe.crm.controllers.card;
 
+import com.cafe.crm.configs.property.PriceNameProperties;
 import com.cafe.crm.models.card.Card;
+import com.cafe.crm.models.property.Property;
 import com.cafe.crm.services.interfaces.board.BoardService;
 import com.cafe.crm.services.interfaces.calculate.CalculateControllerService;
 import com.cafe.crm.services.interfaces.calculate.CalculateService;
@@ -46,9 +48,11 @@ public class CardProfileController {
 	private final CalculateControllerService calculateControllerService;
 	private final PropertyService propertyService;
 	private final EmailService emailService;
+	private final PriceNameProperties priceNameProperties;
+
 
 	@Autowired
-	public CardProfileController(CardService cardService, CalculateControllerService calculateControllerService, PropertyService propertyService, CardControllerService cardControllerService, BoardService boardService, CalculateService calculateService, EmailService emailService) {
+	public CardProfileController(CardService cardService, CalculateControllerService calculateControllerService, PropertyService propertyService, CardControllerService cardControllerService, BoardService boardService, CalculateService calculateService, EmailService emailService, PriceNameProperties priceNameProperties) {
 		this.cardService = cardService;
 		this.calculateControllerService = calculateControllerService;
 		this.propertyService = propertyService;
@@ -56,6 +60,7 @@ public class CardProfileController {
 		this.boardService = boardService;
 		this.calculateService = calculateService;
 		this.emailService = emailService;
+		this.priceNameProperties = priceNameProperties;
 	}
 
 	@RequestMapping(value = {"/card/{id}"}, method = RequestMethod.GET)
@@ -117,7 +122,9 @@ public class CardProfileController {
 			if (invited != null) {
 				Card ourInvited = cardService.getOne(invited);
 				card.setWhoInvitedMe(invited);
-				card.setBalance(propertyService.getByName("price.refBonus").getValue());     // referral bonus
+				Property refBonusProperty = propertyService.findByName(priceNameProperties.getRefBonus());
+				Double balance = Double.valueOf(refBonusProperty.getValue());
+				card.setBalance(balance);
 				ourInvited.getIdMyInvitedUsers().add(idCard);
 				cardService.save(ourInvited);
 			}
@@ -174,7 +181,6 @@ public class CardProfileController {
 		return "redirect:" + referer;
 	}
 
-	// controller for card's avatar
 	@RequestMapping(value = "/card/image/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
 	public ResponseEntity<byte[]> getImage(@PathVariable("id") Long id) throws IOException {
 
@@ -189,7 +195,7 @@ public class CardProfileController {
 	public ResponseEntity<?> checkInvited(@RequestParam("searchParam") String searchParam, @RequestParam("ourId") Long ourId) {
 		Card card = cardService.checkWhoInvitedMe(searchParam);
 		List<Card> list = cardService.findByListSurname(searchParam);
-		if (card != null && card.getId() != ourId && list.size() <= 1) {
+		if (card != null && !Objects.equals(card.getId(), ourId) && list.size() <= 1) {
 			return ResponseEntity.status(HttpStatus.OK).body(card);
 		}
 		if (list.size() > 1) {

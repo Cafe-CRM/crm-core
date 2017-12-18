@@ -1,8 +1,13 @@
 package com.cafe.crm.dto;
 
 
+import com.cafe.crm.models.shift.UserSalaryDetail;
+import com.cafe.crm.models.user.User;
+import com.yc.easytransformer.annotations.Transform;
+
 import java.util.List;
 
+@Transform(User.class)
 public class UserDTO {
 
     private Long id;
@@ -14,6 +19,7 @@ public class UserDTO {
     private List<PositionDTO> positions;
     private int shiftSalary;
     private int salary;
+	private int shiftAmount;
     private int bonus;
     private boolean activated = true;
     private boolean enabled = true;
@@ -106,6 +112,14 @@ public class UserDTO {
         this.activated = activated;
     }
 
+	public int getShiftAmount() {
+		return shiftAmount;
+	}
+
+	public void setShiftAmount(int shiftAmount) {
+		this.shiftAmount = shiftAmount;
+	}
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -129,6 +143,7 @@ public class UserDTO {
                 ", bonus=" + bonus +
                 ", activated=" + activated +
                 ", enabled=" + enabled +
+				", shiftAmount" + shiftAmount +
                 '}';
     }
 

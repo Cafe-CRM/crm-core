@@ -1,8 +1,13 @@
 package com.cafe.crm.models.user;
 
+import com.cafe.crm.dto.UserDTO;
+import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.models.shift.UserSalaryDetail;
 import com.cafe.crm.utils.PatternStorage;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.yc.easytransformer.annotations.NotTransform;
+import com.yc.easytransformer.annotations.Transform;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
@@ -10,18 +15,21 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Set;
+
 
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@JsonIgnoreProperties({"password", "roles", "positions", "shifts", "shiftSalary", "salary", "bonus"})
-public class User {
+@JsonIgnoreProperties({"password", "roles", "positions", "shifts", "shiftSalary", "salary", "bonus", "userSalaryDetail"})
+@Transform(UserDTO.class)
+public class User extends BaseEntity {
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
-	@NotBlank(message = "Поле \"firsName\" не может быть пустым")
+	@NotBlank(message = "Поле \"firstName\" не может быть пустым")
 	@Column(nullable = false)
 	private String firstName;
 
@@ -44,17 +52,19 @@ public class User {
 	@ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(name = "users_roles", joinColumns = {@JoinColumn(name = "user_id")},
 			inverseJoinColumns = {@JoinColumn(name = "role_id")})
-	private List<Role> roles;
+	@NotTransform
+	private Set<Role> roles;
 
-	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(name = "users_positions", joinColumns = {@JoinColumn(name = "user_id")},
 			inverseJoinColumns = {@JoinColumn(name = "position_id")})
 	private List<Position> positions;
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "users_shifts", joinColumns = {@JoinColumn(name = "user_id")},
 			inverseJoinColumns = {@JoinColumn(name = "shift_id")})
-	private List<Shift> shifts;
+	@NotTransform
+	private Set<Shift> shifts;
 
 	@Min(value = 0, message = "Поле \"shiftSalary\" должно быть цифрой большей 0!")
 	@Max(value = Integer.MAX_VALUE, message = "Поле \"shiftSalary\" должно быть цифрой меньшей 2147483647!")
@@ -71,6 +81,10 @@ public class User {
 	private boolean activated = true;
 
 	private boolean enabled = true;
+
+	@OneToMany(mappedBy = "user")
+	@NotTransform
+	private List<UserSalaryDetail> userSalaryDetail;
 
 	public Long getId() {
 		return id;
@@ -128,11 +142,11 @@ public class User {
 		this.activated = activated;
 	}
 
-	public List<Role> getRoles() {
+	public Set<Role> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(List<Role> roles) {
+	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
 
@@ -144,11 +158,11 @@ public class User {
 		this.positions = positions;
 	}
 
-	public List<Shift> getShifts() {
+	public Set<Shift> getShifts() {
 		return shifts;
 	}
 
-	public void setShifts(List<Shift> shifts) {
+	public void setShifts(Set<Shift> shifts) {
 		this.shifts = shifts;
 	}
 
@@ -184,6 +198,14 @@ public class User {
 		this.enabled = enabled;
 	}
 
+	public List<UserSalaryDetail> getUserSalaryDetail() {
+		return userSalaryDetail;
+	}
+
+	public void setUserSalaryDetail(List<UserSalaryDetail> userSalaryDetail) {
+		this.userSalaryDetail = userSalaryDetail;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -207,23 +229,4 @@ public class User {
 		return result;
 	}
 
-	@Override
-	public String toString() {
-		return "User{" +
-				"id=" + id +
-				", firstName='" + firstName + '\'' +
-				", lastName='" + lastName + '\'' +
-				", email='" + email + '\'' +
-				", phone='" + phone + '\'' +
-				", password='" + password + '\'' +
-				", activated=" + activated +
-				", roles=" + roles +
-				", positions=" + positions +
-				", shifts=" + shifts +
-				", shiftSalary=" + shiftSalary +
-				", salary=" + salary +
-				", bonus=" + bonus +
-				", enabled=" + enabled +
-				'}';
-	}
 }

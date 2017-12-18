@@ -1,23 +1,23 @@
 package com.cafe.crm.models.shift;
 
 
+import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.cost.Cost;
 import com.cafe.crm.models.note.NoteRecord;
+import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.models.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Entity
 @Table(name = "shifts")
-public class Shift {
+public class Shift extends BaseEntity {
 
 	@Id
 	@GeneratedValue
@@ -31,10 +31,10 @@ public class Shift {
 	@Column(name = "checkValue")
 	private Integer checkValue;// after change on set<>
 
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER)
 	private Set<Calculate> calculates;
 
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER)
 	private Set<Client> clients;
 
 	@Column(name = "cash_box")
@@ -48,14 +48,21 @@ public class Shift {
 	@ManyToMany(mappedBy = "shifts", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	private List<User> users;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	private List<Debt> repaidDebts = new ArrayList<>();
+	@OneToMany(mappedBy = "shift", fetch = FetchType.EAGER)
+	private Set<UserSalaryDetail> userSalaryDetail;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	private List<Debt> givenDebts = new ArrayList<>();
+	@OneToMany(fetch = FetchType.EAGER)
+	private Set<Debt> repaidDebts = new HashSet<>();
+
+	@OneToMany(fetch = FetchType.EAGER)
+	private Set<Debt> givenDebts = new HashSet<>();
+
+	@OneToMany(mappedBy = "shift", fetch = FetchType.EAGER)
+	private Set<Cost> costs;
 
 	@OneToMany(mappedBy = "shift")
-	private List<Cost> costs;
+	private List<Receipt> receipts;
+
 
 	// TODO: 26.07.2017 Подумать над размером
 	private String comment;
@@ -88,6 +95,14 @@ public class Shift {
 		this.users = users;
 	}
 
+	public Set<UserSalaryDetail> getUserSalaryDetail() {
+		return userSalaryDetail;
+	}
+
+	public void setUserSalaryDetail(Set<UserSalaryDetail> userSalaryDetail) {
+		this.userSalaryDetail = userSalaryDetail;
+	}
+
 	public String getUsersNames() {
 		StringBuilder usersNames = new StringBuilder();
 		for (User user : users) {
@@ -106,6 +121,14 @@ public class Shift {
 
 	public double getProfit() {
 		return profit;
+	}
+
+	public List<Receipt> getReceipts() {
+		return receipts;
+	}
+
+	public void setReceipts(List<Receipt> receipts) {
+		this.receipts = receipts;
 	}
 
 	public void setProfit(double profit) {
@@ -160,7 +183,7 @@ public class Shift {
 		opened = open;
 	}
 
-	public List<Debt> getRepaidDebts() {
+	public Set<Debt> getRepaidDebts() {
 		return repaidDebts;
 	}
 
@@ -172,11 +195,11 @@ public class Shift {
 		this.givenDebts.add(debt);
 	}
 
-	public List<Cost> getCosts() {
+	public Set<Cost> getCosts() {
 		return costs;
 	}
 
-	public void setCosts(List<Cost> costs) {
+	public void setCosts(Set<Cost> costs) {
 		this.costs = costs;
 	}
 
@@ -227,11 +250,11 @@ public class Shift {
 				'}';
 	}
 
-	public List<Debt> getGivenDebts() {
+	public Set<Debt> getGivenDebts() {
 		return givenDebts;
 	}
 
-	public void setGivenDebts(List<Debt> givenDebts) {
+	public void setGivenDebts(Set<Debt> givenDebts) {
 		this.givenDebts = givenDebts;
 	}
 }

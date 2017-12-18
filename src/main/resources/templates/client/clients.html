@@ -33,9 +33,6 @@
                             <select onchange="submit();"
                                     style="width:130px; float: left; height: 34px;font-size:18px;margin-top: 5px;margin-left: 6px "
                                     class="form-control" th:form="'formRef'+${calculate.id}" name="boardId">
-                                <!--<option value="-1" th:selected="${listBoard} == null ? 'true' : 'false' ">
-                                    Нет
-                                </option>-->
                                 <p th:each="b : ${listBoard}">
                                     <option th:value="${b.id}"
                                             th:text="${b.name}"
@@ -51,22 +48,9 @@
                         <button th:id="'head1' + ${calculate.id}"
                                 th:onclick="'cookiePanel(\'' +'accord'+ ${calculate.id} + '\');'"
                                 style="float: left; width: 560px; word-wrap: break-word; font-size: 20px; height: 33px;
-                                 text-align: center; background: rgba(255,0,0,0);border: none;margin-top: 5px"
+                                 outline: none; text-align: center; background: none;border: none;margin-top: 5px"
                                 data-toggle="collapse" th:href="'#accord' + ${calculate.id}"
                                 th:text="${calculate.description}">
-                        </button>
-                        <form th:id="'formRoundState' + ${calculate.id}" action="/manager/change-round-state"
-                              method="post">
-
-                            <input type="hidden" name="calculateId" th:value="${calculate.id}"/>
-                        </form>
-
-                        <button class="btn btn-primary"
-                                style="float: left;margin-left: 10px;margin-top: 5px;border: none;padding: 3px"
-                                th:id="'rek' + ${calculate.id}"
-                                th:onclick="'roundState(\'' + ${calculate.id} + '\',\'' + ${calculate.roundState} + '\');'">
-                            <p style="margin: 0;font-size: 20px"
-                               th:text="${calculate.roundState} ? 'Округлено' : 'Не округлено'"></p>
                         </button>
 
                     </div>

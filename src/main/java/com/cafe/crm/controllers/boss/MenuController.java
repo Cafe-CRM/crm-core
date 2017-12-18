@@ -1,6 +1,10 @@
 package com.cafe.crm.controllers.boss;
 
 import com.cafe.crm.dto.WrapperOfEditProduct;
+import com.cafe.crm.exceptions.category.CategoryServiceException;
+import com.cafe.crm.exceptions.cost.category.CostCategoryDataException;
+import com.cafe.crm.exceptions.services.IngredientsServiceException;
+import com.cafe.crm.models.cost.CostCategory;
 import com.cafe.crm.models.menu.Category;
 import com.cafe.crm.models.menu.Ingredients;
 import com.cafe.crm.models.menu.Product;
@@ -16,10 +20,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,18 +105,35 @@ public class MenuController {
 
 	@RequestMapping(value = "/addProduct", method = RequestMethod.POST)
 	@ResponseBody
-	public WrapperOfProduct createProd(@RequestBody final WrapperOfProduct wrapper) {
+	public WrapperOfProduct createProd(@RequestBody @Valid final WrapperOfProduct wrapper, BindingResult bindingResult) {
+
+		if (bindingResult.hasErrors()) {
+			String fieldError = bindingResult.getFieldError().getDefaultMessage();
+			throw new IngredientsServiceException(fieldError);
+		}
 
 		Category category = categoriesService.getOne(wrapper.getId());
-		Map<Ingredients, Integer> recipe = ingredientsService.createRecipe(wrapper);
-		double recipeCost = ingredientsService.getRecipeCost(recipe);
+		Map<Ingredients, Double> recipe;
+		double recipeCost;
+//		check if product has ingredients for recipe
+		if (!wrapper.getNames().isEmpty()) {
+			recipe = ingredientsService.createRecipe(wrapper);
+			recipeCost = ingredientsService.getRecipeCost(recipe);
+		} else {
+			recipe = null;
+			recipeCost = 0;
+		}
 		Map<Position, Integer> staffPercent = productService.createStaffPercent(wrapper);
 		if (category != null) {
 			Product product = new Product();
 			product.setCategory(category);
 			product.setName(wrapper.getName());
 			product.setCost(wrapper.getCost());
-			product.setSelfCost(wrapper.getSelfCost() + recipeCost);
+			if (recipeCost == 0) {
+				product.setSelfCost(wrapper.getSelfCost());
+			} else {
+				product.setSelfCost(recipeCost);
+			}
 			product.setDescription(wrapper.getDescription());
 			product.setRecipe(recipe);
 			product.setStaffPercent(staffPercent);
@@ -125,16 +148,13 @@ public class MenuController {
 	}
 
 	@RequestMapping(value = "/addCategory", method = RequestMethod.POST)
-	public String addCategories(@RequestParam(name = "name") String name,
-								@RequestParam(name = "dirtyProfit", required = false, defaultValue = "true") String dirtyProfit,
-								@RequestParam(name = "floatingPrice", required = false, defaultValue = "false") String floatingPrice) {
-		Boolean isDirty = Boolean.valueOf(dirtyProfit);
-		Boolean isFloatingPrice = Boolean.valueOf(floatingPrice);
-		Category category = new Category(name);
+	public String addCategories(@Valid Category category, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			String fieldError = bindingResult.getFieldError().getDefaultMessage();
+			throw new CategoryServiceException("Не удалось добавить категорию " + fieldError);
+		}
 		List<Product> listProducts = new ArrayList<>();
 		category.setProducts(listProducts);
-		category.setDirtyProfit(isDirty);
-		category.setFloatingPrice(isFloatingPrice);
 		categoriesService.saveAndFlush(category);
 		return "redirect:/boss/menu";
 	}
@@ -181,7 +201,7 @@ public class MenuController {
 
 		ModelAndView modelAndView = new ModelAndView("menu/editStaffPercent");
 		modelAndView.addObject("staffPercent", productService.findOne(idProduct).getStaffPercent());
-		modelAndView.addObject("positions",positionService.findAll());
+		modelAndView.addObject("positions", positionService.findAll());
 		modelAndView.addObject("product", productService.findOne(idProduct));
 
 		return modelAndView;
@@ -191,7 +211,7 @@ public class MenuController {
 	@ResponseBody
 	public ResponseEntity<?> editRecipe(@RequestBody WrapperOfProduct wrapper) {
 		Product product = productService.findOne(wrapper.getId()); // id product
-		Map<Ingredients, Integer> recipe = ingredientsService.createRecipe(wrapper);
+		Map<Ingredients, Double> recipe = ingredientsService.createRecipe(wrapper);
 
 		if (product != null) {
 			product.setSelfCost(ingredientsService.getRecipeCost(recipe));
@@ -236,6 +256,16 @@ public class MenuController {
 		}
 		String referrer = request.getHeader("Referer");
 		return "redirect:" + referrer;
+	}
+
+	@ExceptionHandler(value = IngredientsServiceException.class)
+	public ResponseEntity<?> handleIngredientsServiceException(IngredientsServiceException ex) {
+		return ResponseEntity.badRequest().body(ex.getMessage());
+	}
+
+	@ExceptionHandler(value = CategoryServiceException.class)
+	public ResponseEntity<?> handleCategoryServiceException(CategoryServiceException ex) {
+		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 
 }

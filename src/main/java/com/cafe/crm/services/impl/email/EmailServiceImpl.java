@@ -1,7 +1,7 @@
 package com.cafe.crm.services.impl.email;
 
 
-import com.cafe.crm.configs.property.AdvertisingCustomSettings;
+import com.cafe.crm.configs.property.MailCustomSettings;
 import com.cafe.crm.configs.property.AdvertisingProperties;
 import com.cafe.crm.configs.property.BalanceInfoProperties;
 import com.cafe.crm.models.card.Card;
@@ -14,7 +14,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
 	private final HtmlService htmlService;
 	private final AdvertisingProperties properties;
 	private final JavaMailSender javaMailSender;
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	private final PasswordEncoder passwordEncoder;
 	private final BalanceInfoProperties balanceInfoProperties;
 
 	@Value("${vk.mail.invalid-token.view}")
@@ -45,11 +45,11 @@ public class EmailServiceImpl implements EmailService {
 	private String closeShiftSubject;
 
 	@Autowired
-	public EmailServiceImpl(AdvertisingCustomSettings javaMailSender, AdvertisingProperties properties, HtmlService htmlService, BCryptPasswordEncoder bCryptPasswordEncoder, BalanceInfoProperties balanceInfoProperties) {
+	public EmailServiceImpl(MailCustomSettings javaMailSender, AdvertisingProperties properties, HtmlService htmlService, PasswordEncoder passwordEncoder, BalanceInfoProperties balanceInfoProperties) {
 		this.javaMailSender = javaMailSender.getCustomSettings();
 		this.properties = properties;
 		this.htmlService = htmlService;
-		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+		this.passwordEncoder = passwordEncoder;
 		this.balanceInfoProperties = balanceInfoProperties;
 	}
 
@@ -68,7 +68,7 @@ public class EmailServiceImpl implements EmailService {
 				messageHelper.setTo(email);
 				messageHelper.setSubject(subject);
 				Long id = card.getId();
-				String token = bCryptPasswordEncoder.encode(email);
+				String token = passwordEncoder.encode(email);
 				String view = properties.getMail().getImageView();
 				String html = htmlService.getAdvertisingFromImage(imageUrl, view, urlToLink, id, token);
 				messageHelper.setText(html, true);
@@ -95,7 +95,7 @@ public class EmailServiceImpl implements EmailService {
 				messageHelper.setTo(email);
 				messageHelper.setSubject(subject);
 				Long id = card.getId();
-				String token = bCryptPasswordEncoder.encode(email);
+				String token = passwordEncoder.encode(email);
 				String view = properties.getMail().getTextView();
 				String html = htmlService.getAdvertisingFromText(text, view, id, token);
 				messageHelper.setText(html, true);
@@ -122,7 +122,7 @@ public class EmailServiceImpl implements EmailService {
 			messageHelper.setTo(email);
 			messageHelper.setSubject(properties.getMail().getDisableSubject());
 			Long id = card.getId();
-			String token = bCryptPasswordEncoder.encode(email);
+			String token = passwordEncoder.encode(email);
 			String view = properties.getMail().getDisableView();
 			String html = htmlService.getAdvertisingForDisable(view, id, token);
 			messageHelper.setText(html, true);

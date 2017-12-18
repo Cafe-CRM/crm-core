@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="board">
+    <div class="row">
+        <h2 align="center">Установка столов</h2>
+        <div class="errorMessage"></div>
+        <br/>
+    </div>
+    <div class="row">
+        <div class="form-group" align="center">
+            <div class="col-md-3 col-md-offset-3">
+                <input type="text" class="form-control" name="name" placeholder="Название стола" id="inputBoardName"/>
+            </div>
+            <div class="col-md-3">
+                <button type="button" class="btn btn-success" id="buttonAddBoard">Добавить</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <table class="table" id="boardTable" style="border-top: black 1px solid;border-bottom: black 1px solid; margin: 20px 0px 20px 0px">
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script th:src="@{/js/company/configuration/step/board.js}"></script>
+</div>
+</body>
+</html>

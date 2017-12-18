@@ -1,8 +1,11 @@
 package com.cafe.crm.services.impl.template;
 
+import com.cafe.crm.models.company.Company;
 import com.cafe.crm.models.template.Template;
 import com.cafe.crm.repositories.template.TemplateRepository;
+import com.cafe.crm.services.interfaces.company.CompanyService;
 import com.cafe.crm.services.interfaces.template.TemplateService;
+import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

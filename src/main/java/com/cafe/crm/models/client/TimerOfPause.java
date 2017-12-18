@@ -1,12 +1,14 @@
 package com.cafe.crm.models.client;
 
+import com.cafe.crm.models.BaseEntity;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 
 @Entity
-public class TimerOfPause {
+public class TimerOfPause extends BaseEntity {
 
 	@Id
 	@GeneratedValue
@@ -24,7 +26,6 @@ public class TimerOfPause {
 	public TimerOfPause() {
 
 	}
-
 
 	public Long getId() {
 		return id;

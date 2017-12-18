@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="deleteUser" th:remove="tag">
+    <button class="btn btn-primary btn-danger" th:href="'#usersByRoleDelete'+${user.id} + ${usersByRole.key.id}"
+            data-toggle="modal">Удалить
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" th:id="'usersByRoleDelete'+${user.id} + ${usersByRole.key.id}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h2 class="form-signin-heading">Форма Удаления Пользователя</h2>
+                </div>
+                <div class="modal-body">
+                    <h3 style="color: crimson">Удалить пользователя?</h3>
+                    <br/>
+                    <form class="form-signin" th:action="@{'/supervisor/user/delete/'+${user.id}}" method="post">
+                        <h4>Имя</h4>
+                        <span readonly="" class="form-control" th:text="${user.firstName}"></span>
+                        <br/>
+                        <h4>Фамилия</h4>
+                        <span readonly="" class="form-control" th:text="${user.lastName}"></span>
+                        <br/>
+                        <h4>Должности</h4>
+                        <span readonly="" class="form-control" th:text="${user.positions}"></span>
+                        <br/>
+
+                        <button type="submit" class="btn btn-lg btn-primary btn-block">Да</button>
+                        <br/>
+                        <button type="button" class="btn btn-lg btn-primary btn-block" data-dismiss="modal">
+                            Нет
+                        </button>
+                        <br/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

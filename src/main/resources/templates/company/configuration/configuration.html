@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Конфигурация компании</title>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+</head>
+<body>
+
+<div class="container" style="margin-top: 50px">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <form id="formStepConfiguration" method="get" th:action="@{/boss/company/configuration}">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" align="center">Настройка системы</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div th:replace="@{'company/configuration/step/' + ${stepName}} :: ${stepName}" th:remove="tag"></div>
+                    </div>
+                    <div class="panel-footer ">
+                        <div class="row">
+                            <div class="col-md-2 col-md-offset-10">
+                                <button type="submit" id="buttonEndPrice" class="btn btn-primary">Сохранить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

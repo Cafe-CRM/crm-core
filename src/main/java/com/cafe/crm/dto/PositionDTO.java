@@ -1,6 +1,10 @@
 package com.cafe.crm.dto;
 
 
+import com.cafe.crm.models.user.Position;
+import com.yc.easytransformer.annotations.Transform;
+
+@Transform(Position.class)
 public class PositionDTO {
 
     private Long id;

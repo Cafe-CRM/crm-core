@@ -1,16 +1,15 @@
 package com.cafe.crm.controllers.debt;
 
-import com.cafe.crm.exceptions.cost.category.CostCategoryDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.models.client.Debt;
-import com.cafe.crm.models.property.AllSystemProperty;
-import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.models.property.Property;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.debt.DebtService;
-import com.cafe.crm.services.interfaces.property.SystemPropertyService;
+import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.utils.TimeManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,19 +31,20 @@ public class DebtController {
 	private final TimeManager timeManager;
 	private final ShiftService shiftService;
 	private final ChecklistService checklistService;
+	private final PasswordEncoder encoder;
+	private final PropertyService propertyService;
+
+	@Value("${property.name.masterKey}")
+	private String masterKeyPropertyName;
 
 	@Autowired
-	PasswordEncoder encoder;
-
-	@Autowired
-	SystemPropertyService systemPropertyService;
-
-	@Autowired
-	public DebtController(DebtService debtService, TimeManager timeManager, ShiftService shiftService, ChecklistService checklistService) {
+	public DebtController(DebtService debtService, TimeManager timeManager, ShiftService shiftService, ChecklistService checklistService, PasswordEncoder encoder, PropertyService propertyService) {
 		this.debtService = debtService;
 		this.timeManager = timeManager;
 		this.shiftService = shiftService;
 		this.checklistService = checklistService;
+		this.encoder = encoder;
+		this.propertyService = propertyService;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -113,6 +113,7 @@ public class DebtController {
 
 	@RequestMapping(value = "/addDebt", method = RequestMethod.POST)
 	public ResponseEntity<?> saveGoods(@ModelAttribute @Valid Debt debt) {
+		debt.setShift(shiftService.getLast());
 
 		debtService.save(debt);
 
@@ -142,14 +143,13 @@ public class DebtController {
 	@RequestMapping(value = "/deleteManager", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> deleteDebtsManager(@RequestParam(name = "debtId") Long id,
-	                                            @RequestParam(name = "masterKey") String masterKey) {
-
+												@RequestParam(name = "masterKey") String masterKey) {
 		Debt debt = debtService.get(id);
-		AllSystemProperty property = systemPropertyService.findOne("masterKey");
+		Property masterKeyProperty = propertyService.findByName(masterKeyPropertyName);
 		String dbMasterKey;
 
-		if (property != null) {
-			dbMasterKey = property.getProperty();
+		if (masterKeyProperty != null) {
+			dbMasterKey = masterKeyProperty.getValue();
 		} else {
 			throw new DebtDataException("Мастер ключ не настроен");
 		}

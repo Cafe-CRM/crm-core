@@ -1,5 +1,11 @@
 package com.cafe.crm.dto;
 
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.persistence.Column;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -9,14 +15,25 @@ public class WrapperOfProduct implements Serializable {  // wrapper for menuCont
 	private Long productId;
 
 	private List<String> names;
-	private List<Integer> amount;
+	private List<Double> amount;
 	private Long idCat;
+
+	@NotNull(message = "Укажите название")
+	@NotEmpty
+	@Length(min = 1, max = 30, message = "Длина названия должна быть от 1 до 30 символов")
 	private String name;
+
+	@NotNull(message = "Укажите описание")
 	private String description;
+
+	@NotNull(message = "Укажите цену")
 	private Double cost;
+
 	private List<Long> staffPercentPosition;
 	private List<Integer> staffPercentPercent;
 
+	@NotNull(message = "selfCost field have to be greater or equal to zero")
+	@Min(value = 0, message = "selfCost field have to be greater or equal to zero")
 	private Double selfCost;
 
 	public WrapperOfProduct() {
@@ -79,11 +96,11 @@ public class WrapperOfProduct implements Serializable {  // wrapper for menuCont
 		this.names = names;
 	}
 
-	public List<Integer> getAmount() {
+	public List<Double> getAmount() {
 		return amount;
 	}
 
-	public void setAmount(List<Integer> amount) {
+	public void setAmount(List<Double> amount) {
 		this.amount = amount;
 	}
 

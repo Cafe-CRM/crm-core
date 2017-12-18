@@ -52,7 +52,9 @@
                         </ul>
                     </div>
                     <h1 th:align="center" style="color: #5bc0de;">Меню</h1>
-                    <button class="pull-right btn btn-primary" data-toggle="modal" th:href="'#add'+${categor.id}" >Добавить продукт</button>
+                    <button class="pull-right btn btn-primary" data-toggle="modal" th:href="'#add'+${categor.id}">
+                        Добавить продукт
+                    </button>
                     <br/> <br/>
                     <div class="row">
                     </div>
@@ -72,29 +74,31 @@
                                 <td th:id="'a' + ${prod.id}"><p th:text="${iter.count}"></p></td>
                                 <td th:id="'b' + ${prod.id}"><p th:text="${prod.name}"></p></td>
                                 <td th:id="'c' + ${prod.id}"><p th:text="${prod.description}"></p></td>
-                                <td th:id="'d' + ${prod.id}"><p th:text="${!prod.category.floatingPrice} ? ${prod.cost} : 'Плавающая'"></p></td>
-                                <td th:id="'e' + ${prod.id}"><p th:text="${prod.selfCost}"></p></td>
+                                <td th:id="'d' + ${prod.id}"><p
+                                        th:text="${!prod.category.floatingPrice} ? ${prod.cost} : 'Плавающая'"></p></td>
+                                <td th:id="'e' + ${prod.id}"><p th:text="${#numbers.formatDecimal(prod.selfCost, 1, 'COMMA', 1, 'POINT')}"></p></td>
                                 <td class="col-lg-2">
 
                                     <div class="dropdown">
-                                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <button class="btn btn-primary dropdown-toggle" type="button"
+                                                data-toggle="dropdown">
                                             Редактировать<span class="caret"></span></button>
                                         <ul class="dropdown-menu">
                                             <li><a id="ins"
                                                    th:href="'#p'+${prod.id}"
                                                    data-toggle="modal">Редактировать</a></li>
                                             <li>
-                                                <a  th:href="'/boss/menu/get/recipe/?id='+${prod.id}" >
-                                                Изменить рецепт
-                                            </a></li>
+                                                <a th:href="'/boss/menu/get/recipe/?id='+${prod.id}">
+                                                    Изменить рецепт
+                                                </a></li>
                                             <li>
-                                                <a  th:href="'/boss/menu/get/staffPercent/?id='+${prod.id}" >
+                                                <a th:href="'/boss/menu/get/staffPercent/?id='+${prod.id}">
                                                     Изменить процент сотрудникам
                                                 </a></li>
                                         </ul>
                                     </div>
 
-                                    </td>
+                                </td>
 
                                 <td>
 
@@ -148,7 +152,7 @@
                                                            th:id="updSelfCost + ${prod.id}" name="selfCost"
                                                            title="только цифры"
                                                            min="0"
-                                                           th:value="${prod.selfCost}"/>
+                                                           th:value="${#numbers.formatDecimal(prod.selfCost, 1, 'COMMA', 1, 'POINT')}"/>
                                                 </div>
 
                                             </div>
@@ -215,7 +219,7 @@
                         </div>
                     </form>
                     <div align="center" class="modal fade" th:id="'add'+${categor.id}" tabindex="-1" roles="dialog"
-                         aria-labelledby="myModalLabel">
+                         aria-labelledby="myModalLabel" name="addProductModal">
                         <div class="modal-dialog" roles="document">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -266,7 +270,8 @@
                                                 </a>
                                             </h4>
                                         </div>
-                                        <div th:id="positionPercent+${categor.id}" class="panel-collapse collapse" roles="tabpanel"
+                                        <div th:id="positionPercent+${categor.id}" class="panel-collapse collapse"
+                                             roles="tabpanel"
                                              aria-labelledby="headingTwo">
                                             <div class="panel-body">
                                                 <div th:id="positionPercentContainer+${categor.id}">
@@ -282,11 +287,13 @@
                                                                 </div>
                                                             </select>
                                                         </div>
-                                                        <div class="col-md-2" style="margin-top: 5px;margin-right: -25px;">
+                                                        <div class="col-md-2"
+                                                             style="margin-top: 5px;margin-right: -25px;">
                                                             Процент
                                                         </div>
                                                         <div class="col-md-3" style="margin-top: 2px;">
-                                                            <input type="number" value="0" min="0" max="100" step="0.1"/>
+                                                            <input type="number" value="0" min="0" max="100"
+                                                                   step="0.1"/>
                                                         </div>
                                                         <div class="col-md-2">
                                                             <button th:onclick="'delPositionPercent(this,\'' + ${categor.id} + '\');'"
@@ -320,45 +327,53 @@
                                         <div th:id="pan+${categor.id}" class="panel-collapse collapse" roles="tabpanel"
                                              aria-labelledby="headingOne">
                                             <div class="panel-body">
-                                                <div id="hideTable">
-                                                    <table th:id="recipeTable +${categor.id}"
-                                                           class="table table-striped table-bordered">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>Ингредиент</th>
-                                                            <th>Количество</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr id="Row2" class="ingredients">
-                                                            <td>
-                                                                <select
-                                                                        th:onchange="'calculateCostPrice(\'' + ${categor.id} + '\');'"
-                                                                        th:id="selectId" name="multiple[]"
-                                                                        class="form-control mySelect">
-                                                                    <div th:each="ing : ${ingredients}">
-                                                                        <option th:attr="data-price=${ing.price}"
-                                                                                th:class="optionClass"
-                                                                                th:value="${ing.name}"
-                                                                                th:text="${ing.name}+ '   -   ' +  ${ing.dimension} + '   -   ' + ${ing.price} + 'p'"></option>
-                                                                    </div>
-                                                                </select></td>
-                                                            <td><input
-                                                                    th:onchange="'calculateCostPrice(\'' + ${categor.id} + '\');'"
-                                                                    th:class="inputClassTest" th:value="0"
-                                                                       style="width: 150px"
-                                                                       th:type="number" min="0"/></td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                    <button id="addRow" th:onclick="'addIng(\''+ ${categor.id} + '\');'"
+                                                <div th:id="recipeBlock +${categor.id}">
+                                                    <div class="col-md-6 col-md-offset-0">
+                                                        Ингредиент
+                                                    </div>
+                                                    <div class="col-md-3 col-md-offset-0">
+                                                        Количество
+                                                    </div>
+                                                    <div class="col-md-12 ingredients" style="margin-bottom: 10px;">
+
+                                                        <div class="col-md-6">
+                                                            <select th:onchange="'calculateCostPrice(\'' + ${categor.id} + '\');'"
+                                                                    th:id="selectId" name="multiple[]"
+                                                                    class="form-control mySelect">
+                                                                <div th:each="ing : ${ingredients}">
+                                                                    <option th:attr="data-price=${ing.price}"
+                                                                            th:class="optionClass"
+                                                                            th:value="${ing.name}"
+                                                                            th:text="${ing.name}+ '   -   ' +  ${ing.dimension} + '   -   ' + ${#numbers.formatDecimal(ing.price, 1, 'COMMA', 2, 'POINT')} + 'p'">
+                                                                    </option>
+                                                                </div>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="col-md-3" style="margin-top: 2px;">
+                                                            <input type="number"
+                                                                   th:onchange="'calculateCostPrice(\'' + ${categor.id} + '\');'"
+                                                                   th:class="inputClassTest" th:value="0"
+                                                                   style="width: 100px"
+                                                                   th:type="number" min="0"/>
+                                                        </div>
+
+                                                        <div class="col-md-3 col-md-offset-0">
+                                                            <button id="deleteRow"
+                                                                    th:onclick="'deleteIngredient(this,\''+ ${categor.id} + '\');'"
+                                                                    type="button" class="btn btn-danger ">Удалить
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-2 col-md-offset-2">
+                                                    <button id="addRow"
+                                                            th:onclick="'addIngredient(\''+ ${categor.id} + '\');'"
                                                             type="button" class="btn btn-success ">Добавить
                                                     </button>
-                                                    <button id="deleteRow"
-                                                            th:onclick="'deleteIng(\''+ ${categor.id} + '\');'"
-                                                            type="button" class="btn btn-danger ">Удалить
-                                                    </button>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -415,7 +430,7 @@
                 </div>
             </div>
         </div>
-        <form roles="form" method="post" action="/boss/menu/addCategory" style="margin: 10px auto; width: 50%">
+        <form roles="form" method="post" action="/boss/menu/addCategory" style="margin: 10px auto; width: 50%" id="addCategoryForm">
             <div align="center" class="modal fade" th:id="'addCat'" tabindex="-1" roles="dialog"
                  aria-labelledby="myModalLabel">
                 <div class="modal-dialog" roles="document">
@@ -428,24 +443,25 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Название</label>
-                                <input required="" type="text" class="form-control" id="loginProd2" name="name"
+                                <input maxlength="30" required="" type="text" class="form-control" id="loginProd2" name="name"
                                        autocomplete="off"
                                 ></input>
                             </div>
                             <div class="checkbox" align="left">
                                 <label>
-                                    <input type="checkbox" value="false" name="dirtyProfit">
+                                    <input type="checkbox" value="false" name="dirtyProfit" id="addCatDirtyProfit">
                                     Не добавлять в прибыль грязными</input>
                                 </label>
                             </div>
                             <div class="checkbox" align="left">
                                 <label>
-                                    <input type="checkbox" value="true" name="floatingPrice">
+                                    <input type="checkbox" value="true" name="floatingPrice" id="addCatFloatingPrice">
                                     Категория с плавающей ценной</input>
                                 </label>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-lg btn-primary btn-block" name="add">Сохранить</button>
+                        <button type="submit" class="btn btn-lg btn-primary btn-block" name="add" id="saveCat">
+                            Сохранить</button>
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
@@ -454,64 +470,7 @@
                 </div>
             </div>
         </form>
-        <!--<div align="center" class="dima_modal modal" id="dima" style="display: none;"
-             tabindex="-1"
-             roles="dialog" aria-labelledby="myModalLabel">
-            <div class="modal-dialog" roles="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"
-                                aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="myModalLabel">Редактирование </h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <input required="" id="d_id" type="hidden" class="form-control"
-
-                            ></input>
-                            <h4><label>Название</label></h4>
-                            <input type="text" class="form-control" autocomplete="off"
-                                   id="d_name"
-                            ></input>
-                        </div>
-                        <div class="form-group">
-                            <h4><label>Описание</label></h4>
-                            <input type="text" class="form-control" autocomplete="off"
-                                   id="d_des"
-                                   name="description"
-                            ></input>
-                        </div>
-                        <div class="form-group">
-                            <h4><label>Цена</label></h4>
-                            <input type="text" class="form-control"
-                                   id="d_cost"
-                                   pattern="\d+" title="только цифры" autocomplete="off"
-                            ></input>
-                        </div>
-                        <div class="form-group">
-                            <h4><label>Себестоимость</label></h4>
-                            <input type="text" class="form-control"
-                                   id="d_selfCost"
-                                   pattern="\d+" title="только цифры" autocomplete="off"/>
-                        </div>
-                    </div>
-                    <button type="button" name="upd"
-                            class="btn btn-lg btn-primary btn-block"
-                            data-dismiss="modal" onclick=" editProdModal()"
-                    >Сохранить
-                    </button>
-
-                    <div class="modal-footer">
-                        <button type="button" name="upd" class="btn btn-default"
-                                data-dismiss="modal" onclick="closeModal()">
-                            Отмена
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>-->
-    </div><!--/.container -->
+    </div>
 
     <div th:replace="fragments/bossChangePassword :: BossChangePassword"></div>
     <div th:replace="media/advertisingDispatch :: advertising"></div>

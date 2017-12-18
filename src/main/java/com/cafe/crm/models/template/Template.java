@@ -1,5 +1,6 @@
 package com.cafe.crm.models.template;
 
+import com.cafe.crm.models.BaseEntity;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;

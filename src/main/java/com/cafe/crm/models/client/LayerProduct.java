@@ -1,6 +1,7 @@
 package com.cafe.crm.models.client;
 
 
+import com.cafe.crm.models.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "layer_products")
-public class LayerProduct {
+public class LayerProduct extends BaseEntity {
 
 	@Id
 	@GeneratedValue
@@ -31,7 +32,7 @@ public class LayerProduct {
 	@NotNull
 	private Long productId;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JsonManagedReference
 	@JoinTable(name = "client_layer_product",
 			joinColumns = {@JoinColumn(name = "layer_product_id", referencedColumnName = "id")},

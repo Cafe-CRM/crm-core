@@ -31,13 +31,30 @@ function checkCashInputData() {
     var cashBox = parseFloat($("#cashBox").val());
     var payWithCard = parseFloat($("#payWithCard").val());
     var bankCashBox = parseFloat($("#bankCashBox").val());
+    if (isNaN(cashBox) || isNaN(bankCashBox)){
+        var errorMessage = '<h4 style="color:red;" align="center">Есть незаполненные поля</h4>';
+        $('.errorMessage').html(errorMessage).show();
+    }
+    if ($("#cashBox").val() == ''){
+        $("#cashBox").css('border', 'red 3px solid');
+    } else {
+        $("#cashBox").css('border', '');
+    }
+    if ($("#bankCashBox").val() == ''){
+        $("#bankCashBox").css('border', 'red 3px solid');
+    } else {
+        $("#bankCashBox").css('border', '');
+    }
     var budget = cashBox + bankCashBox;
     if (budget < totalCashBox) {
         $("#cashBox").css('border', 'red 3px solid');
         $("#bankCashBox").css('border', 'red 3px solid');
         $('#errorBlock').html('Сверка бюджета не прошла!');
         $("#closeShiftButtonShortage").css('visibility', 'visible');
-        // $("#budget").css('visibility', 'hidden');
+
+        var shortfallAmount = (totalCashBox - budget);
+        var shortfallMessage = '<h4 style="color:red;" align="center">В кассе не хватает '+shortfallAmount+' рублей</h4>';
+        $('.shortfallAmount').html(shortfallMessage).show();
     } else if (budget >= totalCashBox) {
         $('#budget').attr('type', 'submit');
     }

@@ -13,7 +13,7 @@ import java.util.Set;
 public class ShiftView {
 
 	private List<UserDTO> usersOnShift;
-	private Set<Client> clients;
+	private List<Client> clients;
 	private List<Calculate> activeCalculate;
 	private Set<Calculate> allCalculate;
 	private Map<Long, Integer> staffPercentBonuses;
@@ -27,7 +27,7 @@ public class ShiftView {
 	private double otherCosts;
 	private List<Note> enabledNotes;
 
-	public ShiftView(List<UserDTO> usersOnShift, Set<Client> clients, List<Calculate> activeCalculate,
+	public ShiftView(List<UserDTO> usersOnShift, List<Client> clients, List<Calculate> activeCalculate,
 					 Set<Calculate> allCalculate, double cashBox, double totalCashBox, int usersTotalShiftSalary,
 					 Double card, Double allPrice, LocalDate shiftDate, Double otherCosts, Double bankCashBox, List<Note> enabledNotes, Map<Long, Integer> userStaffPercentBonuses) {
 		this.usersOnShift = usersOnShift;
@@ -54,11 +54,11 @@ public class ShiftView {
 		this.usersOnShift = usersOnShift;
 	}
 
-	public Set<Client> getClients() {
+	public List<Client> getClients() {
 		return clients;
 	}
 
-	public void setClients(Set<Client> clients) {
+	public void setClients(List<Client> clients) {
 		this.clients = clients;
 	}
 

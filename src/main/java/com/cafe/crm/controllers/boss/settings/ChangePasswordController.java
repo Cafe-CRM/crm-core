@@ -18,12 +18,10 @@ import java.security.Principal;
 public class ChangePasswordController {
 
 	private final UserService userService;
-	private final SessionRegistry sessionRegistry;
 
 	@Autowired
-	public ChangePasswordController(UserService userService, SessionRegistry sessionRegistry) {
+	public ChangePasswordController(UserService userService) {
 		this.userService = userService;
-		this.sessionRegistry = sessionRegistry;
 	}
 
 	@RequestMapping(value = "/boss/settings/change-password", method = RequestMethod.GET)
@@ -41,9 +39,6 @@ public class ChangePasswordController {
 		}
 		String username = principal.getName();
 		userService.changePassword(username, oldPassword, newPassword, repeatedPassword);
-		for (Object elem : sessionRegistry.getAllPrincipals()) {
-			sessionRegistry.getAllSessions(elem, false).forEach(org.springframework.security.core.session.SessionInformation::expireNow);
-		}
 		return ResponseEntity.ok("Пароль успешно изменен!");
 	}
 }

@@ -1,5 +1,6 @@
 package com.cafe.crm.controllers.boss;
 
+import com.cafe.crm.dto.ExtraUserData;
 import com.cafe.crm.exceptions.user.PositionDataException;
 import com.cafe.crm.exceptions.user.UserDataException;
 import com.cafe.crm.models.user.Position;
@@ -9,10 +10,7 @@ import com.cafe.crm.services.interfaces.position.PositionService;
 import com.cafe.crm.services.interfaces.role.RoleService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -70,16 +67,12 @@ public class UserAccountingController {
 	@RequestMapping(value = {"/boss/user/edit"}, method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> editUser(@ModelAttribute @Valid User user, BindingResult bindingResult,
-									  @RequestParam(name = "oldPassword") String oldPassword,
-									  @RequestParam(name = "newPassword") String newPassword,
-									  @RequestParam(name = "repeatedPassword") String repeatedPassword,
-									  @RequestParam(name = "positionsIds") String positionsIds,
-									  @RequestParam(name = "rolesIds") String rolesIds) {
+									  ExtraUserData extraUserData) {
 		if (bindingResult.hasErrors()) {
 			String fieldError = bindingResult.getFieldError().getDefaultMessage();
 			throw new UserDataException("Не удалось изменить данные пользователя!\n" + fieldError);
 		}
-		userService.update(user, oldPassword, newPassword, repeatedPassword, positionsIds, rolesIds);
+		userService.update(user, extraUserData);
 		return ResponseEntity.ok("Пользователь успешно обновлен!");
 	}
 

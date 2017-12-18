@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+</head>
+<body>
+
+<table class="table table-striped" id="sortedTable" th:fragment="receiptsTable">
+    <thead>
+    <tr>
+        <th>№</th>
+        <th>Комментарий</th>
+        <th>Сумма внесения</th>
+        <th>Дата внесения</th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="receipts : ${receiptsList}" th:id="'receipts' + ${receipts.id}" >
+        <td th:text="${receipts.id}" class="id">1</td>
+        <td th:text="${receipts.receiptComment}" class="name">Вася</td>
+        <td th:text="${receipts.receiptAmount}" class="price">3000</td>
+        <td th:text="${#temporals.format(receipts.date, 'dd-MM-yyyy')}" class="date">20.20.2000</td>
+        <td>
+        </td>
+        <td sec:authorize="hasAuthority('BOSS')">
+            <button type="button" class="btn btn-danger" data-toggle="modal" th:href="'#receiptDeleteBoss' +${receipts.id}"><span class="glyphicon glyphicon-trash"></span></button>
+        </td>
+        <td sec:authorize="!hasAuthority('BOSS') and hasAuthority('MANAGER')">
+            <button type="button" class="btn btn-danger" data-toggle="modal" th:href="'#receiptDeleteManager' +${receipts.id}"><span class="glyphicon glyphicon-trash"></span></button>
+        </td>
+
+        <!--Modals-->
+        <div class="modal fade" tabindex="-1" role="dialog" th:id="'receiptDeleteManager'+${receipts.id}" th:fragment="modalDeleteManager">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h2 class="modal-title">Удалить приход</h2>
+                    </div>
+                    <div class="modal-body" align="center">
+                        <div class="deleteManagerReceipt"/>
+                        <div class="lead" th:text="'Вы действительно хотите удалить поступление ' + ${receipts.receiptComment} + '?'"
+                             id="modal"></div>
+                        <label for="masterKey">Чтобы удалить приход введите мастер ключ</label>
+                        <input type="password" required="" class="form-control" id="masterKey" placeholder="Master Key"/>
+                        <button type="submit" class="btn btn-primary"
+                                id="deleteReceiptManager" th:onclick="'removeReceiptManager(\'' + ${receipts.id} + '\');'">Да
+                        </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Нет</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
+
+        <div class="modal fade" tabindex="-1" role="dialog" th:id="'receiptDeleteBoss'+${receipts.id}" th:fragment="modalDeleteBoss">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h2 class="modal-title">Удалить приход</h2>
+                    </div>
+                    <div class="modal-body" align="center">
+                        <div class="lead" th:text="'Вы действительно хотите удалить поступление ' + ${receipts.receiptComment} + '?'" ></div>
+                        <button type="button" class="btn btn-primary"
+                                id="deleteDebtBoss" th:onclick="'removeReceiptBoss(\'' + ${receipts.id} + '\');'">Да</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Нет</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
+
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td></td>
+        <td></td>
+        <td><b>Общая сумма:</b></td>
+        <td><b th:text="${totalReceiptAmount}" id="totalPrice"></b></td>
+        <td></td>
+        <td></td>
+
+    </tr>
+    </tfoot>
+</table>
+</body>
+</html>

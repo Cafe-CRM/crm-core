@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping(value = "/boss/settings/card")
 public class CardSettingsController {
 
 	private final CardFilter cardFilter;
@@ -21,13 +19,23 @@ public class CardSettingsController {
 		this.cardFilter = cardFilter;
 	}
 
-	@RequestMapping(value = "/changeStatus", method = RequestMethod.POST)
-	public String changeCardEnableStatus(@RequestParam(name = "cardEnable", required = false) String cardEnable) {
-		Boolean newCardStatus = Boolean.valueOf(cardEnable);
-		globalControllerAdvice.setCardEnable(newCardStatus.toString());
-		cardFilter.setEnable(!newCardStatus);
+	@RequestMapping(value = "/boss/settings/card-setting", method = RequestMethod.GET)
+	public String showCardSettingPage() {
+		return "settingPages/cardSettingPage";
+	}
 
-		return "redirect:/boss/settings/general-setting";
+	@RequestMapping(value = "/boss/settings/card/changeStatus", method = RequestMethod.GET)
+	public String changeCardEnableStatus() {
+		String oldCardStatus = globalControllerAdvice.isCardEnable();
+		String newCardStatus = getReverseStatus(oldCardStatus);
+		globalControllerAdvice.setCardEnable(newCardStatus);
+		cardFilter.setEnable(!Boolean.valueOf(newCardStatus));
+
+		return "redirect:/boss/settings/card-setting";
+	}
+
+	private String getReverseStatus(String current) {
+		return current.equals("true") ? "false" : "true";
 	}
 
 }

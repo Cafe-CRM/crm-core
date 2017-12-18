@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class VkProperties {
 
 	private String applicationId;
-	private String applicationSecret;
 	private String messageName;
 	private String chatId;
 	private String accessToken;
@@ -28,14 +27,6 @@ public class VkProperties {
 
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
-	}
-
-	public String getApplicationSecret() {
-		return applicationSecret;
-	}
-
-	public void setApplicationSecret(String applicationSecret) {
-		this.applicationSecret = applicationSecret;
 	}
 
 	public String getChatId() {
@@ -66,7 +57,6 @@ public class VkProperties {
 		dst.setAccessToken(src.getAccessToken());
 		dst.setApiVersion(src.getApiVersion());
 		dst.setApplicationId(src.getApplicationId());
-		dst.setApplicationSecret(src.getApplicationSecret());
 		dst.setChatId(src.getChatId());
 		dst.setMessageName(src.getMessageName());
 	}

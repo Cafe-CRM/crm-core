@@ -1,11 +1,12 @@
 package com.cafe.crm.models.note;
 
+import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.shift.Shift;
 
 import javax.persistence.*;
 
 @Entity
-public class NoteRecord {
+public class NoteRecord extends BaseEntity {
 
 	@Id
 	@GeneratedValue

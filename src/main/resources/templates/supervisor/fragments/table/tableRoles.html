@@ -1,0 +1,101 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:src="@{/js/filter.js}"></script>
+</head>
+
+<body>
+
+<div class="table" style="border-radius:5px;padding-right: 250px;padding-left: 250px" th:fragment="tableRole">
+    <table class="table table-striped">
+        <tr>
+            <th> Название роли</th>
+            <th> Действия</th>
+            <th></th>
+        </tr>
+        <tbody class="searchableRole" th:each="role : ${allRoles}">
+        <tr>
+            <td th:text="${role.name}"></td>
+            <td class="col-lg-2">
+                <button class="btn btn-primary btn-info" th:href="'#editRole'+${role.id}"
+                        data-toggle="modal">Редактировать
+                </button>
+            </td>
+
+            <td class="col-lg-2">
+                <button class="btn btn-primary btn-danger" th:href="'#deleteRole'+${role.id}"
+                        data-toggle="modal">Удалить
+                </button>
+            </td>
+
+
+            <div class="modal fade" th:id="'editRole'+${role.id}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h2 class="form-signin-heading">Форма Редактирования Роли</h2>
+                        </div>
+                        <div class="modal-body">
+                            <div class="errorMessage"></div>
+                            <form class="formEditRole form-horizontal">
+                                <input type="hidden" class="form-control" th:value="${role.id}" name="id"/>
+                                <div class="form-group">
+                                    <label for="role" class="col-md-4 control-label">Название роли</label>
+                                    <div class="col-md-6">
+                                        <input type="text" id="role" class="form-control" th:value="${role.name}"
+                                               required="required" autofocus="" name="name" pattern=".{1,}"
+                                               title="Поле Роль не должно быть пустым"/>
+                                    </div>
+                                </div>
+                                <br/>
+                                <br/>
+                                <button class="btn btn-lg btn-primary btn-block" type="submit">Изменить Роль
+                                </button>
+                            </form>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                    Отмена
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal fade" th:id="'deleteRole'+${role.id}"><div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h2 class="form-signin-heading">Форма Удаления Роли</h2>
+                        </div>
+                        <div class="modal-body">
+                            <h3 style="color: crimson">Удалить роль?</h3>
+                            <br/>
+                            <form class="form-signin" th:action="@{'/supervisor/role/delete/'+${role.id}}"
+                                  method="GET">
+                                <h4>Название роли</h4>
+                                <input type="text" class="form-control" th:value="${role.name}" name="name"/>
+                                <br/>
+
+                                <button type="submit" class="btn btn-lg btn-primary btn-block">Да</button>
+                                <br/>
+                                <button type="button" class="btn btn-lg btn-primary btn-block" data-dismiss="modal">
+                                    Нет
+                                </button>
+                                <br/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

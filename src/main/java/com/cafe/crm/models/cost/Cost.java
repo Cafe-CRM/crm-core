@@ -1,5 +1,6 @@
 package com.cafe.crm.models.cost;
 
+import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.shift.Shift;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,7 +11,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
-public class Cost {
+public class Cost extends BaseEntity {
 	@Id
 	@GeneratedValue
 	private Long id;

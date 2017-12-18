@@ -9,26 +9,28 @@ import java.util.Set;
 
 public interface CostRepository extends JpaRepository<Cost, Long> {
 
-	List<Cost> findByCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetween(String name, LocalDate from, LocalDate to);
+	List<Cost> findByCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyId(String name, LocalDate from, LocalDate to, Long companyId);
 
-	List<Cost> findByCategoryNameAndVisibleIsTrue(String name);
+	List<Cost> findByCategoryNameAndVisibleIsTrueAndCompanyId(String name, Long companyId);
 
-	List<Cost> findByNameIgnoreCaseAndVisibleIsTrueAndDateBetween(String name, LocalDate from, LocalDate to);
+	List<Cost> findByNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyId(String name, LocalDate from, LocalDate to, Long companyId);
 
-	List<Cost> findByNameIgnoreCaseAndCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to);
+	List<Cost> findByNameIgnoreCaseAndCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyId(String name, String categoryName, LocalDate from, LocalDate to, Long companyId);
 
-	List<Cost> findByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
+	List<Cost> findByVisibleIsTrueAndDateBetweenAndCompanyId(LocalDate from, LocalDate to, Long companyId);
 
-	Set<Cost> findByNameStartingWith(String startName);
+	Set<Cost> findByNameStartingWithAndCompanyId(String startName, Long companyId);
 
 	List<Cost> findByIdIn(long[] ids);
 
-	List<Cost> findByDateAndVisibleTrue(LocalDate date);
+	List<Cost> findByDateAndVisibleTrueAndCompanyId(LocalDate date, Long companyId);
 
-	List<Cost> findByDateAndCategoryNameAndVisibleTrue(LocalDate date, String name);
+	List<Cost> findByDateAndCategoryNameAndVisibleTrueAndCompanyId(LocalDate date, String name, Long companyId);
 
 	List<Cost> findByShiftIdAndCategoryNameNotAndVisibleIsTrue(Long shiftId, String name);
 
 	List<Cost> findByShiftIdAndVisibleIsTrue(Long shiftId);
+
+
 
 }

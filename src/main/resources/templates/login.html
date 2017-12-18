@@ -4,14 +4,18 @@
     <title>Вход в систему</title>
     <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
     <link rel="stylesheet" th:href="@{css/login.css}" type="text/css"/>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&amp;render=explicit" th:async="async"
+            th:defer="defer"></script>
 </head>
 <body>
 <div class="container-login col-xs-12 col-sm-offset-2 col-sm-8 col-md-offset-3 col-md-6 col-lg-offset-4 col-lg-4">
     <br/>
     <form id="signin" class="form-signin" name='loginForm' action="" th:action="@{/processing-url}" method='POST'>
+        <input id="reCaptchaAnswer" type="hidden" name="reCaptchaAnswer"/>
         <div class="panel panel-default" style="margin-top: 15%">
             <div class="panel-heading">
                 <h1 th:align="center">Добро пожаловать. </h1>
+                <div class="registrationSuccessMessage"></div>
             </div>
             <div class="panel-body">
                 <p th:if="${param.logout}" class="alert-success" id="successful-logout">Вы успешно разлогинились</p>
@@ -28,7 +32,8 @@
                     </div>
                 </div>
                 <p id="incorrect"></p>
-                <p th:if="${param.error}" class="alert-danger" id="wrong">Неправильный номер телефона, e-mail или
+                <p th:if="${param.error != null and param.error[0] == '1'}" class="alert-danger" id="wrong">Неправильный
+                    номер телефона, e-mail или
                     пароль</p>
                 <div class="form-group">
                     <div class="input-group">
@@ -39,13 +44,22 @@
                                placeholder="Пароль"/>
                     </div>
                 </div>
-                <button class="btn btn-default" type="submit" style="width: 100%">
+                <button id="loginButton" class="btn btn-default" type="submit" style="width: 100%">
                     Вход <i class="glyphicon glyphicon-log-in"></i>
                 </button>
+                <a class="btn btn-warning" type="submit" style="width: 100%" href="/registration">
+                    Регистрация <i class="glyphicon glyphicon-hand-up"></i>
+                </a>
+                <p id="invalidCaptcha"></p>
+                <p th:if="${param.error != null and param.error[0] == '2'}" class="alert-danger" id="wrongCaptcha">Не
+                    корректная капча.
+                    Пройдите проверку ещё раз</p>
+                <div id="recaptcha-container" class="form-group">
+                    <div th:if="${recaptcha}" id="reCaptcha"></div>
+                </div>
             </div>
         </div>
     </form>
-
 </div>
 <script src="../static/js/login.js" th:src="@{js/login.js}"></script>
 </body>

@@ -11,10 +11,12 @@ public interface PropertyService {
 
 	List<Property> findAll();
 
-	Property getByName(String name);
+	Property findByName(String name);
 
 	void delete(Long id);
 
 	void saveCollection(List<Property> list);
+
+	List<Property> findByNameIn(String... name);
 
 }
