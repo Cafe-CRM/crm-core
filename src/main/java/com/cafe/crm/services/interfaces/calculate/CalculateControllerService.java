@@ -30,6 +30,8 @@ public interface CalculateControllerService {
 
 	void deleteClients(long[] clientsId, Long calculateId);
 
+	void deleteCalculate(String password, Long calculateId);
+
 	void pauseClient(Long clientId);
 
 	void unpauseClient(Long clientId);

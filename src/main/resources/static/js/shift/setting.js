@@ -26,3 +26,24 @@ function showClose(jBlock, jButton, button) {
         button.innerHTML = 'Посмотреть заказ';
     }
 }
+
+function deleteCalculate(calculateId) {
+    var  formData = {
+        password : $('#masterPassword' + calculateId).val(),
+        calculateId : calculateId
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/delete-calculate",
+        data: formData,
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+}

@@ -15,13 +15,17 @@ import com.cafe.crm.services.interfaces.discount.DiscountService;
 import com.cafe.crm.services.interfaces.menu.CategoriesService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
+import com.cafe.crm.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 
@@ -59,6 +63,7 @@ public class CalculateController {
 		modelAndView.addObject("listBoard", boardService.getAllOpen());
 		modelAndView.addObject("listDiscounts", discountService.getAllOpen());
 		modelAndView.addObject("closeChecklist", checklistService.getAllForCloseShift());
+		modelAndView.addObject("bossFunctional", SecurityUtils.hasRole("BOSS", "Admin"));
 		return modelAndView;
 	}
 
@@ -157,6 +162,13 @@ public class CalculateController {
 	                            @RequestParam("calculateId") Long calculateId) {
 		calculateControllerService.deleteClients(clientsId, calculateId);
 		return "redirect:/manager";
+	}
+
+	@RequestMapping(value = {"/delete-calculate"}, method = RequestMethod.POST)
+	public ResponseEntity deleteCalculate(@RequestParam(name = "password") String password,
+										  @RequestParam("calculateId") Long calculateId) {
+		calculateControllerService.deleteCalculate(password, calculateId);
+		return ResponseEntity.ok("Стол успешно удалён!");
 	}
 
 	@RequestMapping(value = {"/output-clients"}, method = RequestMethod.POST)

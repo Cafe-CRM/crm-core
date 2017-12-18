@@ -1,3 +1,30 @@
+function addRowBottom(profit, loss) {
+    if (profit !== loss) {
+        var difference = profit - loss;
+        var el = document.getElementById('clients');
+        var row = el.insertRow(-1);
+        var diffCel = row.insertCell(-1);
+        var infoCell = row.insertCell(-1);
+        diffCel.innerHTML = difference;
+
+        if (document.getElementById('commonCheckSum') !== null) {
+            diffCel.classList.add("commonCheck");
+            infoCell.innerHTML = "Перерасчёт в плюс: " + profit + ". В минус: " + loss;
+            infoCell.colSpan = 3;
+        } else if (document.getElementById('clubCardPaymentSum') !== null) {
+            diffCel.classList.add("cashPaymentSum");
+            infoCell.innerHTML = "Перерасчёт в плюс: " + profit + ". В минус: " + loss;
+            infoCell.colSpan = 4;
+        }
+
+        if (difference > 0) {
+            row.style.background = "#CEFFD0";
+        } else {
+            row.style.background = "#FFD7D7";
+        }
+    }
+}
+
 jQuery(document).ready( function() {
     var totalGivenDebt = 0;
     var totalRepaidDebt = 0;
@@ -86,5 +113,4 @@ function createAndInsertTotalDebtCell(tbodyId, totalDebt) {
     } else {
         cell.style.background = "#FFD7D7";
     }
-
 }

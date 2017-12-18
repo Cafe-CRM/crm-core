@@ -128,7 +128,7 @@
                     jQuery(document).ready( function() {
                         var buttonId = '#billsButton' + [[${calc.id}]];
                         var billsOnShiftId = '#billsOnShift' + [[${calc.id}]];
-                        insertTotalPrice('commonPrice'+[[${calc.id}]]);
+                        insertTotalPrice('commonPrice'+[[${calc.id}]], [[${calc.profitRecalculation}]], [[${calc.lossRecalculation}]]);
                         jQuery(buttonId).click(function(){
                                 $(billsOnShiftId).slideToggle('fast');
                         });

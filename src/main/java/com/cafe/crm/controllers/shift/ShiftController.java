@@ -14,6 +14,7 @@ import com.cafe.crm.services.interfaces.email.EmailService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.services.interfaces.vk.VkService;
+import com.cafe.crm.utils.SecurityUtils;
 import com.cafe.crm.utils.TimeManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -114,6 +115,7 @@ public class ShiftController {
         model.addAttribute("closeChecklist", checklistService.getAllForCloseShift());
         model.addAttribute("repaidDebts", shiftService.getLast().getRepaidDebts());
         model.addAttribute("receipts", shiftService.getLast().getReceipts());
+        model.addAttribute("bossFunctional", SecurityUtils.hasRole("BOSS", "Admin"));
         return "shift/shiftSettings";
     }
 

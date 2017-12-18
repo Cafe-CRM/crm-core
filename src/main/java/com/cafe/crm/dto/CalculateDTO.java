@@ -32,6 +32,10 @@ public class CalculateDTO {
 
 	private List<String> otherOrder;
 
+	private double lossRecalculation;
+
+	private double profitRecalculation;
+
 	public Long getId() {
 		return id;
 	}
@@ -110,5 +114,21 @@ public class CalculateDTO {
 
 	public void setOtherOrder(List<String> otherOrder) {
 		this.otherOrder = otherOrder;
+	}
+
+	public double getLossRecalculation() {
+		return lossRecalculation;
+	}
+
+	public void setLossRecalculation(double lossRecalculation) {
+		this.lossRecalculation = lossRecalculation;
+	}
+
+	public double getProfitRecalculation() {
+		return profitRecalculation;
+	}
+
+	public void setProfitRecalculation(double profitRecalculation) {
+		this.profitRecalculation = profitRecalculation;
 	}
 }

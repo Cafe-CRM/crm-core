@@ -94,6 +94,8 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		double profit = 0D;
 		double totalShiftSalary = 0D;
 		double otherCosts = 0D;
+		double profitRecalculate = 0D;
+		double lossRecalculate = 0D;
 		List<UserDTO> users = getUserDTOList(shifts, from, to);
 		Set<Calculate> allCalculate = new HashSet<>();
 		Map<Client, ClientDetails> clientsOnDetails = new HashMap<>();
@@ -102,8 +104,8 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		List<Debt> repaidDebt = new ArrayList<>();
 		List<Receipt> receiptAmount = new ArrayList<>();
 		if (shifts == null) {
-			return new TotalStatisticView(profit, totalShiftSalary, otherCosts, users, clientsOnDetails, otherCost,
-					givenDebts, repaidDebt);
+			return new TotalStatisticView(profit, totalShiftSalary, otherCosts, profitRecalculate, lossRecalculate,
+					users, clientsOnDetails, otherCost, givenDebts, repaidDebt);
 		}
 		for (Shift shift : shifts) {
 			allCalculate.addAll(shift.getCalculates());
@@ -134,8 +136,15 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		for (Debt givDebt : givenDebts) {
 			profit -= givDebt.getDebtAmount();
 		}
-		return new TotalStatisticView(profit, totalShiftSalary, otherCosts, users, clientsOnDetails, otherCost,
-				givenDebts, repaidDebt);
+		for (Calculate calculate : allCalculate) {
+			profitRecalculate += calculate.getProfitRecalculation();
+			lossRecalculate += calculate.getLossRecalculation();
+		}
+		profit += profitRecalculate;
+		profit -= lossRecalculate;
+
+		return new TotalStatisticView(profit, totalShiftSalary, otherCosts, profitRecalculate, lossRecalculate,
+				users, clientsOnDetails, otherCost, givenDebts, repaidDebt);
 	}
 
 	private List<UserDTO> getUserDTOList(Set<Shift> shifts, LocalDate from, LocalDate to) {
@@ -437,8 +446,10 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		for (Receipt receipt : receiptAmount){
 			allPrice +=receipt.getReceiptAmount();
 		}
-		allPrice += shift.getProfitRecalculation();
-		allPrice -= shift.getLossRecalculation();
+		for (Calculate calculate : shift.getCalculates()) {
+			allPrice += calculate.getProfitRecalculation();
+			allPrice -= calculate.getLossRecalculation();
+		}
 		return allPrice;
 	}
 

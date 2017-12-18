@@ -38,6 +38,12 @@ public class Calculate extends BaseEntity {
 	@NotTransform
 	private List<Card> cards;
 
+	@Column(name = "loss_recalculation")
+	private double lossRecalculation;
+
+	@Column(name = "profit_recalculation")
+	private double profitRecalculation;
+
 	public Calculate() {
 	}
 
@@ -95,6 +101,22 @@ public class Calculate extends BaseEntity {
 
 	public void setBoard(Board board) {
 		this.board = board;
+	}
+
+	public double getLossRecalculation() {
+		return lossRecalculation;
+	}
+
+	public void setLossRecalculation(double lossRecalculation) {
+		this.lossRecalculation = lossRecalculation;
+	}
+
+	public double getProfitRecalculation() {
+		return profitRecalculation;
+	}
+
+	public void setProfitRecalculation(double profitRecalculation) {
+		this.profitRecalculation = profitRecalculation;
 	}
 
 	@Override

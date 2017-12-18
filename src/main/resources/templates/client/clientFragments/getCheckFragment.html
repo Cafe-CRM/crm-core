@@ -57,14 +57,14 @@
                                         th:attr="data-target='#enterDebtorName'+${calculate.id }"
                                         style="font-size:20px;" class="btn btn-warning">Рассчитать в долг
                                 </button>
-                                <button type="button" data-toggle="modal"
+                                <button th:if="${bossFunctional}" type="button" data-toggle="modal"
                                         th:attr="data-target='#changePriceAmount'+${calculate.id }"
                                         style="font-size:20px; float: right; margin-right: 160px;"
                                         class="btn btn btn-primary">Изменить итоговую сумму
                                 </button>
                             </div>
 
-                            <div th:id="'changePriceAmount' + ${calculate.id}" class="modal fade" role="dialog">
+                            <div th:if="${bossFunctional}" th:id="'changePriceAmount' + ${calculate.id}" class="modal fade" role="dialog">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">

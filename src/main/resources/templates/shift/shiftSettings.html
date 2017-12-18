@@ -60,6 +60,7 @@
                                         <th>Стоимость прочего меню</th>
                                         <th>Стоимость грязного меню</th>
                                         <th>Время посадки</th>
+                                        <th th:if="${bossFunctional}">Опции</th>
                                     </tr>
                                 </thead>
                                 <tbody class="searchable" th:each="calculate, iter :${calculates}">
@@ -157,11 +158,49 @@
                                             <p th:text="${#temporals.format(client.timeStart, 'HH:mm')}"></p>
                                         </div>
                                     </td>
+                                    <td th:if="${bossFunctional}">
+                                        <button data-toggle="modal"
+                                                th:attr="data-target='#passwordPrompt'" class="btn btn-danger" type="button"
+                                                >Удалить</button>
+                                    </td>
                                 </tr>
+                                <div th:if="${bossFunctional}" th:id="passwordPrompt" class="modal fade" role="dialog">
+                                    <div class="modal-dialog" style="top: 120px; width: 500px;">
+                                        <div class="modal-content">
+                                            <div class="modal-header" style="padding-bottom: 0px;">
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                <p class="newAmountError" style="display: none;" th:id="'newAmountError' + ${calculate.id}"></p>
+                                                <h3>Подтвердите действие мастер-паролем</h3>
+                                            </div>
+
+                                            <div class="modal-body" style="height: 65px;">
+                                                <form class="form-horizontal" role="form">
+
+                                                    <div class="form-group">
+                                                        <div class="col-md-5">
+                                                            <input class="form-control" th:id="'masterPassword' + ${calculate.id}"
+                                                                   name="masterPassword" required="" placeholder="Введите пароль" type="password"/>
+                                                        </div>
+                                                    </div>
+                                                </form>
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button"
+                                                        th:onclick="'deleteCalculate(\'' + ${calculate.id} + '\')'"
+                                                        style="font-size:16px;" class="btn btn-primary">Подтвердить
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 </tbody>
                             </table>
                         </div>
                     </div>
+
+
                     <div class="tab-pane " th:id="2">
 
                         <h1 th:align="center" style="color: #5bc0de;">Клиенты</h1>

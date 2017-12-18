@@ -2,6 +2,7 @@ package com.cafe.crm.utils;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
 
@@ -38,5 +39,16 @@ public class SecurityUtils {
 			roles.add(role);
 		}
 		return roles;
+	}
+
+	public static boolean hasRole(String... roles) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		List<String> existedRoles = SecurityUtils.getRoles(authentication);
+		for (String role : roles) {
+			if (existedRoles.contains(role)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -1,8 +1,13 @@
 
 var totalPrice = 0;
 
-function insertTotalPrice(element) {
-    document.getElementById(element).innerHTML += totalPrice;
+function insertTotalPrice(element, profit, loss) {
+    if (profit !== loss) {
+        var modifiedAmount = totalPrice + profit - loss;
+        document.getElementById(element).innerHTML += modifiedAmount + " (Изначально: " + totalPrice + ")";
+    } else {
+        document.getElementById(element).innerHTML += totalPrice;
+    }
     totalPrice = 0;
 }
 

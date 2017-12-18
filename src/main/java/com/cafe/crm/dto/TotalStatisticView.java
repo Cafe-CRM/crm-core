@@ -13,18 +13,23 @@ public class TotalStatisticView {
 	private double profit;
 	private double salariesCosts;
 	private double otherCosts;
+	private double profitRecalculation;
+	private double lossRecalculation;
 	private List<UserDTO> users;
 	private Map<Client, ClientDetails> clientsOnDetails;
 	private List<Cost> listOfOtherCosts;
 	private List<Debt> givenDebts;
 	private List<Debt> repaidDebt;
 
-	public TotalStatisticView(double profit, double salariesCosts, double otherCosts, List<UserDTO> users,
+	public TotalStatisticView(double profit, double salariesCosts, double otherCosts, double profitRecalculation,
+							  double lossRecalculation, List<UserDTO> users,
 							  Map<Client, ClientDetails> clientsOnDetails, List<Cost> listOfOtherCosts,
 							  List<Debt> givenDebts, List<Debt> repaidDebt) {
 		this.profit = profit;
 		this.salariesCosts = salariesCosts;
 		this.otherCosts = otherCosts;
+		this.profitRecalculation = profitRecalculation;
+		this.lossRecalculation = lossRecalculation;
 		this.users = users;
 		this.clientsOnDetails = clientsOnDetails;
 		this.listOfOtherCosts = listOfOtherCosts;
@@ -46,6 +51,22 @@ public class TotalStatisticView {
 
 	public void setSalariesCosts(double salariesCosts) {
 		this.salariesCosts = salariesCosts;
+	}
+
+	public double getProfitRecalculation() {
+		return profitRecalculation;
+	}
+
+	public void setProfitRecalculation(double profitRecalculation) {
+		this.profitRecalculation = profitRecalculation;
+	}
+
+	public double getLossRecalculation() {
+		return lossRecalculation;
+	}
+
+	public void setLossRecalculation(double lossRecalculation) {
+		this.lossRecalculation = lossRecalculation;
 	}
 
 	public double getOtherCosts() {

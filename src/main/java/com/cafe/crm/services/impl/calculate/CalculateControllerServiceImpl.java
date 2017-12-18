@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger;
 import com.cafe.crm.configs.property.PriceNameProperties;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
-import com.cafe.crm.exceptions.modifiedAmountException.ModifiedAmountException;
 import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.card.Card;
 import com.cafe.crm.models.client.*;
@@ -30,6 +29,8 @@ import com.cafe.crm.utils.TimeManager;
 import org.codehaus.groovy.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -269,11 +270,11 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		Property property = propertyService.findByName("masterKey");
 
 		if (!encoder.matches(password, property.getValue())) {
-			throw new ModifiedAmountException("Пароли не совпадают!");
+			throw new ClientDataException("Пароли не совпадают!");
 		}
 
 		double allPrice = 0;
-		Shift lastShift = shiftService.getLast();
+		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> listClient = clientService.findByIdIn(clientsId);
 
 		for (Client client : listClient) {
@@ -281,16 +282,16 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 
 		if (modifiedAmount < 0) {
-			throw new ModifiedAmountException("Нельзя указывать отрицательную сумму!");
+			throw new ClientDataException("Нельзя указывать отрицательную сумму!");
 		} else if (modifiedAmount > allPrice){
 			double difference = modifiedAmount - allPrice;
-			lastShift.setProfitRecalculation(difference);
+			calculate.setProfitRecalculation(difference);
 		} else {
 			double difference = allPrice - modifiedAmount;
-			lastShift.setLossRecalculation(difference);
+			calculate.setLossRecalculation(difference);
 		}
 
-		shiftService.saveAndFlush(lastShift);
+		calculateService.save(calculate);
 		closeClient(clientsId, calculateId);
 	}
 
@@ -384,6 +385,32 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			calculate.setState(false);
 			calculateService.save(calculate);
 		}
+	}
+
+	@Override
+	public void deleteCalculate(String password, Long calculateId) {
+		Property property = propertyService.findByName("masterKey");
+		if (password.equals("")) {
+			throw new ClientDataException("Пароль не может быть пустым!");
+		}
+		if (!encoder.matches(password, property.getValue())) {
+			throw new ClientDataException("Пароли не совпадают!");
+		}
+
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = calculate.getClient();
+		List<LayerProduct> products = new ArrayList<>();
+		logger.info("Удаление стола с описанием:" + calculate.getDescription() + "и id: " + calculate.getId());
+		for (Client client : clients) {
+			client.setState(false);
+			client.setDeleteState(true);
+			products.addAll(client.getLayerProducts());
+			logger.info("Удаление клиента c удалённого стола. Описание клиента:" + client.getDescription() + "и id: " + client.getId());
+		}
+		checkIngredients(products);
+		clientService.saveAll(clients);
+		calculate.setState(false);
+		calculateService.save(calculate);
 	}
 
 	private void checkIngredients(List<LayerProduct> products) {

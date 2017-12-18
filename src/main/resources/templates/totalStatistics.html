@@ -118,11 +118,15 @@
                             <td class="menuDirtyCost" th:text="${pair.getValue().dirtyPriceMenu}"></td>
                             <td class="timeCost" th:text="${pair.getKey().priceTime}"></td>
 
-                            <script type="text/javascript">
-
-                            </script>
                         </tr>
                         </tbody>
+
+                        <script th:inline="javascript" type="text/javascript">
+                            jQuery(document).ready( function() {
+                                addRowBottom([[${totalStat.profitRecalculation}]], [[${totalStat.lossRecalculation}]]);
+                            });
+                        </script>
+
                         <tfoot>
                         <tr>
                             <td th:unless="${cardEnable}"></td>
