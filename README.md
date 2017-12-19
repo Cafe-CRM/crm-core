@@ -1,8 +1,8 @@
 # Package and run jar
 
-For build jar you must enter to root project folder and execute command:<br />
-mvn package<br />
-For run jar under windows in same folder,execute command:<br />
+To build jar get to the root project folder and run:
+mvn package
+To run jar in windows in same folder run:
 java -Dfile.encoding=UTF-8 -jar target/crm-core.jar
 
 
