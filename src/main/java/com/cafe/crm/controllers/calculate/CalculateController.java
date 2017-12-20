@@ -15,6 +15,7 @@ import com.cafe.crm.services.interfaces.discount.DiscountService;
 import com.cafe.crm.services.interfaces.menu.CategoriesService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
+import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,9 +42,13 @@ public class CalculateController {
 	private final DiscountService discountService;
 	private final CategoriesService categoriesService;
 	private final ChecklistService checklistService;
+	private final VkService vkService;
 
 	@Autowired
-	public CalculateController(ProductService productService, ClientService clientService, CategoriesService categoriesService, CalculateService calculateService, ShiftService shiftService, BoardService boardService, DiscountService discountService, CalculateControllerService calculateControllerService, ChecklistService checklistService) {
+	public CalculateController(ProductService productService, ClientService clientService, CategoriesService categoriesService,
+							   CalculateService calculateService, ShiftService shiftService, BoardService boardService,
+							   DiscountService discountService, CalculateControllerService calculateControllerService,
+							   ChecklistService checklistService, VkService vkService) {
 		this.productService = productService;
 		this.clientService = clientService;
 		this.categoriesService = categoriesService;
@@ -52,6 +57,7 @@ public class CalculateController {
 		this.discountService = discountService;
 		this.calculateControllerService = calculateControllerService;
 		this.checklistService = checklistService;
+		this.vkService = vkService;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -63,7 +69,7 @@ public class CalculateController {
 		modelAndView.addObject("listBoard", boardService.getAllOpen());
 		modelAndView.addObject("listDiscounts", discountService.getAllOpen());
 		modelAndView.addObject("closeChecklist", checklistService.getAllForCloseShift());
-		modelAndView.addObject("bossFunctional", SecurityUtils.hasRole("BOSS", "Admin"));
+		modelAndView.addObject("bossFunctional", SecurityUtils.hasRole("BOSS", "MANAGER"));
 		return modelAndView;
 	}
 
@@ -200,6 +206,12 @@ public class CalculateController {
 	                                      @RequestParam(value = "paidAmount", required = false) Double paidAmount) {
 		calculateControllerService.closeClientDebt(debtorName, clientsId, calculateId, paidAmount);
 		return ResponseEntity.ok("Долг добавлен!");
+	}
+
+	@RequestMapping(value = {"/send-confirm-token"}, method = RequestMethod.POST)
+	public ResponseEntity sendToken() {
+		vkService.sendConfirmToken();
+		return ResponseEntity.ok("Токен послан");
 	}
 
 	@ExceptionHandler(value = {DebtDataException.class, ClientDataException.class})

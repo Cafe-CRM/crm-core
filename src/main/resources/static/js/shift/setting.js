@@ -27,9 +27,25 @@ function showClose(jBlock, jButton, button) {
     }
 }
 
+$(".deleteButton").click(function () {
+    sendToken();
+});
+
+function sendToken() {
+    $.ajax({
+        type: "POST",
+        url: "/manager/send-confirm-token",
+
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+}
+
 function deleteCalculate(calculateId) {
     var  formData = {
-        password : $('#masterPassword' + calculateId).val(),
+        password : $('#password' + calculateId).val(),
         calculateId : calculateId
     };
 

@@ -34,9 +34,6 @@ public class ReceiptController {
 	private final PropertyService propertyService;
 	private final ChecklistService checklistService;
 
-	@Value("${property.name.masterKey}")
-	private String masterKeyPropertyName;
-
 
 	@Autowired
 	public ReceiptController(ReceiptService receiptService, TimeManager timeManager, ShiftService shiftService,
@@ -122,7 +119,7 @@ public class ReceiptController {
 	}
 
 
-	@RequestMapping(value = "/deleteReceiptManager", method = RequestMethod.POST)
+	/*@RequestMapping(value = "/deleteReceiptManager", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> deleteReceiptsManager(@RequestParam(name = "receiptId") Long id,
 												   @RequestParam(name = "masterKey") String masterKey) {
@@ -143,7 +140,7 @@ public class ReceiptController {
 			throw new ReceiptDataException("Введен неверный мастер ключ");
 		}
 
-	}
+	}*/
 
 	@ExceptionHandler(value = ReceiptDataException.class)
 	public ResponseEntity<?> handleUserUpdateException(ReceiptDataException ex) {

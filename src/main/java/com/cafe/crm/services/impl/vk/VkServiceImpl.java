@@ -3,24 +3,36 @@ package com.cafe.crm.services.impl.vk;
 
 import com.cafe.crm.configs.property.VkProperties;
 import com.cafe.crm.models.client.Client;
+import com.cafe.crm.models.client.Debt;
+import com.cafe.crm.models.client.LayerProduct;
 import com.cafe.crm.models.cost.Cost;
+import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.models.note.NoteRecord;
+import com.cafe.crm.models.property.Property;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.shift.UserSalaryDetail;
 import com.cafe.crm.models.template.Template;
+import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.email.EmailService;
+import com.cafe.crm.services.interfaces.layerproduct.LayerProductService;
+import com.cafe.crm.services.interfaces.menu.ProductService;
+import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.salary.UserSalaryDetailService;
 import com.cafe.crm.services.interfaces.template.TemplateService;
+import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.services.interfaces.vk.VkService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudinary.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
@@ -68,25 +80,38 @@ public class VkServiceImpl implements VkService {
 	private static final String EMAIL_RECIPIENT_ROLE_IN_CASE_ERROR = "BOSS";
 	private static final int ERROR_CODE_INVALID_TOKEN = 5;
 
+	@Value("${property.name.vk}")
+	private String vkPropertyName;
+
 	private final TemplateService templateService;
 	private final RestTemplate restTemplate;
-	private final VkProperties vkProperties;
 	private final EmailService emailService;
 	private final UserService userService;
+	private final ProductService productService;
+	private final PropertyService propertyService;
+	private final ConfirmTokenService tokenService;
 	private final UserSalaryDetailService userSalaryDetailService;
 
 	@Autowired
-	public VkServiceImpl(TemplateService templateService, RestTemplate restTemplate, VkProperties vkProperties, EmailService emailService, UserService userService, UserSalaryDetailService userSalaryDetailService) {
+	public VkServiceImpl(TemplateService templateService, RestTemplate restTemplate, EmailService emailService,
+						 UserService userService, PropertyService propertyService,  ProductService productService,
+						 UserSalaryDetailService userSalaryDetailService, ConfirmTokenService tokenService) {
 		this.templateService = templateService;
 		this.restTemplate = restTemplate;
-		this.vkProperties = vkProperties;
 		this.emailService = emailService;
 		this.userService = userService;
+		this.productService = productService;
+		this.propertyService = propertyService;
+		this.tokenService = tokenService;
 		this.userSalaryDetailService = userSalaryDetailService;
 	}
 
 	@Override
 	public void sendDailyReportToConference(Shift shift) {
+		VkProperties vkProperties = getVkPropertiesFromDB();
+		if (vkProperties == null) {
+			throw new NullPointerException("Не удалось получить vk properties из базы");
+		}
 		Template messageTemplate = templateService.findByName(vkProperties.getMessageName());
 		if (messageTemplate == null) {
 			return;
@@ -94,7 +119,28 @@ public class VkServiceImpl implements VkService {
 		String message = formatMessage(shift, new String(messageTemplate.getContent(), Charset.forName("UTF-8")));
 		System.out.println(message);
 		Map<String, String> variables = new HashMap<>();
-		variables.put("chat_id", vkProperties.getChatId());
+		variables.put("chat_id", vkProperties.getServiceChatId());
+		variables.put("message", message);
+		variables.put("access_token", vkProperties.getAccessToken());
+		variables.put("v", vkProperties.getApiVersion());
+		ResponseEntity<String> response = restTemplate.postForEntity(DAILY_REPORT_URL, null, String.class, variables);
+		checkForInvalidToken(response);
+	}
+
+	@Override
+	public void sendConfirmToken() {
+		VkProperties vkProperties = getVkPropertiesFromDB();
+		if (vkProperties == null) {
+			throw new NullPointerException("Не удалось получить vk properties из базы");
+		}
+		Template messageTemplate = templateService.findByName(vkProperties.getMessageName());
+		if (messageTemplate == null) {
+			return;
+		}
+		String message = tokenService.createAndGetToken();
+		System.out.println(message);
+		Map<String, String> variables = new HashMap<>();
+		variables.put("chat_id", vkProperties.getAdminChatId());
 		variables.put("message", message);
 		variables.put("access_token", vkProperties.getAccessToken());
 		variables.put("v", vkProperties.getApiVersion());
@@ -116,7 +162,7 @@ public class VkServiceImpl implements VkService {
 	}
 
 	private String formatMessage(Shift shift, String raw) {
-		Object[] params = new Object[14];
+		Object[] params = new Object[16];
 		DecimalFormat df = new DecimalFormat("#.##");
 
 		StringBuilder salaryCosts = new StringBuilder();
@@ -127,19 +173,112 @@ public class VkServiceImpl implements VkService {
 		params[0] = shortage <= 0d ? "" : "НЕДОСТАЧА!";
 		params[1] = getDayOfWeek(shift.getShiftDate());
 		params[2] = getDate(shift.getShiftDate());
-		params[3] = df.format(shift.getProfit());
+		params[3] = getProfit(shift);
 		params[4] = getAmountOfClients(shift.getClients());
 		params[5] = shift.getClients().size();
-		params[6] = salaryCosts.toString();
-		params[7] = otherCosts.toString();
-		params[8] = df.format(totalCosts);
-		params[9] = df.format(shift.getCashBox());
-		params[10] = df.format(shift.getBankCashBox());
-		params[11] = df.format(shift.getBankCashBox() + shift.getCashBox());
-		params[12] = getComment(shift.getComment());
-		params[13] = getNotes(shift.getNoteRecords());
+		params[6] = getProdInfo(shift);
+		params[7] = getAdmins(shift);
+		params[8] = salaryCosts.toString();
+		params[9] = otherCosts.toString();
+		params[10] = df.format(totalCosts);
+		params[11] = df.format(shift.getCashBox());
+		params[12] = df.format(shift.getBankCashBox());
+		params[13] = df.format(shift.getBankCashBox() + shift.getCashBox());
+		params[14] = getComment(shift.getComment());
+		params[15] = getNotes(shift.getNoteRecords());
 
 		return MessageFormat.format(raw, params);
+	}
+
+	private String getProdInfo(Shift shift) {
+		StringBuilder sb = new StringBuilder();
+
+		Set<Client> clients = shift.getClients();
+		List<LayerProduct> products = new ArrayList<>();
+		Set<LayerProduct> accProd = new HashSet<>();
+		Map<String, Integer> countMap = new HashMap<>();
+		Map<String, Double> amountMap = new HashMap<>();
+		Set<String> categoryName = new HashSet<>();
+
+		for (Client client : clients) {
+			if (!client.isDeleteState()) {
+				products.addAll(client.getLayerProducts());
+			}
+		}
+		for (LayerProduct product : products) {
+			if (product.isAccountability()) {
+				accProd.add(product);
+			}
+		}
+
+		if (!accProd.isEmpty()) {
+			sb.append("\nПродано:\n");
+		} else {
+			return sb.toString();
+		}
+
+		for (LayerProduct product : accProd) {
+			double amount = product.getCost();
+			String name = productService.findOne(product.getProductId()).getCategory().getName();
+			if (countMap.containsKey(name)) {
+				int prev = countMap.get(name);
+				int now = prev + 1;
+				countMap.put(name, now);
+			} else {
+				countMap.put(name, 1);
+			}
+			if (amountMap.containsKey(name)) {
+				double prev = amountMap.get(name);
+				double now = prev + amount;
+				amountMap.put(name, now);
+			} else {
+				amountMap.put(name, amount);
+			}
+			categoryName.add(name);
+		}
+		for (String name : categoryName) {
+			sb.append(name)
+					.append("(")
+					.append(countMap.get(name))
+					.append(")")
+					.append(" на сумму: ")
+					.append(amountMap.get(name))
+					.append("р")
+					.append(System.getProperty("line.separator"));
+		}
+
+		return sb.toString();
+	}
+
+	private String getAdmins(Shift shift) {
+		StringBuilder sb = new StringBuilder();
+
+		List<User> users = shift.getUsers();
+		for (User user : users) {
+			boolean isAdmin = user.getRoles().stream()
+					.anyMatch(r -> r.getName().equals("BOSS") || r.getName().equals("MANAGER"));
+			if (isAdmin) {
+				sb.append(user.getFirstName()).append(" ").append(user.getLastName()).append(System.getProperty("line.separator"));
+			}
+		}
+
+		return sb.toString();
+	}
+
+	private String getProfit(Shift shift) {
+		DecimalFormat df = new DecimalFormat("#.##");
+
+		double profit = shift.getProfit();
+		double debtAmount = 0D;
+		Set<Debt> debts = shift.getGivenDebts();
+		if (debts.isEmpty()) {
+			return df.format(profit);
+		}
+		for (Debt debt : debts) {
+			debtAmount += debt.getDebtAmount();
+		}
+
+		return df.format(profit) + "(Сумма долгов: " + df.format(debtAmount) + ")";
 	}
 
 	private String getComment(String comment) {
@@ -246,5 +385,17 @@ public class VkServiceImpl implements VkService {
 			sb.append(noteRecord.getName()).append(" : ").append(noteRecord.getValue()).append(System.getProperty("line.separator"));
 		}
 		return "\nЗаметки :\n" + sb.toString();
+	}
+
+	private VkProperties getVkPropertiesFromDB() {
+		ObjectMapper mapper = new ObjectMapper();
+		Property property = propertyService.findByName(vkPropertyName);
+		VkProperties vkProperties = null;
+		try {
+			vkProperties = mapper.readValue(property.getValue(), VkProperties.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return vkProperties;
 	}
 }

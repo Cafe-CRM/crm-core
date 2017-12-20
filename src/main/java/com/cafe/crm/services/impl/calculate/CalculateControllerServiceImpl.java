@@ -2,6 +2,7 @@ package com.cafe.crm.services.impl.calculate;
 
 import ch.qos.logback.classic.Logger;
 import com.cafe.crm.configs.property.PriceNameProperties;
+import com.cafe.crm.controllers.card.CardProfileController;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.models.board.Board;
@@ -25,8 +26,10 @@ import com.cafe.crm.services.interfaces.menu.IngredientsService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
+import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.utils.TimeManager;
 import org.codehaus.groovy.util.StringUtil;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
@@ -55,12 +58,13 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	private final TimeManager timeManager;
 	private final PropertyService propertyService;
 	private final ShiftService shiftService;
-	private final Logger logger;
 	private final TimerOfPauseService timerOfPauseService;
 	private final PriceNameProperties priceNameProperties;
 	private final ProductService productService;
 	private final IngredientsService ingredientsService;
-	private final PasswordEncoder encoder;
+	private final ConfirmTokenService confirmTokenService;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalculateControllerServiceImpl.class);
 
 	@Autowired
 	public CalculateControllerServiceImpl(DebtService debtService,
@@ -69,7 +73,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 										  TimeManager timeManager,
 										  ClientService clientService,
 										  CalculateService calculateService,
-										  @Qualifier(value = "logger") Logger logger,
 										  BoardService boardService,
 										  PropertyService propertyService,
 										  ShiftService shiftService,
@@ -78,14 +81,13 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 										  PriceNameProperties priceNameProperties,
 										  ProductService productService,
 										  IngredientsService ingredientsService,
-										  PasswordEncoder encoder) {
+										  ConfirmTokenService confirmTokenService) {
 		this.debtService = debtService;
 		this.calculatePriceService = calculatePriceService;
 		this.emailService = emailService;
 		this.timeManager = timeManager;
 		this.clientService = clientService;
 		this.calculateService = calculateService;
-		this.logger = logger;
 		this.boardService = boardService;
 		this.propertyService = propertyService;
 		this.shiftService = shiftService;
@@ -94,7 +96,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		this.priceNameProperties = priceNameProperties;
 		this.productService = productService;
 		this.ingredientsService = ingredientsService;
-		this.encoder = encoder;
+		this.confirmTokenService = confirmTokenService;
 	}
 
 	@Override
@@ -264,13 +266,11 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 
 		if (modifiedAmount == null || password.equals("")) {
-			throw new ClientDataException("Поле суммы и пароля не могут быть пустыми!");
+			throw new ClientDataException("Поле суммы и кода не могут быть пустыми!");
 		}
 
-		Property property = propertyService.findByName("masterKey");
-
-		if (!encoder.matches(password, property.getValue())) {
-			throw new ClientDataException("Пароли не совпадают!");
+		if (!confirmTokenService.confirm(password)) {
+			throw new ClientDataException("Токен не действителен!");
 		}
 
 		double allPrice = 0;
@@ -368,7 +368,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			products.addAll(client.getLayerProducts());
 			client.setDeleteState(true);
 			client.setState(false);
-			logger.info("Удаление клиента c описанием:" + client.getDescription() + "и id: " + client.getId());
+			logger.info("Удаление клиента c описанием: " + client.getDescription() + " и id: " + client.getId());
 		}
 		checkIngredients(products);
 		clientService.saveAll(clients);
@@ -389,23 +389,21 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 	@Override
 	public void deleteCalculate(String password, Long calculateId) {
-		Property property = propertyService.findByName("masterKey");
 		if (password.equals("")) {
-			throw new ClientDataException("Пароль не может быть пустым!");
+			throw new ClientDataException("Заполните поле токена перед отправкой!");
 		}
-		if (!encoder.matches(password, property.getValue())) {
-			throw new ClientDataException("Пароли не совпадают!");
+		if (!confirmTokenService.confirm(password)) {
+			throw new ClientDataException("Токен не действителен!");
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients = calculate.getClient();
 		List<LayerProduct> products = new ArrayList<>();
-		logger.info("Удаление стола с описанием:" + calculate.getDescription() + "и id: " + calculate.getId());
+		logger.info("Удаление стола с описанием: " + calculate.getDescription() + " и id: " + calculate.getId());
 		for (Client client : clients) {
 			client.setState(false);
 			client.setDeleteState(true);
 			products.addAll(client.getLayerProducts());
-			logger.info("Удаление клиента c удалённого стола. Описание клиента:" + client.getDescription() + "и id: " + client.getId());
 		}
 		checkIngredients(products);
 		clientService.saveAll(clients);

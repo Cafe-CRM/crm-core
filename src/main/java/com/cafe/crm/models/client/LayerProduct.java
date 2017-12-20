@@ -2,6 +2,7 @@ package com.cafe.crm.models.client;
 
 
 import com.cafe.crm.models.BaseEntity;
+import com.cafe.crm.models.shift.Shift;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
@@ -28,6 +29,8 @@ public class LayerProduct extends BaseEntity {
 	private boolean dirtyProfit = true;
 
 	private boolean floatingPrice;
+
+	private boolean accountability;
 
 	@NotNull
 	private Long productId;
@@ -96,6 +99,14 @@ public class LayerProduct extends BaseEntity {
 
 	public void setFloatingPrice(boolean floatingPrice) {
 		this.floatingPrice = floatingPrice;
+	}
+
+	public boolean isAccountability() {
+		return accountability;
+	}
+
+	public void setAccountability(boolean accountability) {
+		this.accountability = accountability;
 	}
 
 	@Override

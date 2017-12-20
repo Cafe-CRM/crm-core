@@ -9,6 +9,7 @@ import com.cafe.crm.services.interfaces.calculate.MenuCalculateControllerService
 import com.cafe.crm.services.interfaces.client.ClientService;
 import com.cafe.crm.services.interfaces.layerproduct.LayerProductService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
+import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,8 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 	private final CalculateService calculateService;
 
 	@Autowired
-	public MenuCalculateControllerServiceImpl(ProductService productService, ClientService clientService, LayerProductService layerProductService, CalculateService calculateService) {
+	public MenuCalculateControllerServiceImpl(ProductService productService, ClientService clientService,
+											  LayerProductService layerProductService, CalculateService calculateService) {
 		this.productService = productService;
 		this.clientService = clientService;
 		this.layerProductService = layerProductService;
@@ -47,6 +49,9 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 		layerProduct.setClients(clients);
 		if (!product.getCategory().isDirtyProfit()) {
 			layerProduct.setDirtyProfit(false);
+		}
+		if (product.getCategory().isAccountability()) {
+			layerProduct.setAccountability(true);
 		}
 		productService.reduceIngredientAmount(product);
 		layerProductService.save(layerProduct);
@@ -71,6 +76,9 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 		}
 		if (!product.getCategory().isDirtyProfit()) {
 			layerProduct.setDirtyProfit(false);
+		}
+		if (product.getCategory().isAccountability()) {
+			layerProduct.setAccountability(true);
 		}
 		layerProductService.save(layerProduct);
 		calculatePriceMenu(calculateId);

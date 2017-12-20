@@ -159,41 +159,46 @@
                                         </div>
                                     </td>
                                     <td th:if="${bossFunctional}">
-                                        <button data-toggle="modal"
-                                                th:attr="data-target='#passwordPrompt'" class="btn btn-danger" type="button"
+                                        <button data-toggle="modal" style="margin-top: 16px;"
+                                                th:attr="data-target='#passwordPrompt' + ${calculate.id}" class="btn btn-danger deleteButton" type="button"
                                                 >Удалить</button>
                                     </td>
-                                </tr>
-                                <div th:if="${bossFunctional}" th:id="passwordPrompt" class="modal fade" role="dialog">
-                                    <div class="modal-dialog" style="top: 120px; width: 500px;">
-                                        <div class="modal-content">
-                                            <div class="modal-header" style="padding-bottom: 0px;">
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                <p class="newAmountError" style="display: none;" th:id="'newAmountError' + ${calculate.id}"></p>
-                                                <h3>Подтвердите действие мастер-паролем</h3>
-                                            </div>
+                                    <div th:if="${bossFunctional}" th:id="'passwordPrompt' + ${calculate.id}" class="modal fade" role="dialog">
+                                        <div class="modal-dialog" style="top: 120px; width: 550px;">
+                                            <div class="modal-content">
+                                                <div class="modal-header" style="padding-bottom: 0px;">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <p class="newAmountError" style="display: none;" th:id="'newAmountError' + ${calculate.id}"></p>
+                                                    <h3 style="font-size: 19px; font-weight: 600;">В админ-конференцию был послан короткий код.</h3>
+                                                    <h3 style="font-size: 19px; font-weight: 600;">Используйте его для подтверждения операции.</h3>
+                                                </div>
 
-                                            <div class="modal-body" style="height: 65px;">
-                                                <form class="form-horizontal" role="form">
+                                                <div class="modal-body" style="height: 65px;">
+                                                    <form class="form-horizontal" role="form">
 
-                                                    <div class="form-group">
-                                                        <div class="col-md-5">
-                                                            <input class="form-control" th:id="'masterPassword' + ${calculate.id}"
-                                                                   name="masterPassword" required="" placeholder="Введите пароль" type="password"/>
+                                                        <div class="form-group">
+                                                            <div class="col-md-6">
+                                                                <input class="form-control" th:id="'password' + ${calculate.id}"
+                                                                       name="password" required="" placeholder="Введите полученный код" type="password"/>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </form>
+                                                    </form>
 
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button"
-                                                        th:onclick="'deleteCalculate(\'' + ${calculate.id} + '\')'"
-                                                        style="font-size:16px;" class="btn btn-primary">Подтвердить
-                                                </button>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button"
+                                                            th:onclick="'sendToken()'"
+                                                            style="font-size:16px;" class="btn btn-primary">Отправить код повторно
+                                                    </button>
+                                                    <button type="button"
+                                                            th:onclick="'deleteCalculate(\'' + ${calculate.id} + '\')'"
+                                                            style="font-size:16px;" class="btn btn-primary">Подтвердить
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </tr>
 
                                 </tbody>
                             </table>

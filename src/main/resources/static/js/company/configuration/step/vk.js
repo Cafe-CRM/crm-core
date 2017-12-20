@@ -4,11 +4,12 @@ $(document).ready(function () {
         var url = "/company/configuration/step/vk/add";
         var accessToken = $('#inputAccessToken').val();
         var applicationId = $('#inputApplicationId').val();
-        var chatId = $('#inputChatId').val();
+        var serviceChatId = $('#inputChatId').val();
+        var adminChatId = ($('#inputAdminChatId').val());
         var messageName = $('#inputMessageName').val();
         var apiVersion = $('#inputApiVersion').val();
         var data = {
-            accessToken: accessToken, applicationId: applicationId, chatId: chatId,
+            accessToken: accessToken, applicationId: applicationId, serviceChatId: serviceChatId, adminChatId: adminChatId,
             messageName: messageName, apiVersion: apiVersion
         };
         $.ajax({
@@ -35,6 +36,7 @@ $(document).ready(function () {
     $("#VKTokenBlock").toggle();
     $("#VKMessageNameBlock").toggle();
     $("#VKChatBlock").toggle();
+    $("#VKAdminChatBlock").toggle();
 });
 
 $("#showVKInputButton").click(function () {
@@ -46,10 +48,12 @@ $("#appRegistrationButton").click(function () {
 
     if (!document.getElementById("VKChatIDLine").hasAttribute("required")) {
         document.getElementById("VKChatIDLine").required = true;
+        document.getElementById("VKAdminChatBlock").required = true;
         document.getElementById("VKTokenLine").required = true;
         document.getElementById("appID").required = true;
     } else {
         document.getElementById("VKChatIDLine").required = false;
+        document.getElementById("VKAdminChatBlock").required = true;
         document.getElementById("VKTokenLine").required = false;
         document.getElementById("appID").required = false;
     }
@@ -69,14 +73,19 @@ $("#VKMessageNameButton").click(function () {
 });
 
 $("#parseChatIDButton").click(function () {
+    $("#VKAdminChatBlock").toggle();
+});
+
+$("#parseAdminChatIDButton").click(function () {
     var url = "/company/configuration/step/vk/add";
     var accessToken = parseVKToken($('#VKTokenLine').val());
     var applicationId = $('#appID').val();
-    var chatId = parseChatID($('#VKChatIDLine').val());
+    var serviceChatId = parseChatID($('#VKChatIDLine').val());
+    var adminChatId = parseChatID($('#VKAdminChatIDLine').val());
     var messageName = $('#VKMessageName').val();
     var apiVersion = $('#inputApiVersion').val();
     var data = {
-        accessToken: accessToken, applicationId: applicationId, chatId: chatId,
+        accessToken: accessToken, applicationId: applicationId, serviceChatId: serviceChatId, adminChatId: adminChatId,
         messageName: messageName, apiVersion: apiVersion
     };
     $.ajax({
@@ -113,7 +122,7 @@ function parseVKToken(tokenLine) {
 }
 
 function parseChatID(chatIDLine) {
-    var chatIdLineParameters = chatIDLine.split("?")
+    var chatIdLineParameters = chatIDLine.split("?");
     var item = chatIdLineParameters[1].split("=c");
     if (item[0] === 'sel') {
         return item[1];

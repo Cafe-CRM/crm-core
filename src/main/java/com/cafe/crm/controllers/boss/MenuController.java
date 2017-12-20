@@ -15,6 +15,7 @@ import com.cafe.crm.services.interfaces.menu.IngredientsService;
 import com.cafe.crm.services.interfaces.menu.MenuService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.position.PositionService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -83,12 +84,15 @@ public class MenuController {
 	@RequestMapping(value = "/updCategory", method = RequestMethod.POST)
 	public String updCategory(@RequestParam(name = "upd") Long id,
 							  @RequestParam(name = "name") String name,
-							  @RequestParam(name = "dirtyProfit", required = false, defaultValue = "true") String dirtyProfit) {
+							  @RequestParam(name = "dirtyProfit", required = false, defaultValue = "true") String dirtyProfit,
+							  @RequestParam(name = "accountability", required = false, defaultValue = "false") String accountability) {
 		Boolean isDirty = Boolean.valueOf(dirtyProfit);
+		Boolean isAccountability = Boolean.valueOf(accountability);
 		Category category = categoriesService.getOne(id);
 		if (category != null) {
 			category.setName(name);
 			category.setDirtyProfit(isDirty);
+			category.setAccountability(isAccountability);
 			categoriesService.saveAndFlush(category);
 		}
 		return "redirect:/boss/menu/";

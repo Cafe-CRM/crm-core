@@ -9,7 +9,8 @@ public class VkProperties {
 
 	private String applicationId;
 	private String messageName;
-	private String chatId;
+	private String serviceChatId;
+	private String adminChatId;
 	private String accessToken;
 	private String apiVersion;
 
@@ -29,12 +30,20 @@ public class VkProperties {
 		this.applicationId = applicationId;
 	}
 
-	public String getChatId() {
-		return chatId;
+	public String getServiceChatId() {
+		return serviceChatId;
 	}
 
-	public void setChatId(String chatId) {
-		this.chatId = chatId;
+	public void setServiceChatId(String serviceChatId) {
+		this.serviceChatId = serviceChatId;
+	}
+
+	public String getAdminChatId() {
+		return adminChatId;
+	}
+
+	public void setAdminChatId(String adminChatId) {
+		this.adminChatId = adminChatId;
 	}
 
 	public String getAccessToken() {
@@ -57,7 +66,8 @@ public class VkProperties {
 		dst.setAccessToken(src.getAccessToken());
 		dst.setApiVersion(src.getApiVersion());
 		dst.setApplicationId(src.getApplicationId());
-		dst.setChatId(src.getChatId());
+		dst.setServiceChatId(src.getServiceChatId());
+		dst.setAdminChatId(src.getAdminChatId());
 		dst.setMessageName(src.getMessageName());
 	}
 }

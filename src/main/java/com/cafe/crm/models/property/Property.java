@@ -4,10 +4,7 @@ package com.cafe.crm.models.property;
 import com.cafe.crm.models.BaseEntity;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -23,6 +20,8 @@ public class Property extends BaseEntity {
 	@NotBlank(message = "Поле \"name\" не может быть пустым")
 	private String name;
 
+	@Lob
+	@Column(length = 500)
 	@NotBlank(message = "Поле \"value\" не может быть пустым")
 	private String value;
 

@@ -47,7 +47,8 @@ public class VkStepController {
 	private boolean isValidVkData(VkProperties vk) {
 		return StringUtils.isNotBlank(vk.getAccessToken()) &&
 				StringUtils.isNotBlank(vk.getApplicationId()) &&
-				StringUtils.isNotBlank(vk.getChatId()) &&
+				StringUtils.isNotBlank(vk.getServiceChatId()) &&
+				StringUtils.isNotBlank(vk.getAdminChatId()) &&
 				StringUtils.isNotBlank(vk.getMessageName()) &&
 				StringUtils.isNotBlank(vk.getApiVersion());
 	}

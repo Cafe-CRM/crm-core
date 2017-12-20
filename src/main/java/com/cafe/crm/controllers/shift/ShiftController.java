@@ -115,7 +115,7 @@ public class ShiftController {
         model.addAttribute("closeChecklist", checklistService.getAllForCloseShift());
         model.addAttribute("repaidDebts", shiftService.getLast().getRepaidDebts());
         model.addAttribute("receipts", shiftService.getLast().getReceipts());
-        model.addAttribute("bossFunctional", SecurityUtils.hasRole("BOSS", "Admin"));
+        model.addAttribute("bossFunctional", SecurityUtils.hasRole("BOSS", "MANAGER"));
         return "shift/shiftSettings";
     }
 

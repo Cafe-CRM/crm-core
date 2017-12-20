@@ -1,17 +1,23 @@
 package com.cafe.crm.controllers.rest;
 
+import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.client.Calculate;
+import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.board.BoardService;
 import com.cafe.crm.services.interfaces.calculate.CalculateService;
 import com.cafe.crm.services.interfaces.client.ClientService;
+import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.utils.JsonField;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.cafe.crm.utils.PatternMatcherHandler.matchEmail;
 import static com.cafe.crm.utils.PatternMatcherHandler.matchPhone;
@@ -22,22 +28,42 @@ public class TelegramBotController {
 	private final BoardService boardService;
 	private final UserService userService;
 	private final ClientService clientService;
+	private final ShiftService shiftService;
 
 	@Autowired
-	public TelegramBotController(BoardService boardService, UserService userService, ClientService clientService) {
+	public TelegramBotController(BoardService boardService, UserService userService, ClientService clientService, ShiftService shiftService) {
 		this.boardService = boardService;
 		this.userService = userService;
 		this.clientService = clientService;
+		this.shiftService = shiftService;
 	}
 
 	@Autowired
 	private CalculateService calculateService;
 
-	@RequestMapping(value = "/manager/rest/Table", method = RequestMethod.GET)
+	@RequestMapping(value = "/manager/rest/Table", method = RequestMethod.POST)
 	@ResponseBody
 	@JsonView(JsonField.Board.class)
-	public List<com.cafe.crm.models.board.Board> getListOpenTables() {
-		return boardService.getAllOpen();
+	public List<com.cafe.crm.models.board.Board> getListOpenTables(@RequestParam(value = "username") String username) {
+		boolean isAdmin = false;
+		List<User> shiftUsers = shiftService.getLast().getUsers();
+		User user = userService.findByUsername(username);
+
+		if (shiftUsers.contains(user)) {
+			return boardService.getAllOpen();
+		}
+
+		Set<Role> roles = user.getRoles();
+		for (Role role : roles) {
+			if (role.getName().equals("BOSS")) {
+				isAdmin = true;
+			}
+		}
+		if (isAdmin) {
+			return boardService.getAllOpen();
+		}
+
+		return null;
 	}
 
 	@RequestMapping(value = "/manager/rest/clientsNumber", method = RequestMethod.GET)

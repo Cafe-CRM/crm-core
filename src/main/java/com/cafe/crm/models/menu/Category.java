@@ -33,6 +33,8 @@ public class Category extends BaseEntity {
 
 	private boolean floatingPrice;
 
+	private boolean accountability;
+
 	public Category(String name) {
 		this.name = name;
 	}
@@ -87,6 +89,14 @@ public class Category extends BaseEntity {
 
 	public void setFloatingPrice(boolean floatingPrice) {
 		this.floatingPrice = floatingPrice;
+	}
+
+	public boolean isAccountability() {
+		return accountability;
+	}
+
+	public void setAccountability(boolean accountability) {
+		this.accountability = accountability;
 	}
 
 	@Override

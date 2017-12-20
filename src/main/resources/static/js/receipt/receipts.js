@@ -73,7 +73,7 @@ function removeReceiptBoss(id) {
 function removeReceiptManager(id) {
 
     var formData = {
-        masterKey: $('#masterKey').val(),
+        //masterKey: $('#masterKey').val(),
         receiptId: id
     }
 

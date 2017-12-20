@@ -203,6 +203,13 @@
                                                 Не добавлять в прибыль грязными</input>
                                             </label>
                                         </div>
+                                        <div class="checkbox" align="left">
+                                            <label>
+                                                <input type="checkbox" value="true" name="accountability"
+                                                       th:attrappend="checked=${categor.accountability} ? checked ">
+                                                Добавлять в отчёт</input>
+                                            </label>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn btn-lg btn-primary btn-block" name="upd"
                                             th:value="${categor.id}">
@@ -459,6 +466,13 @@
                                     Категория с плавающей ценной</input>
                                 </label>
                             </div>
+                            <div class="checkbox" align="left">
+                                <label>
+                                    <input type="checkbox" value="true" name="accountability" id="addCatAccountability">
+                                    Добавлять в отчёт</input>
+                                </label>
+                            </div>
+
                         </div>
                         <button type="submit" class="btn btn-lg btn-primary btn-block" name="add" id="saveCat">
                             Сохранить</button>

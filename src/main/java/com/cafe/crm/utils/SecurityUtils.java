@@ -1,11 +1,19 @@
 package com.cafe.crm.utils;
 
+import com.amazonaws.services.identitymanagement.model.UserDetail;
+import com.cafe.crm.models.user.Position;
+import com.cafe.crm.models.user.User;
+import com.cafe.crm.repositories.user.UserRepository;
+import com.cafe.crm.services.interfaces.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class SecurityUtils {
 
 	private static final String BOSS_PATH = "/boss/menu";
@@ -40,7 +48,6 @@ public class SecurityUtils {
 		}
 		return roles;
 	}
-
 	public static boolean hasRole(String... roles) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		List<String> existedRoles = SecurityUtils.getRoles(authentication);

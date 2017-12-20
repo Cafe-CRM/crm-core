@@ -70,7 +70,8 @@ vk:
   application-id:  # application id in vk
   application-secret:  # application secret key
   message-name: daily-report # name of template in db
-  chat-id:  # id of conference
+  service-chat-id:  # id of conference
+  admin-chat-id:
   access-token:
   api-version: 5.68 # vk api version
   mail: # Notification to email
@@ -89,7 +90,6 @@ reCaptcha:
 
 property:
   name:
-    masterKey: masterKey
     price:
       firstHour: Цена за первый час
       nextHours: Цена за последующие часы

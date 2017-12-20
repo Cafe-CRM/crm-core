@@ -496,6 +496,22 @@ function setClientTimeUnpause(clientId) {
     });
 }
 
+$(".changeSumButton").click(function () {
+    sendToken();
+});
+
+function sendToken() {
+    $.ajax({
+        type: "POST",
+        url: "/manager/send-confirm-token",
+
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+}
+
 function closeClientWithNewAmount(calculateId) {
     var checkedValue = document.getElementsByClassName('class' + calculateId);
     var arrayID = [];

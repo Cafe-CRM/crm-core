@@ -34,9 +34,6 @@ public class DebtController {
 	private final PasswordEncoder encoder;
 	private final PropertyService propertyService;
 
-	@Value("${property.name.masterKey}")
-	private String masterKeyPropertyName;
-
 	@Autowired
 	public DebtController(DebtService debtService, TimeManager timeManager, ShiftService shiftService, ChecklistService checklistService, PasswordEncoder encoder, PropertyService propertyService) {
 		this.debtService = debtService;
@@ -140,7 +137,7 @@ public class DebtController {
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
-	@RequestMapping(value = "/deleteManager", method = RequestMethod.POST)
+	/*@RequestMapping(value = "/deleteManager", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> deleteDebtsManager(@RequestParam(name = "debtId") Long id,
 												@RequestParam(name = "masterKey") String masterKey) {
@@ -161,7 +158,7 @@ public class DebtController {
 			throw new DebtDataException("Введен неверный мастер ключ");
 		}
 
-	}
+	}*/
 
 	@ExceptionHandler(value = DebtDataException.class)
 	public ResponseEntity<?> handleUserUpdateException(DebtDataException ex) {
