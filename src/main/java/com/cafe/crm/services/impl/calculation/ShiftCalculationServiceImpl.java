@@ -137,8 +137,10 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 			profit -= givDebt.getDebtAmount();
 		}
 		for (Calculate calculate : allCalculate) {
-			profitRecalculate += calculate.getProfitRecalculation();
-			lossRecalculate += calculate.getLossRecalculation();
+			if (!isCalcDeleted(calculate)) {
+				profitRecalculate += calculate.getProfitRecalculation();
+				lossRecalculate += calculate.getLossRecalculation();
+			}
 		}
 		profit += profitRecalculate;
 		profit -= lossRecalculate;
@@ -447,8 +449,10 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 			allPrice +=receipt.getReceiptAmount();
 		}
 		for (Calculate calculate : shift.getCalculates()) {
-			allPrice += calculate.getProfitRecalculation();
-			allPrice -= calculate.getLossRecalculation();
+			if (!isCalcDeleted(calculate)) {
+				allPrice += calculate.getProfitRecalculation();
+				allPrice -= calculate.getLossRecalculation();
+			}
 		}
 		return allPrice;
 	}
