@@ -1,5 +1,6 @@
 package com.cafe.crm.controllers.debt;
 
+import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.property.Property;
@@ -7,7 +8,11 @@ import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.debt.DebtService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
+import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
+import com.cafe.crm.services.interfaces.vk.VkService;
+import com.cafe.crm.utils.Target;
 import com.cafe.crm.utils.TimeManager;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -31,17 +36,20 @@ public class DebtController {
 	private final TimeManager timeManager;
 	private final ShiftService shiftService;
 	private final ChecklistService checklistService;
-	private final PasswordEncoder encoder;
-	private final PropertyService propertyService;
+	private final VkService vkService;
+	private final ConfirmTokenService confirmTokenService;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(DebtController.class);
 
 	@Autowired
-	public DebtController(DebtService debtService, TimeManager timeManager, ShiftService shiftService, ChecklistService checklistService, PasswordEncoder encoder, PropertyService propertyService) {
+	public DebtController(DebtService debtService, TimeManager timeManager, ShiftService shiftService, ChecklistService checklistService,
+						  VkService vkService, ConfirmTokenService confirmTokenService) {
 		this.debtService = debtService;
 		this.timeManager = timeManager;
 		this.shiftService = shiftService;
 		this.checklistService = checklistService;
-		this.encoder = encoder;
-		this.propertyService = propertyService;
+		this.vkService = vkService;
+		this.confirmTokenService = confirmTokenService;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -125,40 +133,33 @@ public class DebtController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/deleteBoss", method = RequestMethod.POST)
-	public ResponseEntity<?> deleteDebtsBoss(@RequestParam(name = "debtId") Long id) {
+	@RequestMapping(value = "/delete-debt", method = RequestMethod.POST)
+	public ResponseEntity<?> deleteDebtsBoss(@RequestParam(name = "password") String password,
+											 @RequestParam(name = "debtId") Long id) {
+
+		if (password.equals("")) {
+			throw new DebtDataException("Заполните поле пароля перед отправкой!");
+		}
+		if (!confirmTokenService.confirm(password, Target.DELETE_DEBT)) {
+			throw new DebtDataException("Пароль не действителен!");
+		}
 
 		Debt debt = debtService.get(id);
 
 		if (debt != null) {
 			debtService.delete(debt);
+			logger.info("Удаление долга " + debt.getDebtor() + " за " + debt.getDate() + " суммой " + debt.getDebtAmount());
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
-	/*@RequestMapping(value = "/deleteManager", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<?> deleteDebtsManager(@RequestParam(name = "debtId") Long id,
-												@RequestParam(name = "masterKey") String masterKey) {
-		Debt debt = debtService.get(id);
-		Property masterKeyProperty = propertyService.findByName(masterKeyPropertyName);
-		String dbMasterKey;
-
-		if (masterKeyProperty != null) {
-			dbMasterKey = masterKeyProperty.getValue();
-		} else {
-			throw new DebtDataException("Мастер ключ не настроен");
-		}
-
-		if (debt != null && encoder.matches(masterKey, dbMasterKey)) {
-			debtService.delete(debt);
-			return ResponseEntity.ok("Долг успешно удален");
-		} else {
-			throw new DebtDataException("Введен неверный мастер ключ");
-		}
-
-	}*/
+	@RequestMapping(value = "/send-delete-debt-pass", method = RequestMethod.POST)
+	public ResponseEntity sendDeleteDebtPass() {
+		String prefix = "Одноразовый пароль для подтверждения удаления долга: ";
+		vkService.sendConfirmToken(prefix, Target.DELETE_DEBT);
+		return ResponseEntity.ok("Пароль послан");
+	}
 
 	@ExceptionHandler(value = DebtDataException.class)
 	public ResponseEntity<?> handleUserUpdateException(DebtDataException ex) {

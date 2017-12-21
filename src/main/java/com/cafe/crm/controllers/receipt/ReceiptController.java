@@ -1,5 +1,7 @@
 package com.cafe.crm.controllers.receipt;
 
+import com.cafe.crm.controllers.debt.DebtController;
+import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.receipt.ReceiptDataException;
 import com.cafe.crm.models.property.Property;
 import com.cafe.crm.models.user.Receipt;
@@ -7,7 +9,11 @@ import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.receipt.ReceiptService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
+import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
+import com.cafe.crm.services.interfaces.vk.VkService;
+import com.cafe.crm.utils.Target;
 import com.cafe.crm.utils.TimeManager;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -30,20 +36,21 @@ public class ReceiptController {
 	private final ReceiptService receiptService;
 	private final TimeManager timeManager;
 	private final ShiftService shiftService;
-	private final PasswordEncoder encoder;
-	private final PropertyService propertyService;
+	private final VkService vkService;
 	private final ChecklistService checklistService;
+	private final ConfirmTokenService confirmTokenService;
 
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(ReceiptController.class);
 
 	@Autowired
 	public ReceiptController(ReceiptService receiptService, TimeManager timeManager, ShiftService shiftService,
-							 PasswordEncoder encoder, PropertyService propertyService, ChecklistService checklistService) {
+							 VkService vkService, ChecklistService checklistService, ConfirmTokenService confirmTokenService) {
 		this.receiptService = receiptService;
 		this.timeManager = timeManager;
 		this.shiftService = shiftService;
-		this.encoder = encoder;
-		this.propertyService = propertyService;
+		this.vkService = vkService;
 		this.checklistService = checklistService;
+		this.confirmTokenService = confirmTokenService;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -106,41 +113,33 @@ public class ReceiptController {
 		return ResponseEntity.ok("Поступление успешно добавлено!");
 	}
 
-	@RequestMapping(value = "/deleteReceiptBoss", method = RequestMethod.POST)
-	public ResponseEntity<?> deleteReceiptsBoss(@RequestParam(name = "receiptId") Long id) {
+	@RequestMapping(value = "/delete-receipt", method = RequestMethod.POST)
+	public ResponseEntity<?> deleteReceiptsBoss(@RequestParam(name = "password") String password,
+												@RequestParam(name = "receiptId") Long id) {
+
+		if (password.equals("")) {
+			throw new ReceiptDataException("Заполните поле пароля перед отправкой!");
+		}
+		if (!confirmTokenService.confirm(password, Target.DELETE_RECEIPT)) {
+			throw new ReceiptDataException("Пароль не действителен!");
+		}
 
 		Receipt receipt = receiptService.get(id);
 
 		if (receipt != null) {
 			receiptService.delete(receipt);
+			logger.info("Удаление прихода с комментарием " + receipt.getReceiptComment() + " за " + receipt.getDate() + " суммой " + receipt.getReceiptAmount());
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
-
-	/*@RequestMapping(value = "/deleteReceiptManager", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<?> deleteReceiptsManager(@RequestParam(name = "receiptId") Long id,
-												   @RequestParam(name = "masterKey") String masterKey) {
-		Property masterKeyProperty = propertyService.findByName(masterKeyPropertyName);
-		String dbMasterKey;
-
-		if (masterKeyProperty != null) {
-			dbMasterKey = masterKeyProperty.getValue();
-		} else {
-			throw new ReceiptDataException("Мастер ключ не настроен");
-		}
-
-		if (encoder.matches(masterKey, dbMasterKey)) {
-			Receipt receipt = receiptService.get(id);
-			receiptService.delete(receipt);
-			return ResponseEntity.ok("Поступление успешно удалено");
-		} else {
-			throw new ReceiptDataException("Введен неверный мастер ключ");
-		}
-
-	}*/
+	@RequestMapping(value = "/send-delete-receipt-pass", method = RequestMethod.POST)
+	public ResponseEntity sendDeleteDebtPass() {
+		String prefix = "Одноразовый пароль для подтверждения удаления прихода: ";
+		vkService.sendConfirmToken(prefix, Target.DELETE_RECEIPT);
+		return ResponseEntity.ok("Пароль послан");
+	}
 
 	@ExceptionHandler(value = ReceiptDataException.class)
 	public ResponseEntity<?> handleUserUpdateException(ReceiptDataException ex) {

@@ -1,6 +1,7 @@
 package com.cafe.crm.models.token;
 
 import com.cafe.crm.models.BaseEntity;
+import com.cafe.crm.utils.Target;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
@@ -19,9 +20,12 @@ public class ConfirmToken extends BaseEntity {
 	@Column(name = "start_time")
 	private Date startTime;
 
-	public ConfirmToken(String token, Date startTime) {
+	private Target target;
+
+	public ConfirmToken(String token, Date startTime, Target target) {
 		this.token = token;
 		this.startTime = startTime;
+		this.target = target;
 	};
 
 	public ConfirmToken() {};
@@ -48,6 +52,14 @@ public class ConfirmToken extends BaseEntity {
 
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
+	}
+
+	public Target getTarget() {
+		return target;
+	}
+
+	public void setTarget(Target target) {
+		this.target = target;
 	}
 
 	@Override

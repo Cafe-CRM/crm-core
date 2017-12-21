@@ -17,6 +17,7 @@ import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
+import com.cafe.crm.utils.Target;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -208,10 +209,18 @@ public class CalculateController {
 		return ResponseEntity.ok("Долг добавлен!");
 	}
 
-	@RequestMapping(value = {"/send-confirm-token"}, method = RequestMethod.POST)
-	public ResponseEntity sendToken() {
-		vkService.sendConfirmToken();
-		return ResponseEntity.ok("Токен послан");
+	@RequestMapping(value = {"/send-modify-amount-pass"}, method = RequestMethod.POST)
+	public ResponseEntity sendModifyAmountPassword() {
+		String prefix = "Одноразовый пароль для подтверждения изменения итоговой суммы заказа: ";
+		vkService.sendConfirmToken(prefix, Target.RECALCULATE);
+		return ResponseEntity.ok("Пароль послан");
+	}
+
+	@RequestMapping(value = {"/send-calculate-delete-pass"}, method = RequestMethod.POST)
+	public ResponseEntity sendCalculateDeletePassword() {
+		String prefix = "Одноразовый пароль для подтверждения удаления стола: ";
+		vkService.sendConfirmToken(prefix, Target.DELETE_CALC);
+		return ResponseEntity.ok("Пароль послан");
 	}
 
 	@ExceptionHandler(value = {DebtDataException.class, ClientDataException.class})

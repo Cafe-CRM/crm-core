@@ -62,39 +62,39 @@ function isBlank(str) {
 }
 
 
-function removeReceiptBoss(id) {
-    var url = '/manager/tableReceipt/deleteReceiptBoss';
+$(".deleteButton").click(function () {
+    sendToken();
+});
 
-    var request = $.post(url, {receiptId: id}, function () {
-        location.reload();
+function sendToken() {
+    $.ajax({
+        type: "POST",
+        url: "/manager/tableReceipt/send-delete-receipt-pass",
+
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.receiptError').html(errorMessage).show();
+        }
     });
 }
 
-function removeReceiptManager(id) {
-
-    var formData = {
-        //masterKey: $('#masterKey').val(),
-        receiptId: id
-    }
+function deleteReceipt(receiptId) {
+    var  formData = {
+        password : $('#password' + receiptId).val(),
+        receiptId : receiptId
+    };
 
     $.ajax({
         type: "POST",
-        url: "/manager/tableReceipt/deleteReceiptManager",
+        url: "/manager/tableReceipt/delete-receipt",
         data: formData,
-        success: function (result) {
-            var successMessage = '<h4 style="color:green;" align="center">' + result + '</h4>';
-            $('.deleteManagerReceipt').html(successMessage).show();
-            window.setTimeout(function () {
-                $('.deleteManagerReceipt').html(successMessage).hide();
-                location.reload();
-            }, 1000);
+
+        success: function (data) {
+            location.reload();
         },
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
-            $('.deleteManagerReceipt').html(errorMessage).show();
-            window.setTimeout(function () {
-                $('.deleteManagerReceipt').html(errorMessage).hide();
-            }, 3000);
+            $('.receiptError').html(errorMessage).show();
         }
     });
 }

@@ -34,7 +34,7 @@ $(".deleteButton").click(function () {
 function sendToken() {
     $.ajax({
         type: "POST",
-        url: "/manager/send-confirm-token",
+        url: "/manager/send-calculate-delete-pass",
 
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';

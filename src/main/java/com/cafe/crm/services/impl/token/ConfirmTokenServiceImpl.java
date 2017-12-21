@@ -7,6 +7,7 @@ import com.cafe.crm.repositories.token.ConfirmTokenRepository;
 import com.cafe.crm.services.interfaces.company.CompanyService;
 import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.utils.CompanyIdCache;
+import com.cafe.crm.utils.Target;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,26 +35,29 @@ public class ConfirmTokenServiceImpl implements ConfirmTokenService {
 	}
 
 	@Override
-	public String createAndGetToken() {
+	public String createAndGetToken(Target target) {
 		StringBuilder sb = new StringBuilder( 4 );
 		for( int i = 0; i < 4; i++ ) {
 			sb.append(AB.charAt(rnd.nextInt(AB.length())));
 		}
 		String token = sb.toString();
 		Date start = new Date();
-		ConfirmToken confirmToken = new ConfirmToken(passwordEncoder.encode(token), start);
+		ConfirmToken confirmToken = new ConfirmToken(passwordEncoder.encode(token), start, target);
 		save(confirmToken);
 		return token;
 	}
 
 
 	@Override
-	public boolean confirm(String token) {
+	public boolean confirm(String token, Target target) {
 		ConfirmToken confirmToken = repository.findByCompanyId(companyIdCache.getCompanyId());
 		if (confirmToken == null) {
 			return false;
 		}
 		if (isExpired(confirmToken)) {
+			return false;
+		}
+		if (!confirmToken.getTarget().equals(target)) {
 			return false;
 		}
 		String sourceToken = confirmToken.getToken();
@@ -68,7 +72,7 @@ public class ConfirmTokenServiceImpl implements ConfirmTokenService {
 		}
 		Date now = new Date();
 		long diff = (now.getTime() - token.getStartTime().getTime()) / 60000;
-		return diff > 5;
+		return diff > 10;
 	}
 
 	private void save(ConfirmToken confirmToken) {

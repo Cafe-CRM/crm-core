@@ -23,6 +23,7 @@ import com.cafe.crm.services.interfaces.template.TemplateService;
 import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.services.interfaces.vk.VkService;
+import com.cafe.crm.utils.Target;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudinary.json.JSONObject;
@@ -128,7 +129,7 @@ public class VkServiceImpl implements VkService {
 	}
 
 	@Override
-	public void sendConfirmToken() {
+	public void sendConfirmToken(String prefix, Target target) {
 		VkProperties vkProperties = getVkPropertiesFromDB();
 		if (vkProperties == null) {
 			throw new NullPointerException("Не удалось получить vk properties из базы");
@@ -137,7 +138,7 @@ public class VkServiceImpl implements VkService {
 		if (messageTemplate == null) {
 			return;
 		}
-		String message = tokenService.createAndGetToken();
+		String message = prefix + tokenService.createAndGetToken(target);
 		System.out.println(message);
 		Map<String, String> variables = new HashMap<>();
 		variables.put("chat_id", vkProperties.getAdminChatId());

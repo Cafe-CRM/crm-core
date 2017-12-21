@@ -24,54 +24,46 @@
         <td th:text="${#temporals.format(receipts.date, 'dd-MM-yyyy')}" class="date">20.20.2000</td>
         <td>
         </td>
-        <td sec:authorize="hasAuthority('BOSS')">
-            <button type="button" class="btn btn-danger" data-toggle="modal" th:href="'#receiptDeleteBoss' +${receipts.id}"><span class="glyphicon glyphicon-trash"></span></button>
-        </td>
-        <td sec:authorize="!hasAuthority('BOSS') and hasAuthority('MANAGER')">
-            <button type="button" class="btn btn-danger" data-toggle="modal" th:href="'#receiptDeleteManager' +${receipts.id}"><span class="glyphicon glyphicon-trash"></span></button>
+        <td sec:authorize="hasAuthority('BOSS') or hasAuthority('MANAGER')">
+            <button type="button" class="btn btn-danger deleteButton" data-toggle="modal" th:href="'#receiptDelete' +${receipts.id}"><span class="glyphicon glyphicon-trash"></span></button>
         </td>
 
-        <!--Modals-->
-        <div class="modal fade" tabindex="-1" role="dialog" th:id="'receiptDeleteManager'+${receipts.id}" th:fragment="modalDeleteManager">
-            <div class="modal-dialog" role="document">
+        <div th:id="'receiptDelete'+${receipts.id}" class="modal fade" role="dialog" th:fragment="modalDelete">
+            <div class="modal-dialog" style="top: 120px; width: 550px;">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h2 class="modal-title">Удалить приход</h2>
+                    <div class="modal-header" style="padding-bottom: 0px;">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <p class="receiptError" style="display: none;" th:id="'Error' +${receipts.id}"></p>
+                        <h3 style="font-size: 19px; font-weight: 600;">В админ-конференцию был послан короткий код.</h3>
+                        <h3 style="font-size: 19px; font-weight: 600;">Используйте его для подтверждения операции.</h3>
                     </div>
-                    <div class="modal-body" align="center">
-                        <div class="deleteManagerReceipt"/>
-                        <div class="lead" th:text="'Вы действительно хотите удалить поступление ' + ${receipts.receiptComment} + '?'"
-                             id="modal"></div>
-                        <label for="masterKey">Чтобы удалить приход введите мастер ключ</label>
-                        <input type="password" required="" class="form-control" id="masterKey" placeholder="Master Key"/>
-                        <button type="submit" class="btn btn-primary"
-                                id="deleteReceiptManager" th:onclick="'removeReceiptManager(\'' + ${receipts.id} + '\');'">Да
+
+                    <div class="modal-body" style="height: 65px;">
+                        <form class="form-horizontal" role="form">
+
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <input class="form-control" th:id="'password' +${receipts.id}"
+                                           name="password" required="" placeholder="Введите полученный код" type="password"/>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                                th:onclick="'sendToken()'"
+                                style="font-size:16px;" class="btn btn-primary">Отправить код повторно
                         </button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Нет</button>
+                        <button type="button"
+                                th:onclick="'deleteReceipt(\'' + ${receipts.id} + '\')'"
+                                style="font-size:16px;" class="btn btn-primary">Подтвердить
+                        </button>
                     </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
+                </div>
+            </div>
         </div>
 
-        <div class="modal fade" tabindex="-1" role="dialog" th:id="'receiptDeleteBoss'+${receipts.id}" th:fragment="modalDeleteBoss">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h2 class="modal-title">Удалить приход</h2>
-                    </div>
-                    <div class="modal-body" align="center">
-                        <div class="lead" th:text="'Вы действительно хотите удалить поступление ' + ${receipts.receiptComment} + '?'" ></div>
-                        <button type="button" class="btn btn-primary"
-                                id="deleteDebtBoss" th:onclick="'removeReceiptBoss(\'' + ${receipts.id} + '\');'">Да</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Нет</button>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div>
 
     </tr>
     </tbody>

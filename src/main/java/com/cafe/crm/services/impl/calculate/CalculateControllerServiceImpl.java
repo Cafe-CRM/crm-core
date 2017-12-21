@@ -27,6 +27,7 @@ import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
+import com.cafe.crm.utils.Target;
 import com.cafe.crm.utils.TimeManager;
 import org.codehaus.groovy.util.StringUtil;
 import org.slf4j.LoggerFactory;
@@ -266,11 +267,11 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 
 		if (modifiedAmount == null || password.equals("")) {
-			throw new ClientDataException("Поле суммы и кода не могут быть пустыми!");
+			throw new ClientDataException("Поле суммы и пароля не могут быть пустыми!");
 		}
 
-		if (!confirmTokenService.confirm(password)) {
-			throw new ClientDataException("Токен не действителен!");
+		if (!confirmTokenService.confirm(password, Target.RECALCULATE)) {
+			throw new ClientDataException("Пароль не действителен!");
 		}
 
 		double allPrice = 0;
@@ -390,10 +391,10 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	@Override
 	public void deleteCalculate(String password, Long calculateId) {
 		if (password.equals("")) {
-			throw new ClientDataException("Заполните поле токена перед отправкой!");
+			throw new ClientDataException("Заполните поле пароля перед отправкой!");
 		}
-		if (!confirmTokenService.confirm(password)) {
-			throw new ClientDataException("Токен не действителен!");
+		if (!confirmTokenService.confirm(password, Target.DELETE_CALC)) {
+			throw new ClientDataException("Пароль не действителен!");
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);

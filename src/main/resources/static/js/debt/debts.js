@@ -93,44 +93,44 @@ $(document).ready(function () {
 function isBlank(str) {
     return str.length === 0 || str.trim() === ""
 }
-/*
-function removeDebtBoss(id) {
-    var url = '/manager/tableDebt/deleteBoss';
 
-    var request = $.post(url, {debtId: id}, function () {
-        location.reload();
-    });
-}
+$(".deleteButton").click(function () {
+    sendToken();
+});
 
-function removeDebtManager(id) {
-
-    var formData = {
-        masterKey: $('#masterKey').val(),
-        debtId: id
-    }
-
+function sendToken() {
     $.ajax({
         type: "POST",
-        url: "/manager/tableDebt/deleteManager",
-        data: formData,
-        success: function (result) {
-            var successMessage = '<h4 style="color:green;" align="center">' + result + '</h4>';
-            $('.deleteManagerDebt').html(successMessage).show();
-            window.setTimeout(function () {
-                $('.deleteManagerDebt').html(successMessage).hide();
-                location.reload();
-            }, 1000);
-        },
+        url: "/manager/tableDebt/send-delete-debt-pass",
+
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
-            $('.deleteManagerDebt').html(errorMessage).show();
-            window.setTimeout(function () {
-                $('.deleteManagerDebt').html(errorMessage).hide();
-            }, 3000);
+            $('.Error').html(errorMessage).show();
         }
     });
 }
-*/
+
+function deleteDebt(debtId) {
+    var  formData = {
+        password : $('#password' + debtId).val(),
+        debtId : debtId
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/tableDebt/delete-debt",
+        data: formData,
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.Error').html(errorMessage).show();
+        }
+    });
+}
+
 function repayDebt(id) {
     var url = '/manager/tableDebt/repay';
 
