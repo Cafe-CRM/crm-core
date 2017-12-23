@@ -61,9 +61,11 @@ public class ConfirmTokenServiceImpl implements ConfirmTokenService {
 			return false;
 		}
 		String sourceToken = confirmToken.getToken();
-		delete(confirmToken);
-
-		return passwordEncoder.matches(token, sourceToken);
+		if (passwordEncoder.matches(token, sourceToken)) {
+			delete(confirmToken);
+			return true;
+		}
+		return false;
 	}
 
 	private boolean isExpired(ConfirmToken token) {
