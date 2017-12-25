@@ -36,4 +36,6 @@ public interface CalculateControllerService {
 
 	void unpauseClient(Long clientId);
 
+	String getClientsAndDesc();
+
 }

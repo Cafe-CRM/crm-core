@@ -47,7 +47,7 @@ public class CalculateController {
 
 	@Autowired
 	public CalculateController(ProductService productService, ClientService clientService, CategoriesService categoriesService,
-							   CalculateService calculateService, ShiftService shiftService, BoardService boardService,
+							   CalculateService calculateService, BoardService boardService,
 							   DiscountService discountService, CalculateControllerService calculateControllerService,
 							   ChecklistService checklistService, VkService vkService) {
 		this.productService = productService;
@@ -69,6 +69,7 @@ public class CalculateController {
 		modelAndView.addObject("listCalculate", calculateService.getAllOpen());
 		modelAndView.addObject("listBoard", boardService.getAllOpen());
 		modelAndView.addObject("listDiscounts", discountService.getAllOpen());
+		modelAndView.addObject("stateClients", calculateControllerService.getClientsAndDesc());
 		modelAndView.addObject("closeChecklist", checklistService.getAllForCloseShift());
 		modelAndView.addObject("bossFunctional", SecurityUtils.hasRole("BOSS", "MANAGER"));
 		return modelAndView;

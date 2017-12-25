@@ -266,7 +266,9 @@ $(document).on('click', '#saveEditProductDataAll', function () {
     var selfCost = $("#selfCost" + id).val();
 
     if (!productDataValidating(name, cost, selfCost)) {
-        var errorMessage = '<h4 style="color:red;" align="center">Неверный формат данных!11 &#013;&#010; fd</h4>';
+        var errorMessage = '<h4 style="color:red;" align="center">Неверный формат данных!' +
+            '<h5 style="color:red;" align="center">Поле название обязательно</h5>'+
+            '<h5 style="color:red;" align="center">Себестоимость и Цена должны быть больше либо равны 0</h5>';
         $('.messageEditAll' + id).html(errorMessage).show();
         return false;
     }

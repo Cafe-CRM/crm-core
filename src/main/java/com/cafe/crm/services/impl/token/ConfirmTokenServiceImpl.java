@@ -18,7 +18,7 @@ import java.util.Date;
 
 @Service
 public class ConfirmTokenServiceImpl implements ConfirmTokenService {
-	private final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	private final String AB = "0123456789";
 	private final SecureRandom rnd = new SecureRandom();
 	private final ConfirmTokenRepository repository;
 	private final CompanyService companyService;

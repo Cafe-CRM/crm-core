@@ -13,41 +13,52 @@
 <div th:replace="managernavbar :: managerNavbar"></div><!--/.navbar -->
 <div class="container-fluid" style="margin-top:50px">
     <div class="row">
-        <div class="col-sm-9 col-sm-offset-3 col-md-8 col-md-offset-2 main">
-            <h1 style="color: #5bc0de;" th:align="center" class="page-header">Настройки смены</h1>
-            <div class="row placeholders">
-            </div>
-            <div class="tabbable"> <!-- Only required for left/right tabs -->
-                <ul class="nav nav-tabs">
-                    <li style="color: #5bc0de;"><a th:href="'#1' " data-toggle="tab">
 
-                        <h4 style="color: #5bc0de;">Счета за смену</h4></a></li>
-                    <li style="color: #5bc0de;"><a th:href="'#2' " data-toggle="tab">
-
-                        <h4 style="color: #5bc0de;">Клиенты за смену</h4></a></li>
-                    <li style="color: #5bc0de;"><a th:href="'#3' " data-toggle="tab">
-
-                        <h4 style="color: #5bc0de;">Добавить сотрудника</h4></a></li>
-                    <li style="color: #5bc0de;"><a th:href="'#4' " data-toggle="tab">
-
-                        <h4 style="color: #5bc0de;">Удалить сотрудника</h4></a></li>
-
-                    <li style="color: #5bc0de;"><a th:href="'#5' " data-toggle="tab">
-
-                        <h4 style="color: #5bc0de;">Перевод средств</h4></a></li>
-
-                    <li style="color: #5bc0de;"><a th:href="'#6' " data-toggle="tab">
-
-                        <h4 style="color: #5bc0de;">Приходы</h4></a></li>
-
+            <div class="tab-nav nav-info col-sm-9 col-md-8 col-md-offset-2 col-sm-offset-3"> <!-- Only required for left/right tabs -->
+                <h1 style="color: #5bc0de;" th:align="center" class="page-header">Настройки смены</h1>
+                <div class="row placeholders">
+                </div>
+                <ul class="nav nav-tabs settings-nav col-md-10 col-md-offset-1">
+                    <li>
+                        <a th:href="'#1' " data-toggle="tab">
+                            <h4>Счета за смену</h4>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="'#2' " data-toggle="tab">
+                            <h4>Клиенты за смену</h4>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="'#3' " data-toggle="tab">
+                            <h4>Добавить сотрудника</h4>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="'#4' " data-toggle="tab">
+                            <h4>Удалить сотрудника</h4>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="'#5' " data-toggle="tab">
+                            <h4>Перевод средств</h4>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="'#6' " data-toggle="tab">
+                            <h4>Приходы</h4>
+                        </a>
+                    </li>
                 </ul>
+            </div>
+            <div>
                 <div class="tab-content">
-                    <div class="tab-pane active" th:id="1">
+                    <div class="tab-pane active col-md-11 col-sm-9" th:id="1">
                         <h1 th:align="center" style="color: #5bc0de;">Счета</h1>
                         <div class="row">
                         </div>
                         <div class="table">
-                            <table class="table table-bordered">
+                            <table class="table table-bordered table-responsive">
                                 <thead>
                                     <tr>
                                         <th>№</th>
@@ -55,6 +66,7 @@
                                         <th>Описание счета</th>
                                         <th>Стол</th>
                                         <th>Описание клиентов</th>
+                                        <th>Общий чек</th>
                                         <th>Чек</th>
                                         <th>Стоимость времени</th>
                                         <th>Стоимость прочего меню</th>
@@ -74,24 +86,40 @@
                                             <p th:text="Счет +' '+закрыт"></p>
                                         </div>
                                     </td>
-                                    <td><p th:text="${calculate.getDescription()}"></p></td>
-                                    <td><p th:each="board:${calculate.board}" th:text="${board.getName()}"></p></td>
-                                    <td><div th:each="client: ${calculate.client}">
-                                        <div th:if="${client.description==''}">
-                                            <p th:text="Описание+' '+отсутствует"></p>
-                                        </div>
-                                        <div th:if="${client.description!=''}">
-                                            <p th:text="${client.getDescription()}"></p>
-                                        </div>
-                                    </div>
+                                    <td>
+                                        <p th:text="${calculate.getDescription()}"></p>
                                     </td>
-                                    <td><div th:each="client: ${calculate.client}">
-                                        <p th:text="${client.allPrice}"></p>
-                                    </div>
+                                    <td>
+                                        <p th:each="board:${calculate.board}" th:text="${board.getName()}"></p>
                                     </td>
-                                    <td><div th:each="client: ${calculate.client}">
-                                        <p th:text="${client.priceTime}"></p>
-                                    </div>
+                                    <td>
+                                        <div th:each="client: ${calculate.client}">
+                                            <div th:if="${client.description==''}">
+                                                <p th:text="Описание+' '+отсутствует"></p>
+                                            </div>
+                                            <div th:if="${client.description!=''}">
+                                                <p th:text="${client.getDescription()}"></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div th:if="${calculate.lossRecalculation==0.0 and calculate.profitRecalculation==0.0}">
+                                            <p th:text="${calculate.allPrice}"></p>
+                                        </div>
+                                        <div th:unless="${calculate.lossRecalculation==0.0 and calculate.profitRecalculation==0.0}">
+                                            <p th:text="${calculate.allPrice}"></p>
+                                            <p th:text="'Перерасчитано &shy; c ' + ${calculate.allPrice + calculate.lossRecalculation - calculate.profitRecalculation}"></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div th:each="client: ${calculate.client}">
+                                            <p th:text="${client.allPrice}"></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div th:each="client: ${calculate.client}">
+                                            <p th:text="${client.priceTime}"></p>
+                                        </div>
                                     </td>
                                     <td>
                                         <div th:each="client: ${calculate.client}">
@@ -206,7 +234,7 @@
                     </div>
 
 
-                    <div class="tab-pane " th:id="2">
+                    <div class="tab-pane col-md-8 col-sm-9 col-md-offset-2 col-sm-offset-1" th:id="2">
 
                         <h1 th:align="center" style="color: #5bc0de;">Клиенты</h1>
                         <div class="row">
@@ -253,7 +281,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="tab-pane " th:id="3">
+                    <div class="tab-pane col-md-6 col-sm-5 col-md-offset-3 col-sm-offset-4" th:id="3">
 
                         <h1 th:align="center" style="color: #5bc0de;">Сотрудники</h1>
                         <div class="row">
@@ -264,7 +292,7 @@
                                 <tr>
                                     <th><p th:align="center">#</p></th>
                                     <th><p th:align="center">Имя</p></th>
-                                    <th><p th:align="center">Удаление сотрудника</p></th>
+                                    <th><p th:align="center">Добавить сотрудника</p></th>
                                 </tr>
                                 <tbody class="searchable" th:each="user,iter:${usersNotOnShift}">
                                 <tr>
@@ -284,7 +312,7 @@
                         </div>
 
                     </div>
-                    <div class="tab-pane " th:id="4">
+                    <div class="tab-pane col-md-6 col-sm-5 col-md-offset-3 col-sm-offset-4" th:id="4">
 
                         <h1 th:align="center" style="color: #5bc0de;">Сотрудники смены</h1>
                         <div class="row">
@@ -315,14 +343,13 @@
                         </div>
 
                     </div>
-                    <div class="tab-pane " th:id="5">
+                    <div class="tab-pane col-md-6 col-sm-5 col-md-offset-3 col-sm-offset-4" th:id="5">
 
                         <h1 th:align="center" style="color: #5bc0de;">Перевод средств</h1>
                         <div class="row">
                             <div class="messageAd"></div>
                         </div>
                         <div class="table" style="border-radius:5px;" data-page="bossview.html">
-                            <div class="col-md-6 col-md-offset-3">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
@@ -378,10 +405,9 @@
                                     </tr>
                                 </tfoot>
                             </table>
-                            </div>
                         </div>
                     </div>
-                    <div class="tab-pane " th:id="6">
+                    <div class="tab-pane col-md-6 col-sm-5 col-md-offset-3 col-sm-offset-4" th:id="6">
                         <h1 th:align="center" style="color: #5bc0de;">Приходы</h1>
                         <div class="row">
                         </div>
@@ -407,7 +433,7 @@
                 </div>
             </div>
 
-        </div>
+
     </div>
 
 </div>

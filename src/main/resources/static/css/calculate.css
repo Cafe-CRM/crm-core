@@ -11,3 +11,28 @@
     padding: 0 !important;
     margin: 0 !important;
 }
+
+.open-button {
+    width: 350px;
+    height: 34px;
+}
+
+.open-calc {
+    width: 350px;
+    height: 34px;
+    border-radius: 4px;
+    background: #E1F8FF;
+    border: 2px solid #46b8da;
+}
+
+.client-info {
+    width: 235px;
+    height: 28px;
+    float: right;
+    background: #E1F8FF;
+    color: black;
+    margin: -4px -10px 0 0;
+    padding-top: 4px;
+    border-radius: 0 4px 4px 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}

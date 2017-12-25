@@ -282,11 +282,15 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		List<CalculateDTO> calculates = new ArrayList<>();
 
 		for (Calculate calculate : sortedList) {
+			double allPrice = calculate.getClient().stream().mapToDouble(Client::getAllPrice).sum();
+			allPrice += calculate.getProfitRecalculation();
+			allPrice -= calculate.getLossRecalculation();
 			if (!isCalcDeleted(calculate)) {
 				CalculateDTO calcDto = transformer.transform(calculate, CalculateDTO.class);
 				calcDto.setClient(getClients(calculate));
 				calcDto.setDirtyOrder(getDirtyMenu(calculate));
 				calcDto.setOtherOrder(getOtherMenu(calculate));
+				calcDto.setAllPrice(allPrice);
 				calculates.add(calcDto);
 			}
 		}

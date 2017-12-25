@@ -5,7 +5,6 @@ import com.cafe.crm.dto.CalculateDTO;
 import com.cafe.crm.dto.ShiftCloseDTO;
 import com.cafe.crm.dto.ShiftView;
 import com.cafe.crm.exceptions.transferDataException.TransferException;
-import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
@@ -29,7 +28,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 @Controller

@@ -27,3 +27,25 @@
     width: 120px;
     word-break: break-all;
 }
+
+.settings-nav {
+    border-bottom: none !important;
+}
+
+.settings-nav > li > a {
+    color: #5bc0de;
+    border-radius: 4px !important;
+}
+
+.settings-nav > li > h4 {
+    color: #5bc0de;
+}
+
+#1 {
+    margin-left: 20px !important;
+}
+
+.nav-info {
+    padding: 0px 0px 10px 0px;
+    border-bottom: 1px solid #ddd;
+}

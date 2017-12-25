@@ -1,4 +1,14 @@
 
+jQuery(document).ready( function() {
+    var elem = $("div#1");
+    var tableWidth = elem.width();
+    if(tableWidth < 1000) {
+        return;
+    }
+    var lMargin = (tableWidth / 11) / 2;
+    elem.css('margin-left', '+=' + lMargin);
+});
+
 function getOtherProductsAndDisplay(iter) {
     var jBlock = jQuery('#otherBlock' + iter);
     var jButton = jQuery('#otherButton' + iter);

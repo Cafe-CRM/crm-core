@@ -10,7 +10,7 @@ $( document ).ready(function() {
 var recaptchaAnswer = "";
 var onloadCallback = function() {
     grecaptcha.render('reCaptcha', {
-        'sitekey' : '6LcmCzMUAAAAAE5IbSqx_D2MLo2dGWxGYoTgoQsw',
+        'sitekey' : '6LeBQT4UAAAAANTIS1WPCx_ZqxxynMQO04zM5mkn',
         'callback' : verifyCallback,
         "expired-callback": onRecaptchaExpired
     });

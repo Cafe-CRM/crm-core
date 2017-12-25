@@ -84,7 +84,7 @@ card:
 
 reCaptcha:
   apiUrl: https://www.google.com/recaptcha/api/siteverify
-  secretKey: 6LcmCzMUAAAAAAnMaxexPbqr8oNzYzke-gcPTYFz
+  secretKey: 6LeBQT4UAAAAAHz-FS7LKTNuFrOllzxErfXdkNgB
 
 
 

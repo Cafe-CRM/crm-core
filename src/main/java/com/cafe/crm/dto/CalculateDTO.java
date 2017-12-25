@@ -32,6 +32,8 @@ public class CalculateDTO {
 
 	private List<String> otherOrder;
 
+	private double allPrice;
+
 	private double lossRecalculation;
 
 	private double profitRecalculation;
@@ -114,6 +116,14 @@ public class CalculateDTO {
 
 	public void setOtherOrder(List<String> otherOrder) {
 		this.otherOrder = otherOrder;
+	}
+
+	public double getAllPrice() {
+		return allPrice;
+	}
+
+	public void setAllPrice(double allPrice) {
+		this.allPrice = allPrice;
 	}
 
 	public double getLossRecalculation() {

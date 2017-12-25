@@ -502,4 +502,24 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		timerOfPauseService.save(timer);
 		clientService.save(client);
 	}
+
+	@Override
+	public String getClientsAndDesc() {
+		int amount = clientService.getAllOpen().size();
+		String charArr = Integer.toString(amount);
+		char lastChar = charArr.charAt(charArr.length() - 1);
+		int lastDigit = Character.getNumericValue(lastChar);
+
+		StringBuilder sb = new StringBuilder();
+
+		if(lastDigit == 1) {
+			sb.append("Сейчас в заведении ").append(amount).append(" гость");
+		} else if(lastDigit >= 2 && lastDigit <=4) {
+			sb.append("Сейчас в заведении ").append(amount).append(" гостя");
+		} else {
+			sb.append("Сейчас в заведении ").append(amount).append(" гостей");
+		}
+
+		return sb.toString();
+	}
 }
