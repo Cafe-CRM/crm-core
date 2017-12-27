@@ -9,6 +9,24 @@
 <div th:replace="bossnavbar :: bossNavbar"></div>
 
 <div class="col-md-7 col-sm-offset-3">
+    <hr/>
+    <hr/>
+    <div class="row">
+        <form class="form-inline" role="form" th:method="post" action="/boss/totalStatistics/searchByDate">
+            <label for="from" class="control-label" style="color: #5bc0de;font-size: 30px">Дата смены с : </label>
+            <input name="from" th:value="${from}" class="form-control"
+                   th:type="date" id="from" required=""/>
+
+            <label for="to" class="control-label" style="color: #5bc0de;font-size: 30px">по : </label>
+            <input name="to" th:value="${to}" class="form-control"
+                   th:type="date" id="to" required=""/>
+
+            <button class="btn btn-default" name="del" type="submit">Показать
+            </button>
+        </form>
+    </div>
+
+    <hr/>
     <div style="margin-top: 10%; text-align: center;">
         <h2 style="color: floralwhite;">Нет данных для отображения статистики</h2>
     </div>

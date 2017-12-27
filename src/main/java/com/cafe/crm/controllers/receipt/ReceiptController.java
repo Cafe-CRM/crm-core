@@ -2,6 +2,7 @@ package com.cafe.crm.controllers.receipt;
 
 import com.cafe.crm.controllers.debt.DebtController;
 import com.cafe.crm.exceptions.client.ClientDataException;
+import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.exceptions.receipt.ReceiptDataException;
 import com.cafe.crm.models.property.Property;
 import com.cafe.crm.models.user.Receipt;
@@ -118,10 +119,10 @@ public class ReceiptController {
 												@RequestParam(name = "receiptId") Long id) {
 
 		if (password.equals("")) {
-			throw new ReceiptDataException("Заполните поле пароля перед отправкой!");
+			throw new PasswordException("Заполните поле пароля перед отправкой!");
 		}
 		if (!confirmTokenService.confirm(password, Target.DELETE_RECEIPT)) {
-			throw new ReceiptDataException("Пароль не действителен!");
+			throw new PasswordException("Пароль не действителен!");
 		}
 
 		Receipt receipt = receiptService.get(id);
@@ -143,6 +144,11 @@ public class ReceiptController {
 
 	@ExceptionHandler(value = ReceiptDataException.class)
 	public ResponseEntity<?> handleUserUpdateException(ReceiptDataException ex) {
+		return ResponseEntity.badRequest().body(ex.getMessage());
+	}
+
+	@ExceptionHandler(value = PasswordException.class)
+	public ResponseEntity<?> handleTransferException(PasswordException ex) {
 		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 

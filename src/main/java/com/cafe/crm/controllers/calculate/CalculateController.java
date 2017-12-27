@@ -2,6 +2,7 @@ package com.cafe.crm.controllers.calculate;
 
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
+import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.discount.Discount;
@@ -18,6 +19,7 @@ import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
 import com.cafe.crm.utils.Target;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -101,11 +103,17 @@ public class CalculateController {
 	}
 
 	@RequestMapping(value = {"/add-calculate"}, method = RequestMethod.POST)
-	public String createCalculate(@RequestParam("boardId") Long id,
+	public ResponseEntity createCalculate(@RequestParam("boardId") Long id,
 	                              @RequestParam("number") Double number,
 	                              @RequestParam("description") String description) {
+		if (StringUtils.isBlank(description)) {
+			throw new ClientDataException("Описание стола не может быть пустым!");
+		}
+		if (id == null) {
+			throw new ClientDataException("Выберите стол");
+		}
 		calculateControllerService.createCalculate(id, number.longValue(), description);
-		return "redirect:/manager";
+		return ResponseEntity.ok("стол добавлен");
 	}
 
 	@RequestMapping(value = {"/card/add-card-on-client"}, method = RequestMethod.POST)
@@ -201,6 +209,22 @@ public class CalculateController {
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
 
+	@RequestMapping(value = {"/close-and-recalculate"}, method = RequestMethod.POST)
+	public ResponseEntity closeAndRecalculate(@RequestParam(name = "newAmount") Double modifiedAmount,
+											@RequestParam(name = "password") String password,
+											@RequestParam("calculateId") Long calculateId) {
+		calculateControllerService.closeAndRecalculate(modifiedAmount, password, calculateId);
+		return ResponseEntity.ok("Клиенты рассчитаны!");
+	}
+
+	@RequestMapping(value = {"/recalculate"}, method = RequestMethod.POST)
+	public ResponseEntity recalculate(@RequestParam(name = "newAmount") Double modifiedAmount,
+											  @RequestParam(name = "password") String password,
+											  @RequestParam("calculateId") Long calculateId) {
+		calculateControllerService.recalculate(modifiedAmount, password, calculateId);
+		return ResponseEntity.ok("Клиенты рассчитаны!");
+	}
+
 	@RequestMapping(value = {"/close-client-debt"}, method = RequestMethod.POST)
 	public ResponseEntity closeClientDebt(@RequestParam(name = "clientsId[]") long[] clientsId,
 	                                      @RequestParam("calculateId") Long calculateId,
@@ -230,7 +254,10 @@ public class CalculateController {
 		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 
-
+	@ExceptionHandler(value = PasswordException.class)
+	public ResponseEntity<?> handleTransferException(PasswordException ex) {
+		return ResponseEntity.badRequest().body(ex.getMessage());
+	}
 }
 
 

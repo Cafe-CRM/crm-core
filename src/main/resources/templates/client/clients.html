@@ -17,6 +17,20 @@
 
         <!--modal window with create calculate-->
         <div th:replace="client/clientFragments/addCalculateFragment :: calculateModal"></div>
+        <div id="calcDescError" class="modal fade" role="dialog">
+            <div class="modal-dialog" style="width: 400px; margin-top: 100px">
+                <div class="modal-content">
+                    <div class="modal-body" style="padding-bottom: 48px;">
+                        <p id="errorMessage"></p>
+                        <button type="button" style="float: right"
+                                data-dismiss="modal"
+                                class="btn btn-primary">
+                            Закрыть
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- -->
 
         <br/>
@@ -45,16 +59,27 @@
                         <div th:replace="client/clientFragments/addClientFragment :: clientModal"></div>
                         <!-- -->
 
+                        <input th:oninput="'changeButton(\'' + ${calculate.id} + '\');'" th:id="'editDescInput' + ${calculate.id}" type="text"
+                               style="width: 555px; height: 33px; text-align: center; margin-top: 6px; color: #555;
+                               border: 1px solid #ccc; font-size: 20px; border-radius: 4px; display: none"/>
+
                         <button th:id="'head1' + ${calculate.id}"
                                 th:onclick="'cookiePanel(\'' +'accord'+ ${calculate.id} + '\');'"
-                                style="float: left; width: 560px; word-wrap: break-word; font-size: 20px; height: 33px;
+                                style="float: left; width: 555px; word-wrap: break-word; font-size: 20px; height: 33px;
                                  outline: none; text-align: center; background: none;border: none;margin-top: 5px"
                                 data-toggle="collapse" th:href="'#accord' + ${calculate.id}"
                                 th:text="${calculate.description}">
                         </button>
 
+                        <button class="btn btn-info" th:id="'editDesc' + ${calculate.id}"
+                                style="float: right; font-size: 15px; margin: 5px 6px 0 0; width: 163px;"
+                                th:onclick="'editDescription(\'' + ${calculate.id} + '\', \'' + ${calculate.description} + '\');'">
+                            Изменить описание
+                        </button>
+
                     </div>
                 </div>
+
                 <!-- -->
 
                 <!--body panel -->

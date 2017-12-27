@@ -36,15 +36,30 @@ function showClose(jBlock, jButton, button) {
         button.innerHTML = 'Посмотреть заказ';
     }
 }
-
 $(".deleteButton").click(function () {
-    sendToken();
+    sendDeleteDebtToken();
 });
 
-function sendToken() {
+$(".closeAndRecalculate").click(function () {
+    sendRecalculateToken();
+});
+
+function sendDeleteDebtToken() {
     $.ajax({
         type: "POST",
         url: "/manager/send-calculate-delete-pass",
+
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+}
+
+function sendRecalculateToken() {
+    $.ajax({
+        type: "POST",
+        url: "/manager/send-modify-amount-pass",
 
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
@@ -62,6 +77,50 @@ function deleteCalculate(calculateId) {
     $.ajax({
         type: "POST",
         url: "/manager/delete-calculate",
+        data: formData,
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+}
+
+function closeClientWithNewAmount(calculateId) {
+    var  formData = {
+        newAmount : $('#newAmount' + calculateId).val(),
+        password : $('#pass' + calculateId).val(),
+        calculateId : calculateId
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/close-and-recalculate",
+        data: formData,
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+}
+
+function recalculate(calculateId) {
+    var  formData = {
+        newAmount : $('#newAmount' + calculateId).val(),
+        password : $('#pass' + calculateId).val(),
+        calculateId : calculateId
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/recalculate",
         data: formData,
 
         success: function (data) {

@@ -5,6 +5,7 @@ import com.cafe.crm.configs.property.PriceNameProperties;
 import com.cafe.crm.controllers.card.CardProfileController;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
+import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.card.Card;
 import com.cafe.crm.models.client.*;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -228,12 +230,24 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 
 		List<Client> listClient = clientService.findByIdIn(clientsId);
-		List<Card> listCard = new ArrayList<>();
+
 		Map<Long, Double> balanceBeforeDeduction = new HashMap<>();
 
 		clientService.findCardByClientIdIn(clientsId)
 				.forEach(card -> balanceBeforeDeduction.put(card.getId(), card.getBalance()));
 
+		sendBalanceInfoAfterDeduction(listClient, balanceBeforeDeduction);
+
+		closeClient(listClient, calculateId);
+	}
+
+	@Override
+	public void closeClientList(List<Client> listClient, Long calculateId) {
+		closeClient(listClient, calculateId);
+	}
+
+	private void closeClient(List<Client> listClient, Long calculateId) {
+		List<Card> listCard = new ArrayList<>();
 		for (Client client : listClient) {
 			if (client.isPause()) {
 				throw new ClientDataException("На форме расчёта присутствуют клиетны на паузе!");
@@ -257,7 +271,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		clientService.saveAll(listClient);
 
 		findLeastOneOpenClientAndCloseCalculation(calculateId);
-		sendBalanceInfoAfterDeduction(listClient, balanceBeforeDeduction);
 	}
 
 	@Override
@@ -267,11 +280,11 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 
 		if (modifiedAmount == null || password.equals("")) {
-			throw new ClientDataException("Поле суммы и пароля не могут быть пустыми!");
+			throw new PasswordException("Поле суммы и пароля не могут быть пустыми!");
 		}
 
 		if (!confirmTokenService.confirm(password, Target.RECALCULATE)) {
-			throw new ClientDataException("Пароль не действителен!");
+			throw new PasswordException("Пароль не действителен!");
 		}
 
 		double allPrice = 0;
@@ -279,6 +292,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		List<Client> listClient = clientService.findByIdIn(clientsId);
 
 		for (Client client : listClient) {
+
 			allPrice += client.getAllPrice();
 		}
 
@@ -294,6 +308,81 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 		calculateService.save(calculate);
 		closeClient(clientsId, calculateId);
+	}
+
+	@Override
+	public void closeAndRecalculate(Double modifiedAmount, String password, Long calculateId) {
+		if (modifiedAmount == null || password.equals("")) {
+			throw new PasswordException("Поле суммы и пароля не могут быть пустыми!");
+		}
+
+		if (!confirmTokenService.confirm(password, Target.RECALCULATE)) {
+			throw new PasswordException("Пароль не действителен!");
+		}
+
+		double allPrice = 0;
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> listClient = calculate.getClient();//.stream().filter(Client::isState).collect(Collectors.toList());
+
+		for (Client client : listClient) {
+			client.setPause(false);
+			allPrice += client.getAllPrice();
+		}
+
+		double profitRecalculation = calculate.getProfitRecalculation();
+		double lossRecalculation= calculate.getLossRecalculation();
+		allPrice += profitRecalculation;
+		allPrice -= lossRecalculation;
+
+		if (modifiedAmount < 0) {
+			throw new ClientDataException("Нельзя указывать отрицательную сумму!");
+		} else if (modifiedAmount > allPrice){
+			double difference = modifiedAmount - allPrice;
+			calculate.setProfitRecalculation(profitRecalculation + difference);
+		} else {
+			double difference = allPrice - modifiedAmount;
+			calculate.setLossRecalculation(lossRecalculation + difference);
+		}
+
+		calculateService.save(calculate);
+		listClient = listClient.stream().filter(Client::isState).collect(Collectors.toList());
+		closeClientList(listClient, calculateId);
+	}
+
+	@Override
+	public void recalculate(Double modifiedAmount, String password, Long calculateId) {
+		if (modifiedAmount == null || password.equals("")) {
+			throw new PasswordException("Поле суммы и пароля не могут быть пустыми!");
+		}
+
+		if (!confirmTokenService.confirm(password, Target.RECALCULATE)) {
+			throw new PasswordException("Пароль не действителен!");
+		}
+
+		double allPrice = 0;
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> listClient = calculate.getClient();
+
+		double profitRecalculation = calculate.getProfitRecalculation();
+		double lossRecalculation= calculate.getLossRecalculation();
+		allPrice += profitRecalculation;
+		allPrice -= lossRecalculation;
+
+		for (Client client : listClient) {
+			allPrice += client.getAllPrice();
+		}
+
+		if (modifiedAmount < 0) {
+			throw new ClientDataException("Нельзя указывать отрицательную сумму!");
+		} else if (modifiedAmount > allPrice){
+			double difference = modifiedAmount - allPrice;
+			calculate.setProfitRecalculation(profitRecalculation + difference);
+		} else {
+			double difference = allPrice - modifiedAmount;
+			calculate.setLossRecalculation(lossRecalculation + difference);
+		}
+
+		calculateService.save(calculate);
 	}
 
 	private void findLeastOneOpenClientAndCloseCalculation(Long calculateId) {
@@ -391,10 +480,10 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	@Override
 	public void deleteCalculate(String password, Long calculateId) {
 		if (password.equals("")) {
-			throw new ClientDataException("Заполните поле пароля перед отправкой!");
+			throw new PasswordException("Заполните поле пароля перед отправкой!");
 		}
 		if (!confirmTokenService.confirm(password, Target.DELETE_CALC)) {
-			throw new ClientDataException("Пароль не действителен!");
+			throw new PasswordException("Пароль не действителен!");
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);
@@ -509,17 +598,16 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		String charArr = Integer.toString(amount);
 		char lastChar = charArr.charAt(charArr.length() - 1);
 		int lastDigit = Character.getNumericValue(lastChar);
-
-		StringBuilder sb = new StringBuilder();
+		String text = "";
 
 		if(lastDigit == 1) {
-			sb.append("Сейчас в заведении ").append(amount).append(" гость");
+			text = "Сейчас в заведении " + amount + " гость";
 		} else if(lastDigit >= 2 && lastDigit <=4) {
-			sb.append("Сейчас в заведении ").append(amount).append(" гостя");
+			text = "Сейчас в заведении " + amount + " гостя";
 		} else {
-			sb.append("Сейчас в заведении ").append(amount).append(" гостей");
+			text = "Сейчас в заведении " + amount + " гостей";
 		}
 
-		return sb.toString();
+		return text;
 	}
 }

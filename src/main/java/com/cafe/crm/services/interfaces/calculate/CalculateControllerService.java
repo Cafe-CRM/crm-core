@@ -22,7 +22,13 @@ public interface CalculateControllerService {
 
 	void closeClient(long[] clientsId, Long calculateId);
 
+	void closeClientList(List<Client> listClient, Long calculateId);
+
 	void closeNewSumClient(Double modifiedAmount, String password, long[] clientsId, Long calculateId);
+
+	void closeAndRecalculate(Double modifiedAmount, String password, Long calculateId);
+
+	void recalculate(Double modifiedAmount, String password, Long calculateId);
 
 	void closeClientDebt(String debtorName, long[] clientsId, Long calculateId, Double amountOfDebt);
 

@@ -26,16 +26,16 @@
                 </div>
                 <div class="modal-body">
                     <h4> Описание</h4>
-                    <form id="formMod" action="/manager/add-calculate" method="post">
+
                         <input autocomplete="off" style="font-size: 20px" class="form-control" type="text"
-                               name="description" maxlength="30"/>
+                               id="description" maxlength="30"/>
                         <h4 style="margin-right: 50px; float: left">Кол-во человек</h4>
                         <h4>Стол</h4>
 
-                        <input autocomplete="off" style="width: 90px;margin-right: 60px; float: left;font-size: 20px"
+                        <input id="number" autocomplete="off" style="width: 90px;margin-right: 60px; float: left;font-size: 20px"
                                class="form-control" type="number"
-                               name="number" list="data" max="228" min="1" value="1" required=""/>
-                    </form>
+                               list="data" max="228" min="1" value="1" required=""/>
+
                     <datalist id="data">
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -44,7 +44,7 @@
                         <option value="5">5</option>
                     </datalist>
 
-                    <select required="" class="form-control " form="formMod" style="width:110px;font-size: 17px" name="boardId">
+                    <select id="boardId" required="" class="form-control " style="width:110px;font-size: 17px">
                         <option value=""></option>
                         <c th:each="board : ${listBoard}">
                             <option th:value="${board.id}"><h4 th:text="${board.name}"></h4></option>
@@ -53,12 +53,13 @@
 
                     <br/>
                     <br/>
-                    <button form="formMod" class="btn btn-primary" type="submit">Создать</button>
+                    <button th:onclick="'openNewCalc()'" class="btn btn-primary" type="button">Создать</button>
                 </div>
             </div>
         </div>
     </div>
     <script th:src="@{/js/shift/close.js}"></script>
+    <script type="text/javascript" th:src="@{/js/clients/clients.js}"></script>
 </div>
 </body>
 </html>

@@ -4,6 +4,7 @@ package com.cafe.crm.controllers.shift;
 import com.cafe.crm.dto.CalculateDTO;
 import com.cafe.crm.dto.ShiftCloseDTO;
 import com.cafe.crm.dto.ShiftView;
+import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.exceptions.transferDataException.TransferException;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.User;
@@ -11,10 +12,13 @@ import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.email.EmailService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
+import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
+import com.cafe.crm.utils.Target;
 import com.cafe.crm.utils.TimeManager;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,6 +30,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -42,11 +47,14 @@ public class ShiftController {
     private final VkService vkService;
     private final ChecklistService checklistService;
     private final ShiftCalculationService shiftCalculationService;
+    private final ConfirmTokenService confirmTokenService;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(ShiftController.class);
 
     @Autowired
     public ShiftController(ShiftService shiftService, TimeManager timeManager, EmailService emailService,
 						   VkService vkService, UserService userService, ChecklistService checklistService,
-						   ShiftCalculationService shiftCalculationService) {
+						   ShiftCalculationService shiftCalculationService, ConfirmTokenService confirmTokenService) {
         this.shiftService = shiftService;
         this.timeManager = timeManager;
         this.emailService = emailService;
@@ -54,6 +62,7 @@ public class ShiftController {
         this.userService = userService;
         this.checklistService = checklistService;
         this.shiftCalculationService = shiftCalculationService;
+        this.confirmTokenService = confirmTokenService;
     }
 
     @Transactional
@@ -236,9 +245,66 @@ public class ShiftController {
         }
     }
 
+    @RequestMapping(value = "/shift/editCashBoxAndBegin", method = RequestMethod.POST)
+    public String editCashBoxAndBegin(@RequestParam(name = "usersId[]", required = false) long[] usersIdsOnShift,
+									  @RequestParam(name = "cashBox", required = false) Double cashBox,
+									  @RequestParam(name = "bankCashBox", required = false) Double bankCashBox,
+									  @RequestParam(name = "password", required = false) String password,
+									  Authentication authentication) {
+		if (password.equals("")) {
+			throw new PasswordException("Заполните поле пароля перед отправкой!");
+		}
+		if (!confirmTokenService.confirm(password, Target.CHANGE_CASHBOX)) {
+			throw new PasswordException("Пароль не действителен!");
+		}
+
+		Shift lastShift = shiftService.getLast();
+		if (lastShift != null && lastShift.isOpen()) {
+			return "redirect:/manager";
+		}
+
+		if (lastShift == null) {
+			throw new TransferException("Вы пытаетесь изменить несуществующую кассу");
+		}
+
+		if (usersIdsOnShift == null) {
+			User user = userService.findByEmail(authentication.getName());
+			shiftService.createNewShift(cashBox, bankCashBox, user.getId());
+			logger.info(getLogMessage(shiftService.getLast().getId(), lastShift.getCashBox(), lastShift.getBankCashBox(), cashBox, bankCashBox));
+		} else {
+			shiftService.createNewShift(cashBox, bankCashBox, usersIdsOnShift);
+			logger.info(getLogMessage(shiftService.getLast().getId(), lastShift.getCashBox(), lastShift.getBankCashBox(), cashBox, bankCashBox));
+		}
+		return "redirect:/manager";
+    }
+
+	@RequestMapping(value = "/shift/send-edit-cash-box-pass", method = RequestMethod.POST)
+	public ResponseEntity sendDeleteDebtPass() {
+		String prefix = "Одноразовый пароль для подтверждения изменения кассы: ";
+		vkService.sendConfirmToken(prefix, Target.CHANGE_CASHBOX);
+		return ResponseEntity.ok("Пароль послан");
+	}
+
     @ExceptionHandler(value = TransferException.class)
     public ResponseEntity<?> handleTransferException(TransferException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
+	@ExceptionHandler(value = PasswordException.class)
+	public ResponseEntity<?> handleTransferException(PasswordException ex) {
+		return ResponseEntity.badRequest().body(ex.getMessage());
+	}
+
+	private String getLogMessage(Long shiftId, Double prevCash, Double prevBankCash, Double editCash, Double editBankCash) {
+		return "Открытие смены с изменением кассы. Смена id" + shiftId +
+				". Изменение кэшбокса: " +
+				prevCash +
+				" > " +
+				editCash +
+				". Изменение суммы на банковской карте: " +
+				prevBankCash +
+				" > " +
+				editBankCash;
+	}
 }
 

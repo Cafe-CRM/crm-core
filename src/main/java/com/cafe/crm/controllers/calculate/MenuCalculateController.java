@@ -1,16 +1,17 @@
 package com.cafe.crm.controllers.calculate;
 
+import com.cafe.crm.exceptions.client.ClientDataException;
+import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.client.LayerProduct;
 import com.cafe.crm.services.interfaces.calculate.CalculateService;
 import com.cafe.crm.services.interfaces.calculate.MenuCalculateControllerService;
 import com.cafe.crm.services.interfaces.client.ClientService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
@@ -79,5 +80,22 @@ public class MenuCalculateController {
 	@ResponseBody
 	public List<Client> getOpenClientsOnCalculateAjax(@RequestParam("calculateId") long calculateId) {
 		return calculateService.getAllOpenOnCalculate(calculateId).getClient();
+	}
+
+	@RequestMapping(value = {"/change-calculate-description"})
+	public ResponseEntity changeCalculateDescription(@RequestParam("calculateId") long calculateId,
+												   @RequestParam("description") String description) {
+		if (!StringUtils.isNotBlank(description)) {
+			throw new ClientDataException("Описание стола не может быть пустым!");
+		}
+		Calculate editCalculate = calculateService.getOne(calculateId);
+		editCalculate.setDescription(description);
+		calculateService.save(editCalculate);
+		return ResponseEntity.ok("Описание стола изменено");
+	}
+
+	@ExceptionHandler(value = ClientDataException.class)
+	public ResponseEntity<?> handleTransferException(ClientDataException ex) {
+		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 }

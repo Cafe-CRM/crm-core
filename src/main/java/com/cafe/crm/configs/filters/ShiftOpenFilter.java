@@ -30,7 +30,8 @@ public class ShiftOpenFilter extends GenericFilterBean {
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		String requestURI = request.getRequestURI();
-		if (requestURI.startsWith("/manager") && (!requestURI.equals("/manager/shift/") && !requestURI.equals("/manager/shift/begin"))) {
+		if (requestURI.startsWith("/manager") && (!requestURI.equals("/manager/shift/") && !requestURI.equals("/manager/shift/begin")
+				&& !requestURI.equals("/manager/shift/editCashBoxAndBegin") && !requestURI.equals("/manager/shift/send-edit-cash-box-pass"))) {
 			Shift lastShift = shiftService.getLast();
 			if (lastShift == null || !lastShift.isOpen()) {
 				HttpServletResponse response = (HttpServletResponse) servletResponse;

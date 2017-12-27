@@ -2,6 +2,7 @@ package com.cafe.crm.controllers.debt;
 
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
+import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.property.Property;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
@@ -55,7 +56,8 @@ public class DebtController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView showDebtPage() {
 		LocalDate today = timeManager.getDate();
-		List<Debt> debtList = debtService.findByVisibleIsTrueAndDateBetween(today, today.plusYears(100));
+		LocalDate lastShiftDate = shiftService.getLastShiftDate();
+		List<Debt> debtList = debtService.findByVisibleIsTrueAndDateBetween(lastShiftDate, today.plusYears(100));
 		Double totalDebtAmount = getTotalPrice(debtList);
 
 		ModelAndView modelAndView = new ModelAndView("debt/debt");
@@ -64,7 +66,7 @@ public class DebtController {
 		modelAndView.addObject("debtorName", null);
 		modelAndView.addObject("formDebt", new Debt());
 		modelAndView.addObject("today", today);
-		modelAndView.addObject("fromDate", shiftService.getLastShiftDate());
+		modelAndView.addObject("fromDate", lastShiftDate);
 		modelAndView.addObject("toDate", null);
 		modelAndView.addObject("closeChecklist", checklistService.getAllForCloseShift());
 
@@ -138,10 +140,10 @@ public class DebtController {
 											 @RequestParam(name = "debtId") Long id) {
 
 		if (password.equals("")) {
-			throw new DebtDataException("Заполните поле пароля перед отправкой!");
+			throw new PasswordException("Заполните поле пароля перед отправкой!");
 		}
 		if (!confirmTokenService.confirm(password, Target.DELETE_DEBT)) {
-			throw new DebtDataException("Пароль не действителен!");
+			throw new PasswordException("Пароль не действителен!");
 		}
 
 		Debt debt = debtService.get(id);
@@ -163,6 +165,11 @@ public class DebtController {
 
 	@ExceptionHandler(value = DebtDataException.class)
 	public ResponseEntity<?> handleUserUpdateException(DebtDataException ex) {
+		return ResponseEntity.badRequest().body(ex.getMessage());
+	}
+
+	@ExceptionHandler(value = PasswordException.class)
+	public ResponseEntity<?> handleTransferException(PasswordException ex) {
 		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 

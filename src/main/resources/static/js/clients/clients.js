@@ -570,3 +570,110 @@ function closeClient(calculateId) {
         }
     });
 }
+
+function editDescription(calculateId, description) {
+    var desc = $('#head1' + calculateId);
+    var button = $('#editDesc' + calculateId);
+    var input = $('#editDescInput' + calculateId);
+
+    if (desc.is(":visible")) {
+        desc.hide();
+        if (input.val() === "") {
+            input.val(description);
+        }
+        input.show();
+    } else if (input.val() === description) {
+        input.val(description);
+        input.hide();
+        desc.show();
+    } else {
+        validateAndPost(calculateId, input.val());
+    }
+}
+
+function validateAndPost(calculateId, description) {
+    if (description === "") {
+        $('#calcDescError').modal('show');
+        $('#errorMessage').html('<h4 style="color:red;" align="center">Описание стола не может быть пустым!</h4>')
+    } else {
+        changeCalcDesc(calculateId, description);
+    }
+}
+
+function successFunc(calculateId, description) {
+    var desc = $('#head1' + calculateId);
+    var button = $('#editDesc' + calculateId);
+    var input = $('#editDescInput' + calculateId);
+    var menuDesc = $('#menuDesc' + calculateId);
+    desc.show();
+    desc.text(input.val());
+    menuDesc.html(input.val());
+    input.val(description);
+    input.hide();
+    button.html("Изменить описание");
+}
+
+function changeButton(calculateId) {
+    $('#editDesc' + calculateId).html("Применить");
+}
+
+function changeCalcDesc(calculateId, description) {
+    var  formData = {
+        calculateId : calculateId,
+        description : description
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/change-calculate-description",
+        data: formData,
+
+        success: function (data) {
+            successFunc(calculateId, description)
+        },
+        error: function (error) {
+            $('#calcDescError').modal('show');
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#errorMessage').html(errorMessage);
+        }
+    });
+}
+
+function openNewCalc() {
+    var boardId = $('#boardId').find('option:selected').val();
+    var number = $('#number').val();
+    var description = $('#description').val();
+
+    if (description === "") {
+        $('#calcDescError').modal('show');
+        $('#errorMessage').html('<h4 style="color:red;" align="center">Описание стола не может быть пустым!</h4>')
+    } else if (boardId === "") {
+        $('#calcDescError').modal('show');
+        $('#errorMessage').html('<h4 style="color:red;" align="center">Выберите стол!</h4>')
+    } else {
+        sendNewCalc(boardId, number, description);
+    }
+}
+
+function sendNewCalc(boardId, number, description) {
+    var  formData = {
+        boardId : boardId,
+        number : number,
+        description: description
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/add-calculate",
+        data: formData,
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            $('#calcDescError').modal('show');
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#errorMessage').html(errorMessage);
+        }
+    });
+}
