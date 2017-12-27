@@ -1,6 +1,7 @@
 package com.cafe.crm.models.menu;
 
 import com.cafe.crm.models.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -24,6 +25,7 @@ public class Category extends BaseEntity {
 	private String name;
 
 	@OneToMany(mappedBy = "category", fetch = FetchType.EAGER, orphanRemoval = true)
+	@JsonManagedReference
 	private List<Product> products;
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "categories")

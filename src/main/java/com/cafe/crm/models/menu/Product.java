@@ -2,6 +2,7 @@ package com.cafe.crm.models.menu;
 
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.user.Position;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -36,6 +37,7 @@ public class Product extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = Category.class)
 	@JoinTable(name = "product_and_categories", joinColumns = {@JoinColumn(name = "product_id")}, inverseJoinColumns = {@JoinColumn(name = "category_id")})
+	@JsonBackReference
 	private Category category;
 
 	@ElementCollection(fetch = FetchType.EAGER)

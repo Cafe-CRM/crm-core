@@ -1,21 +1,21 @@
 package com.cafe.crm.controllers.rest;
 
-import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.client.Calculate;
+import com.cafe.crm.models.client.LayerProduct;
+import com.cafe.crm.models.menu.Category;
 import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.board.BoardService;
-import com.cafe.crm.services.interfaces.calculate.CalculateService;
+import com.cafe.crm.services.interfaces.calculate.MenuCalculateControllerService;
 import com.cafe.crm.services.interfaces.client.ClientService;
+import com.cafe.crm.services.interfaces.menu.CategoriesService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.utils.JsonField;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,17 +29,18 @@ public class TelegramBotController {
 	private final UserService userService;
 	private final ClientService clientService;
 	private final ShiftService shiftService;
+	private final CategoriesService categoriesService;
+	private final MenuCalculateControllerService menuCalculateService;
 
 	@Autowired
-	public TelegramBotController(BoardService boardService, UserService userService, ClientService clientService, ShiftService shiftService) {
+	public TelegramBotController(BoardService boardService, UserService userService, ClientService clientService, ShiftService shiftService, CategoriesService categoriesService, MenuCalculateControllerService menuCalculateService) {
 		this.boardService = boardService;
 		this.userService = userService;
 		this.clientService = clientService;
 		this.shiftService = shiftService;
+		this.categoriesService = categoriesService;
+		this.menuCalculateService = menuCalculateService;
 	}
-
-	@Autowired
-	private CalculateService calculateService;
 
 	@RequestMapping(value = "/manager/rest/Table", method = RequestMethod.POST)
 	@ResponseBody
@@ -87,5 +88,25 @@ public class TelegramBotController {
 		} else {
 			return new User();
 		}
+	}
+
+	@RequestMapping(value = "/manager/rest/calculateList", method = RequestMethod.GET)
+	@ResponseBody
+	public Set<Calculate> getCalculateList() {
+		return shiftService.getLast().getCalculates();
+	}
+
+	@RequestMapping(value = "/manager/rest/categoryWithProducts", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Category> getCategoriesList () {
+		return categoriesService.findAll();
+	}
+
+	@RequestMapping(value = {"/manager/rest/create-layer-product"}, method = RequestMethod.POST)
+	@ResponseBody
+	public LayerProduct createLayerProduct(@RequestParam("calculateId") long calculateId,
+										   @RequestParam("clientsId") long[] clientsId,
+										   @RequestParam("productId") long productId) {
+		return menuCalculateService.createLayerProduct(calculateId, clientsId, productId);
 	}
 }
