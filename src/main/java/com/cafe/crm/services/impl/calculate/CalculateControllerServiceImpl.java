@@ -41,10 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -369,7 +366,9 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		allPrice -= lossRecalculation;
 
 		for (Client client : listClient) {
-			allPrice += client.getAllPrice();
+			if (!client.isDeleteState()) {
+				allPrice += client.getAllPrice();
+			}
 		}
 
 		if (modifiedAmount < 0) {
@@ -453,7 +452,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			return;
 		}
 		List<Client> clients = clientService.findByIdIn(clientsId);
-		List<LayerProduct> products = new ArrayList<>();
+		Set<LayerProduct> products = new HashSet<>();
 		for (Client client : clients) {
 			products.addAll(client.getLayerProducts());
 			client.setDeleteState(true);
@@ -462,6 +461,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 		checkIngredients(products);
 		clientService.saveAll(clients);
+		//priceDistribution(clients);
 		boolean flag = false;
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients1 = calculate.getClient();
@@ -471,6 +471,16 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 				break;
 			}
 		}
+		for (Client client : clients1) {
+			if (client.isState() && !client.isDeleteState()) {
+				double priceMenu =client.getLayerProducts().stream()
+						.filter(p -> !p.getClients().isEmpty())
+						.mapToDouble(p -> p.getCost() / p.getClients().stream().filter(Client::isState).count())
+						.sum();
+				client.setPriceMenu(priceMenu);
+			}
+		}
+		clientService.saveAll(clients1);
 		if (!flag) {
 			calculate.setState(false);
 			calculateService.save(calculate);
@@ -488,12 +498,14 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients = calculate.getClient();
-		List<LayerProduct> products = new ArrayList<>();
+		Set<LayerProduct> products = new HashSet<>();
 		logger.info("Удаление стола с описанием: " + calculate.getDescription() + " и id: " + calculate.getId());
 		for (Client client : clients) {
-			client.setState(false);
-			client.setDeleteState(true);
-			products.addAll(client.getLayerProducts());
+			if (client.isState() || !client.isDeleteState()) {
+				client.setState(false);
+				client.setDeleteState(true);
+				products.addAll(client.getLayerProducts());
+			}
 		}
 		checkIngredients(products);
 		clientService.saveAll(clients);
@@ -501,7 +513,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		calculateService.save(calculate);
 	}
 
-	private void checkIngredients(List<LayerProduct> products) {
+	private void checkIngredients(Set<LayerProduct> products) {
 		Map<Ingredients, Double> deletedIng = new HashMap<>();
 		for (LayerProduct layerProduct : products) {
 			Product product = (productService.findOne(layerProduct.getProductId()));

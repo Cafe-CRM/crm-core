@@ -67,7 +67,11 @@ public class StatisticController {
     }
 
 	@ExceptionHandler(value = NoStatData.class)
-	public String handleUserUpdateException(NoStatData ex) {
-		return "totalStatisticsEmpty";
+	public ModelAndView handleUserUpdateException(NoStatData ex) {
+		ModelAndView modelAndView = new ModelAndView("totalStatisticsEmpty");
+		LocalDate date = timeManager.getDate();
+		modelAndView.addObject("from", date);
+		modelAndView.addObject("to", date);
+		return modelAndView;
 	}
 }

@@ -38,6 +38,10 @@ public class CalculateDTO {
 
 	private double profitRecalculation;
 
+	private double allDirtyPriceMenu;
+
+	private double allOtherPriceMenu;
+
 	public Long getId() {
 		return id;
 	}
@@ -140,5 +144,21 @@ public class CalculateDTO {
 
 	public void setProfitRecalculation(double profitRecalculation) {
 		this.profitRecalculation = profitRecalculation;
+	}
+
+	public double getAllDirtyPriceMenu() {
+		return allDirtyPriceMenu;
+	}
+
+	public void setAllDirtyPriceMenu(double allDirtyPriceMenu) {
+		this.allDirtyPriceMenu = allDirtyPriceMenu;
+	}
+
+	public double getAllOtherPriceMenu() {
+		return allOtherPriceMenu;
+	}
+
+	public void setAllOtherPriceMenu(double allOtherPriceMenu) {
+		this.allOtherPriceMenu = allOtherPriceMenu;
 	}
 }

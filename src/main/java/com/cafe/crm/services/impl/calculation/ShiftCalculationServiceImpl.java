@@ -30,7 +30,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ShiftCalculationServiceImpl implements ShiftCalculationService {
@@ -40,21 +42,20 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 	private final NoteService noteService;
 	private final ProductService productService;
 	private final UserSalaryDetailService userSalaryDetailService;
-	private final DebtService debtService;
+
 	@Autowired
 	private ReceiptService receiptService;
 
 	@Autowired
 	public ShiftCalculationServiceImpl(CostService costService, ShiftService shiftService, Transformer transformer,
 									   NoteService noteService, ProductService productService,
-									   UserSalaryDetailService userSalaryDetailService, DebtService debtService) {
+									   UserSalaryDetailService userSalaryDetailService) {
 		this.costService = costService;
 		this.shiftService = shiftService;
 		this.transformer = transformer;
 		this.noteService = noteService;
 		this.productService = productService;
 		this.userSalaryDetailService = userSalaryDetailService;
-		this.debtService = debtService;
 	}
 
 	@Override
@@ -228,10 +229,10 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		List<LayerProduct> otherProduct = new ArrayList<>();
 		for (LayerProduct product : client.getLayerProducts()) {
 			if (product.isDirtyProfit()) {
-				dirtyPriceMenu += product.getCost() / product.getClients().size();
+				dirtyPriceMenu += product.getCost() / product.getClients().stream().filter(Client::isState).count();
 				dirtyProduct.add(product);
 			} else {
-				otherPriceMenu += product.getCost() / product.getClients().size();
+				otherPriceMenu += product.getCost() / product.getClients().stream().filter(Client::isState).count();
 				otherProduct.add(product);
 			}
 		}
@@ -282,7 +283,10 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		List<CalculateDTO> calculates = new ArrayList<>();
 
 		for (Calculate calculate : sortedList) {
-			double allPrice = calculate.getClient().stream().mapToDouble(Client::getAllPrice).sum();
+			double allPrice = calculate.getClient().stream()
+					.filter(c -> !c.isDeleteState())
+					.mapToDouble(Client::getAllPrice)
+					.sum();
 			allPrice += calculate.getProfitRecalculation();
 			allPrice -= calculate.getLossRecalculation();
 			if (!isCalcDeleted(calculate)) {
@@ -338,8 +342,29 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 		for (Calculate calculate : shift.getCalculates()) {
 			if (!isCalcDeleted(calculate)) {
+				double dirtyPriceMenu = 0D;
+				double otherPriceMenu = 0D;
+
 				CalculateDTO calcDto = transformer.transform(calculate, CalculateDTO.class);
-				calcDto.setClient(calculate.getClient().stream().filter(u -> !u.isDeleteState()).collect(Collectors.toList()));
+				List<Client> clients = calculate.getClient().stream().filter(c -> !c.isDeleteState()).collect(Collectors.toList());
+				Set<LayerProduct> products = new HashSet<>();
+
+				for (Client client : clients) {
+					products.addAll(client.getLayerProducts());
+				}
+				for (LayerProduct product : products) {
+					if (product.isDirtyProfit()) {
+						dirtyPriceMenu += product.getCost();
+					} else {
+						otherPriceMenu += product.getCost();
+					}
+				}
+
+				calcDto.setClient(clients);
+				calcDto.setAllDirtyPriceMenu(dirtyPriceMenu);
+				calcDto.setAllOtherPriceMenu(otherPriceMenu);
+				calcDto.setDirtyOrder(getDirtyMenu(calculate));
+				calcDto.setOtherOrder(getOtherMenu(calculate));
 				allCalculate.add(calcDto);
 			}
 		}
@@ -465,7 +490,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		Double dirtyPriceMenu = 0D;
 		for (LayerProduct product : client.getLayerProducts()) {
 			if (product.isDirtyProfit())
-				dirtyPriceMenu += product.getCost() / product.getClients().size();
+				dirtyPriceMenu += product.getCost() / product.getClients().stream().filter(Client::isState).count();
 		}
 		return client.getPriceTime() + Math.round(dirtyPriceMenu) - client.getPayWithCard();
 	}

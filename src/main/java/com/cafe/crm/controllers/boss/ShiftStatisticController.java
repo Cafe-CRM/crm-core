@@ -26,14 +26,12 @@ import java.util.*;
 public class ShiftStatisticController {
 
 	private final ShiftService shiftService;
-	private final CostService costService;
 	private final ShiftCalculationService shiftCalculationService;
 
 
 	@Autowired
-	public ShiftStatisticController(ShiftService shiftService, CostService costService, ShiftCalculationService shiftCalculationService) {
+	public ShiftStatisticController(ShiftService shiftService, ShiftCalculationService shiftCalculationService) {
 		this.shiftService = shiftService;
-		this.costService = costService;
 		this.shiftCalculationService = shiftCalculationService;
 	}
 

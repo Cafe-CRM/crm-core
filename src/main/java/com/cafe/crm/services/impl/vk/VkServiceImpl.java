@@ -41,6 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Служба для взаимодействия с Vk API.<br/>
@@ -168,6 +169,7 @@ public class VkServiceImpl implements VkService {
 
 		StringBuilder salaryCosts = new StringBuilder();
 		StringBuilder otherCosts = new StringBuilder();
+		List<Client> clients = shift.getClients().stream().filter(c -> !c.isDeleteState()).collect(Collectors.toList());
 		double totalCosts = formatCostsAndGetOtherCosts(shift.getCosts(), otherCosts) + formatCostsAndGetSalariesCost(shift, salaryCosts);
 		double shortage = shift.getProfit() - totalCosts - shift.getCashBox() - shift.getBankCashBox();
 
@@ -175,8 +177,8 @@ public class VkServiceImpl implements VkService {
 		params[1] = getDayOfWeek(shift.getShiftDate());
 		params[2] = getDate(shift.getShiftDate());
 		params[3] = getProfit(shift);
-		params[4] = getAmountOfClients(shift.getClients());
-		params[5] = shift.getClients().size();
+		params[4] = getAmountOfClients(clients);
+		params[5] = clients.size();
 		params[6] = getProdInfo(shift);
 		params[7] = getAdmins(shift);
 		params[8] = salaryCosts.toString();

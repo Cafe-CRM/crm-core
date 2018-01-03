@@ -60,7 +60,7 @@
                     <th> Время посадки</th>
                     <th> Общая стоимость счетов</th>
                     <th> Количество клиентов</th>
-                    <th style="width: 90px"></th>
+                    <th style="width: 143px">Опции</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -72,9 +72,14 @@
                     <td th:id="commonPrice+${calc.id}"></td>
                     <td th:text="${calc.client.size()}"></td>
                     <td class="tr-wrapper" style="text-align: left">
-                        <button th:id="'billsButton' + ${calc.id}" type="button" class="btn btn-info" style="margin-bottom: 1%">
-                            Детали
-                        </button>
+                        <div class="btn-group">
+                            <button th:id="'billsButton' + ${calc.id}" type="button" class="btn btn-info" style="margin-bottom: 1%; border-radius: 4px;">
+                                Детали
+                            </button>
+                            <button th:id="'orderButton' + ${calc.id}" type="button" class="btn btn-primary" style="margin-bottom: 1%; margin-left: 5px; border-radius: 4px;">
+                                Заказ
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -113,6 +118,70 @@
                         </div>
                     </td>
                 </tr>
+                <tr>
+                    <td class="tr-wrapper" colspan="6">
+                        <div th:id="'orderTable' + ${calc.id}" style="display: none">
+                            <table class="table table-striped nested-table table-bordered">
+                                <thead style="border-top: 1px solid #ddd">
+                                <tr>
+                                    <th> Стоимость грязного меню</th>
+                                    <th> Стоимость чистого меню</th>
+                                </tr>
+                                </thead>
+                                <tbody th:id="'order' + ${calc.id}">
+                                <tr>
+                                    <td th:text="${calc.allDirtyPriceMenu}"></td>
+                                    <td th:text="${calc.allOtherPriceMenu}"></td>
+                                </tr>
+                                <tr>
+                                    <td width="50%">
+                                        <div class="row" th:if="${calc.dirtyOrder.isEmpty()}">
+                                            <div class="empty-block" style="font-weight: bold; font-size: 15px;">
+                                                Пусто!
+                                            </div>
+                                        </div>
+                                        <div class="row" th:unless="${calc.dirtyOrder.isEmpty()}">
+                                            <div class="col-md-5">
+                                                <p style="font-weight: bold; font-size: 15px;">Список продуктов:</p>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <div style="width: 100%; background: #DAEEFF !important; padding: 10px 0 5px 0;">
+                                                    <ul>
+                                                        <li th:each="item: ${calc.dirtyOrder}">
+                                                            <p style="text-align: left !important; font-size: 15px;" th:text="${item}"></p>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td width="50%">
+                                        <div class="row" th:if="${calc.otherOrder.isEmpty()}">
+                                            <div class="empty-block" style="font-weight: bold; font-size: 15px;">
+                                                Пусто!
+                                            </div>
+                                        </div>
+                                        <div class="row" th:unless="${calc.otherOrder.isEmpty()}">
+                                            <div class="col-md-5">
+                                                <p style="font-weight: bold; font-size: 15px;">Список продуктов:</p>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <div style="width: 100%; background: #DAEEFF !important; padding: 10px 0 5px 0;">
+                                                    <ul>
+                                                        <li th:each="item: ${calc.otherOrder}">
+                                                            <p style="text-align: left !important; font-size: 15px;" th:text="${item}"></p>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
                 </tbody>
                 <tfoot>
                 <tr>
@@ -126,11 +195,16 @@
                 </tfoot>
                 <script th:inline="javascript" type="text/javascript">
                     jQuery(document).ready( function() {
-                        var buttonId = '#billsButton' + [[${calc.id}]];
+                        var billsButton = '#billsButton' + [[${calc.id}]];
+                        var orderButton = '#orderButton' + [[${calc.id}]];
                         var billsOnShiftId = '#billsOnShift' + [[${calc.id}]];
+                        var orderTable = '#orderTable' + [[${calc.id}]];
                         insertTotalPrice('commonPrice'+[[${calc.id}]], [[${calc.profitRecalculation}]], [[${calc.lossRecalculation}]]);
-                        jQuery(buttonId).click(function(){
+                        jQuery(billsButton).click(function(){
                                 $(billsOnShiftId).slideToggle('fast');
+                        });
+                        jQuery(orderButton).click(function(){
+                            $(orderTable).slideToggle('fast');
                         });
                     });
                 </script>

@@ -573,7 +573,6 @@ function closeClient(calculateId) {
 
 function editDescription(calculateId, description) {
     var desc = $('#head1' + calculateId);
-    var button = $('#editDesc' + calculateId);
     var input = $('#editDescInput' + calculateId);
 
     if (desc.is(":visible")) {
@@ -608,7 +607,8 @@ function successFunc(calculateId, description) {
     desc.show();
     desc.text(input.val());
     menuDesc.html(input.val());
-    input.val(description);
+    //input.val(description);
+    button.on
     input.hide();
     button.html("Изменить описание");
 }
@@ -629,7 +629,8 @@ function changeCalcDesc(calculateId, description) {
         data: formData,
 
         success: function (data) {
-            successFunc(calculateId, description)
+            //successFunc(calculateId, description);
+            location.reload();
         },
         error: function (error) {
             $('#calcDescError').modal('show');

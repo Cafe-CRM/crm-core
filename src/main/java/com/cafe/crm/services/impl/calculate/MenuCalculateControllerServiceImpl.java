@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -145,7 +146,8 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 				if (layerProduct.getClients().size() == 0) {
 					continue;
 				}
-				client.setPriceMenu(Math.round((client.getPriceMenu() + layerProduct.getCost() / layerProduct.getClients().size()) * 100) / 100.00);
+				long clientCount = layerProduct.getClients().stream().filter(Client::isState).count();
+				client.setPriceMenu(Math.round((client.getPriceMenu() + layerProduct.getCost() / clientCount) * 100) / 100.00);
 			}
 		}
 		clientService.saveAll(clients);
