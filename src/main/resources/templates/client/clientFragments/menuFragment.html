@@ -137,7 +137,7 @@
                                     </thead>
                                     <tbody>
                                     <div th:each="prod : ${cat.products}">
-                                        <tr style="font-size: 20px">
+                                        <tr th:if="${prod.deleted == false}" style="font-size: 20px">
                                             <td>
                                                 <div th:text="${prod.name} "></div>
                                             </td>

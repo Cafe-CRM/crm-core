@@ -137,7 +137,7 @@
                                             <div class="content-block" th:unless="${calculate.otherOrder.isEmpty()}">
                                                 <ul>
                                                     <li th:each="item: ${calculate.otherOrder}">
-                                                        <p th:text="${item}"></p>
+                                                        <p th:text="${item.name + '(' + item.amount + ')' + '[' + item.price + 'р]'}"></p>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -167,7 +167,7 @@
                                             <div class="content-block" th:unless="${calculate.dirtyOrder.isEmpty()}">
                                                 <ul>
                                                     <li th:each="item: ${calculate.dirtyOrder}">
-                                                        <p th:text="${item}"></p>
+                                                        <p th:text="${item.name + '(' + item.amount + ')' + '[' + item.price + 'р]'}"></p>
                                                     </li>
                                                 </ul>
                                             </div>

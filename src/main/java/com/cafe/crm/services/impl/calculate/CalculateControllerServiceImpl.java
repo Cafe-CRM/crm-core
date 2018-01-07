@@ -235,15 +235,11 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 		sendBalanceInfoAfterDeduction(listClient, balanceBeforeDeduction);
 
-		closeClient(listClient, calculateId);
+		closeClientList(listClient, calculateId);
 	}
 
 	@Override
 	public void closeClientList(List<Client> listClient, Long calculateId) {
-		closeClient(listClient, calculateId);
-	}
-
-	private void closeClient(List<Client> listClient, Long calculateId) {
 		List<Card> listCard = new ArrayList<>();
 		for (Client client : listClient) {
 			if (client.isPause()) {
@@ -322,8 +318,10 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		List<Client> listClient = calculate.getClient();//.stream().filter(Client::isState).collect(Collectors.toList());
 
 		for (Client client : listClient) {
-			client.setPause(false);
-			allPrice += client.getAllPrice();
+			if (!client.isDeleteState()) {
+				client.setPause(false);
+				allPrice += client.getAllPrice();
+			}
 		}
 
 		double profitRecalculation = calculate.getProfitRecalculation();
@@ -461,7 +459,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 		checkIngredients(products);
 		clientService.saveAll(clients);
-		//priceDistribution(clients);
 		boolean flag = false;
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients1 = calculate.getClient();
@@ -472,12 +469,33 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			}
 		}
 		for (Client client : clients1) {
+
 			if (client.isState() && !client.isDeleteState()) {
-				double priceMenu =client.getLayerProducts().stream()
-						.filter(p -> !p.getClients().isEmpty())
-						.mapToDouble(p -> p.getCost() / p.getClients().stream().filter(Client::isState).count())
-						.sum();
-				client.setPriceMenu(priceMenu);
+
+				double menuPrice = 0D;
+
+				for (LayerProduct product : client.getLayerProducts()) {
+
+					if (!product.getClients().isEmpty()) {
+
+						double oneClientShare = product.getCost() / product.getClients().size();
+
+						double deletedClients = product.getClients().stream()
+								.filter(Client::isDeleteState)
+								.count();
+
+						double remainingClients = product.getClients().stream()
+								.filter(c -> c.isState() && !c.isDeleteState())
+								.count();
+
+						if (remainingClients != product.getClients().size()) {
+							menuPrice += deletedClients * oneClientShare + (oneClientShare / remainingClients);
+						} else {
+							menuPrice += oneClientShare;
+						}
+					}
+				}
+				client.setPriceMenu(Math.round(menuPrice * 100) / 100.00);
 			}
 		}
 		clientService.saveAll(clients1);
@@ -606,11 +624,15 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 	@Override
 	public String getClientsAndDesc() {
-		int amount = clientService.getAllOpen().size();
-		String charArr = Integer.toString(amount);
-		char lastChar = charArr.charAt(charArr.length() - 1);
-		int lastDigit = Character.getNumericValue(lastChar);
-		String text = "";
+		List<Calculate> calculates = calculateService.getAllOpen();
+		int amount = 0;
+		for (Calculate calculate : calculates) {
+			amount += calculate.getClient().stream()
+					.filter(Client::isState)
+					.count();
+		}
+		int lastDigit = amount % 10;
+		String text;
 
 		if(lastDigit == 1) {
 			text = "Сейчас в заведении " + amount + " гость";

@@ -38,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public List<Product> findAll() {
-		return productRepository.findByCompanyId(companyIdCache.getCompanyId());
+		return productRepository.findByDeletedIsFalseAndCompanyId(companyIdCache.getCompanyId());
 	}
 
 	private void setCompany(Product product){
@@ -60,17 +60,22 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public void delete(Long id) {
-		productRepository.delete(id);
+		Product product = findOne(id);
+		if (product != null) {
+			product.setDeleted(true);
+			saveAndFlush(product);
+		}
+		//productRepository.delete(id);
 	}
 
 	@Override
 	public Product findByNameAndDescriptionAndCost(String name, String description, Double cost) {
-		return productRepository.findByNameAndDescriptionAndCostAndCompanyId(name, description, cost, companyIdCache.getCompanyId());
+		return productRepository.findByDeletedIsFalseAndNameAndDescriptionAndCostAndCompanyId(name, description, cost, companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public List<Product> findAllOrderByRatingDesc() {
-		return productRepository.findByCompanyIdOrderByRatingDescNameAsc(companyIdCache.getCompanyId());
+		return productRepository.findByDeletedIsFalseAndCompanyIdOrderByRatingDescNameAsc(companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -91,6 +96,11 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		return staffPercent;
+	}
+
+	@Override
+	public List<Product> findByIds(long[] ids) {
+		return productRepository.findByIdIn(ids);
 	}
 
 }

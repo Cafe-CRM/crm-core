@@ -229,19 +229,44 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		List<LayerProduct> otherProduct = new ArrayList<>();
 		for (LayerProduct product : client.getLayerProducts()) {
 			if (product.isDirtyProfit()) {
-				dirtyPriceMenu += product.getCost() / product.getClients().stream().filter(Client::isState).count();
+				dirtyPriceMenu += product.getCost() / product.getClients().stream().filter(c -> !c.isDeleteState()).count();
 				dirtyProduct.add(product);
 			} else {
-				otherPriceMenu += product.getCost() / product.getClients().stream().filter(Client::isState).count();
+				otherPriceMenu += product.getCost() / product.getClients().stream().filter(c -> !c.isDeleteState()).count();
 				otherProduct.add(product);
 			}
 		}
-		allDirtyPrice = client.getPriceTime() + Math.round(dirtyPriceMenu) - client.getPayWithCard();
-		return new ClientDetails(allDirtyPrice, Math.round(otherPriceMenu), Math.round(dirtyPriceMenu),
+		allDirtyPrice = client.getPriceTime() + (Math.round(dirtyPriceMenu * 100) / 100.00) - client.getPayWithCard();
+
+		double allPriceMenu = dirtyPriceMenu + otherPriceMenu;
+		double allPriceMenuDB = client.getPriceMenu();
+
+		if (Math.floor(allPriceMenu) != Math.floor(allPriceMenuDB)) {
+
+			double dirtyPriceProc;
+			double otherPriceProc;
+
+			if (dirtyPriceMenu != 0D && otherPriceMenu == 0D) {
+				dirtyPriceProc = dirtyPriceMenu * 100 / allPriceMenu;
+				dirtyPriceMenu = allPriceMenuDB * dirtyPriceProc / 100;
+			} else if (dirtyPriceMenu == 0D && otherPriceMenu != 0D) {
+				otherPriceProc = otherPriceMenu * 100 / allPriceMenu;
+				otherPriceMenu = allPriceMenuDB * otherPriceProc / 100;
+			} else {
+				dirtyPriceProc = dirtyPriceMenu * 100 / allPriceMenu;
+				otherPriceProc = otherPriceMenu * 100 / allPriceMenu;
+				dirtyPriceMenu = allPriceMenuDB * dirtyPriceProc / 100;
+				otherPriceMenu = allPriceMenuDB * otherPriceProc / 100;
+			}
+
+		}
+
+		return new ClientDetails(allDirtyPrice, (Math.round(otherPriceMenu * 100) / 100.00),
+				(Math.round(dirtyPriceMenu * 100) / 100.00),
 				dirtyProduct, otherProduct);
 	}
 
-	private List<String> getDirtyMenu(Calculate calculate) {
+	private List<ProductStat> getDirtyMenu(Calculate calculate) {
 		List<Client> clients = calculate.getClient();
 		Set<LayerProduct> dirtyMenu = new HashSet<>();
 		List<LayerProduct> products = new ArrayList<>();
@@ -258,7 +283,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		return getContent(dirtyMenu);
 	}
 
-	private List<String> getOtherMenu(Calculate calculate) {
+	private List<ProductStat> getOtherMenu(Calculate calculate) {
 		List<Client> clients = calculate.getClient();
 		Set<LayerProduct> otherMenu = new HashSet<>();
 		List<LayerProduct> products = new ArrayList<>();
@@ -305,18 +330,21 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		return calculate.getClient().stream().allMatch(Client::isDeleteState);
 	}
 
-	private List<String> getContent(Set<LayerProduct> products) {
-		List<String> contentList = new ArrayList<>();
-		List<String> checkReduplication = new ArrayList<>();
+	private List<ProductStat> getContent(Set<LayerProduct> products) {
+		List<ProductStat> contentList = new ArrayList<>();
+		List<Double> checkReduplication = new ArrayList<>();
 		if (!products.isEmpty()) {
 			for (LayerProduct product : products) {
 				String name = product.getName();
-				if (!checkReduplication.contains(name)) {
-					checkReduplication.add(name);
-					StringBuilder content = new StringBuilder();
-					long productNum = products.stream().filter(p -> p.getName().equals(name)).count();
-					content.append(name).append("(").append(productNum).append(")");
-					contentList.add(content.toString());
+				double cost = product.getCost();
+				double code = name.hashCode() + cost;
+				if (!checkReduplication.contains(code)) {
+					Product prod = productService.findOne(product.getProductId());
+					checkReduplication.add(code);
+					long productNum = products.stream()
+							.filter(p -> p.getName().equals(name) && Double.compare(p.getCost(), cost) == 0)
+							.count();
+					contentList.add(new ProductStat(name, productNum, cost, prod.isDeleted()));
 				}
 			}
 		}
@@ -490,7 +518,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		Double dirtyPriceMenu = 0D;
 		for (LayerProduct product : client.getLayerProducts()) {
 			if (product.isDirtyProfit())
-				dirtyPriceMenu += product.getCost() / product.getClients().stream().filter(Client::isState).count();
+				dirtyPriceMenu += product.getCost() / product.getClients().stream().filter(c -> !c.isDeleteState()).count();
 		}
 		return client.getPriceTime() + Math.round(dirtyPriceMenu) - client.getPayWithCard();
 	}
@@ -512,30 +540,33 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 			Long productId = layerProduct.getProductId();
 			Product product = productService.findOne(productId);
-			Map<Position, Integer> staffPercent = product.getStaffPercent();
 
-			for (UserDTO user : staff) {
-				List<PositionDTO> userPositions = user.getPositions();
+			if (product != null) {
 
-				for (PositionDTO positionDTO : userPositions) {
+				Map<Position, Integer> staffPercent = product.getStaffPercent();
 
-					Integer percent = staffPercent.get(transformer.transform(positionDTO, Position.class));
-					int shiftPercent = 1;
-					if (percent != null) {
-						if (shiftPercents.containsKey(positionDTO)){
-							shiftPercent = shiftPercents.get(positionDTO);
-						}
-						int bonus = (int) (layerProduct.getCost() * percent / 100 / shiftPercent);
-						user.setShiftSalary(bonus + user.getShiftSalary());
-						Integer saveBonus = staffPercentBonusesMap.get(user.getId());
-						if (saveBonus == null) {
-							staffPercentBonusesMap.put(user.getId(), bonus);
-						} else {
-							staffPercentBonusesMap.put(user.getId(), bonus + saveBonus);
+				for (UserDTO user : staff) {
+					List<PositionDTO> userPositions = user.getPositions();
+
+					for (PositionDTO positionDTO : userPositions) {
+
+						Integer percent = staffPercent.get(transformer.transform(positionDTO, Position.class));
+						int shiftPercent = 1;
+						if (percent != null) {
+							if (shiftPercents.containsKey(positionDTO)) {
+								shiftPercent = shiftPercents.get(positionDTO);
+							}
+							int bonus = (int) (layerProduct.getCost() * percent / 100 / shiftPercent);
+							user.setShiftSalary(bonus + user.getShiftSalary());
+							Integer saveBonus = staffPercentBonusesMap.get(user.getId());
+							if (saveBonus == null) {
+								staffPercentBonusesMap.put(user.getId(), bonus);
+							} else {
+								staffPercentBonusesMap.put(user.getId(), bonus + saveBonus);
+							}
 						}
 					}
 				}
-
 			}
 		}
 		return staffPercentBonusesMap;

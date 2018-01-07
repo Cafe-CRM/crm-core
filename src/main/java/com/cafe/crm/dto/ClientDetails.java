@@ -8,12 +8,12 @@ import java.util.List;
 
 public class ClientDetails {
 	private Double allDirtyPrice;
-	private Long otherPriceMenu;
-	private Long dirtyPriceMenu;
+	private Double otherPriceMenu;
+	private Double dirtyPriceMenu;
 	private List<LayerProduct> dirtyProduct;
 	private List<LayerProduct> otherProduct;
 
-	public ClientDetails(Double allDirtyPrice, Long otherPriceMenu, Long dirtyPriceMenu, List<LayerProduct> dirtyProduct,
+	public ClientDetails(Double allDirtyPrice, Double otherPriceMenu, Double dirtyPriceMenu, List<LayerProduct> dirtyProduct,
 						 List<LayerProduct> otherProduct) {
 		this.allDirtyPrice = allDirtyPrice;
 		this.otherPriceMenu = otherPriceMenu;
@@ -30,19 +30,19 @@ public class ClientDetails {
 		this.allDirtyPrice = allDirtyPrice;
 	}
 
-	public Long getOtherPriceMenu() {
+	public Double getOtherPriceMenu() {
 		return otherPriceMenu;
 	}
 
-	public void setOtherPriceMenu(Long otherPriceMenu) {
+	public void setOtherPriceMenu(Double otherPriceMenu) {
 		this.otherPriceMenu = otherPriceMenu;
 	}
 
-	public Long getDirtyPriceMenu() {
+	public Double getDirtyPriceMenu() {
 		return dirtyPriceMenu;
 	}
 
-	public void setDirtyPriceMenu(Long dirtyPriceMenu) {
+	public void setDirtyPriceMenu(Double dirtyPriceMenu) {
 		this.dirtyPriceMenu = dirtyPriceMenu;
 	}
 

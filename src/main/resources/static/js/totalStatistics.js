@@ -70,12 +70,12 @@ jQuery(document).ready( function() {
                 totalSumWithCard[5] += +item.querySelector('.timeCost').innerHTML;
             }
         });
-        document.getElementById("commonCheckSum").innerHTML += " " + totalSum[0];
-        document.getElementById("cashPaymentSum").innerHTML += " " + totalSumWithCard[0];
-        document.getElementById("clubCardPaymentSum").innerHTML += " " + totalSumWithCard[1];
-        document.getElementById("menuOtherSum").innerHTML += " " + totalSumWithCard[2];
-        document.getElementById("menuDirtySum").innerHTML += " " + totalSumWithCard[3];
-        document.getElementById("timeCostSum").innerHTML += " " + totalSumWithCard[4];
+        document.getElementById("commonCheckSum").innerHTML += " " + Math.round(totalSumWithCard[0] * 100) / 100.00;
+        document.getElementById("cashPaymentSum").innerHTML += " " + Math.round(totalSumWithCard[1] * 100) / 100.00;
+        document.getElementById("clubCardPaymentSum").innerHTML += " " + Math.round(totalSumWithCard[2] * 100) / 100.00;
+        document.getElementById("menuOtherSum").innerHTML += " " + Math.round(totalSumWithCard[3] * 100) / 100.00;
+        document.getElementById("menuDirtySum").innerHTML += " " + Math.round(totalSumWithCard[4] * 100) / 100.00;
+        document.getElementById("timeCostSum").innerHTML += " " + totalSumWithCard[5];
     } else {
         var totalSum = [0, 0, 0, 0];
         Array.from(document.getElementById("clients").rows).forEach(
@@ -93,9 +93,9 @@ jQuery(document).ready( function() {
                     totalSum[3] += +item.querySelector('.timeCost').innerHTML;
                 }
             });
-        document.getElementById("commonCheckSum").innerHTML += " " + totalSum[0];
-        document.getElementById("menuOtherSum").innerHTML += " " + totalSum[1];
-        document.getElementById("menuDirtySum").innerHTML += " " + totalSum[2];
+        document.getElementById("commonCheckSum").innerHTML += " " + Math.round(totalSum[0] * 100) / 100.00;
+        document.getElementById("menuOtherSum").innerHTML += " " + Math.round(totalSum[1] * 100) / 100.00;
+        document.getElementById("menuDirtySum").innerHTML += " " + Math.round(totalSum[2] * 100) / 100.00;
         document.getElementById("timeCostSum").innerHTML += " " + totalSum[3];
     }
 

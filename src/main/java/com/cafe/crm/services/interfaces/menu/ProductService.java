@@ -25,4 +25,6 @@ public interface ProductService {
 	void reduceIngredientAmount(Product product);
 
 	Map<Position,Integer> createStaffPercent(WrapperOfProduct wrapper);
+
+	List<Product> findByIds(long[] ids);
 }

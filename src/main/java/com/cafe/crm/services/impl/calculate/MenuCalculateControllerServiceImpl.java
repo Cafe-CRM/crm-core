@@ -1,5 +1,6 @@
 package com.cafe.crm.services.impl.calculate;
 
+import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.client.LayerProduct;
@@ -40,6 +41,9 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 	public LayerProduct createLayerProduct(long calculateId, long[] clientsId, long productId) {
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		Product product = productService.findOne(productId);
+		if (product.isDeleted()) {
+			throw new ClientDataException("Нельзя добавить удалённый продукт!");
+		}
 		int oldRating = product.getRating();
 		product.setRating(++oldRating);
 		LayerProduct layerProduct = new LayerProduct();
@@ -64,6 +68,9 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 	public LayerProduct createLayerProductWithFloatingPrice(long calculateId, long[] clientsId, long productId, double productPrice) {
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		Product product = productService.findOne(productId);
+		if (product.isDeleted()) {
+			throw new ClientDataException("Нельзя добавить удалённый продукт!");
+		}
 		int oldRating = product.getRating();
 		product.setRating(++oldRating);
 		LayerProduct layerProduct = new LayerProduct();
@@ -146,7 +153,7 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 				if (layerProduct.getClients().size() == 0) {
 					continue;
 				}
-				long clientCount = layerProduct.getClients().stream().filter(Client::isState).count();
+				long clientCount = layerProduct.getClients().stream().filter(c -> !c.isDeleteState()).count();
 				client.setPriceMenu(Math.round((client.getPriceMenu() + layerProduct.getCost() / clientCount) * 100) / 100.00);
 			}
 		}

@@ -28,9 +28,9 @@ public class CalculateDTO {
 
 	private List<Card> cards;
 
-	private List<String> dirtyOrder;
+	private List<ProductStat> dirtyOrder;
 
-	private List<String> otherOrder;
+	private List<ProductStat> otherOrder;
 
 	private double allPrice;
 
@@ -106,19 +106,19 @@ public class CalculateDTO {
 		this.cards = cards;
 	}
 
-	public List<String> getDirtyOrder() {
+	public List<ProductStat> getDirtyOrder() {
 		return dirtyOrder;
 	}
 
-	public void setDirtyOrder(List<String> dirtyOrder) {
+	public void setDirtyOrder(List<ProductStat> dirtyOrder) {
 		this.dirtyOrder = dirtyOrder;
 	}
 
-	public List<String> getOtherOrder() {
+	public List<ProductStat> getOtherOrder() {
 		return otherOrder;
 	}
 
-	public void setOtherOrder(List<String> otherOrder) {
+	public void setOtherOrder(List<ProductStat> otherOrder) {
 		this.otherOrder = otherOrder;
 	}
 

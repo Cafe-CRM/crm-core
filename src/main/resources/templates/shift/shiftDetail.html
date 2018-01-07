@@ -125,7 +125,7 @@
                                 <thead style="border-top: 1px solid #ddd">
                                 <tr>
                                     <th> Стоимость грязного меню</th>
-                                    <th> Стоимость чистого меню</th>
+                                    <th> Стоимость прочего меню</th>
                                 </tr>
                                 </thead>
                                 <tbody th:id="'order' + ${calc.id}">
@@ -146,9 +146,15 @@
                                             </div>
                                             <div class="col-md-7">
                                                 <div style="width: 100%; background: #DAEEFF !important; padding: 10px 0 5px 0;">
-                                                    <ul>
-                                                        <li th:each="item: ${calc.dirtyOrder}">
-                                                            <p style="text-align: left !important; font-size: 15px;" th:text="${item}"></p>
+                                                    <ul class="content-list">
+                                                        <li th:unless="${item.deleted}" th:each="item: ${calc.dirtyOrder}">
+                                                            <p style="text-align: left !important; font-size: 15px;"
+                                                               th:text="${item.name + '(' + item.amount + ')' + '[' + item.price + 'р]'}"></p>
+                                                        </li>
+                                                        <li th:if="${item.deleted}" th:each="item: ${calc.dirtyOrder}">
+                                                            <div class="prompt">Продукт был удалён</div>
+                                                            <p class="deleted-product"
+                                                               th:text="${item.name + '(' + item.amount + ')' + '[' + item.price + 'р]'}"></p>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -167,9 +173,15 @@
                                             </div>
                                             <div class="col-md-7">
                                                 <div style="width: 100%; background: #DAEEFF !important; padding: 10px 0 5px 0;">
-                                                    <ul>
-                                                        <li th:each="item: ${calc.otherOrder}">
-                                                            <p style="text-align: left !important; font-size: 15px;" th:text="${item}"></p>
+                                                    <ul class="content-list">
+                                                        <li th:unless="${item.deleted}" th:each="item: ${calc.otherOrder}">
+                                                            <p style="text-align: left !important; font-size: 15px;"
+                                                               th:text="${item.name + '(' + item.amount + ')' + '[' + item.price + 'р]'}"></p>
+                                                        </li>
+                                                        <li th:if="${item.deleted}" th:each="item: ${calc.otherOrder}">
+                                                            <div class="prompt">Продукт был удалён</div>
+                                                            <p class="deleted-product"
+                                                               th:text="${item.name + '(' + item.amount + ')' + '[' + item.price + 'р]'}"></p>
                                                         </li>
                                                     </ul>
                                                 </div>

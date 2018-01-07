@@ -70,7 +70,7 @@
                                 <th>Удалить</th>
                             </tr>
                             <tbody class="searchable" th:each="prod,iter:${categor.getProducts()}">
-                            <tr th:id="'tr' + ${prod.id}">
+                            <tr th:if="${prod.deleted == false}" th:id="'tr' + ${prod.id}">
                                 <td th:id="'a' + ${prod.id}"><p th:text="${iter.count}"></p></td>
                                 <td th:id="'b' + ${prod.id}"><p th:text="${prod.name}"></p></td>
                                 <td th:id="'c' + ${prod.id}"><p th:text="${prod.description}"></p></td>

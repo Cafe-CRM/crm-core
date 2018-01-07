@@ -240,8 +240,10 @@ function createLayerProductAjax(prodId, calcId) {
                 ajaxForCalculate(calcId)
             }, 500);
         },
-        error: function () {
-            console.log('createLayerProductAjax сломался? ');
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#calcDescError').modal('show');
+            $('#errorMessage').html(errorMessage);
         }
     });
 }
@@ -271,8 +273,10 @@ function createLayerProductWithFloatingPriceAjax(prodId, calcId, inputId) {
                 ajaxForCalculate(calcId)
             }, 500);
         },
-        error: function () {
-            console.log('createLayerProductWithFloatingPriceAjax сломался? ');
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#calcDescError').modal('show');
+            $('#errorMessage').html(errorMessage);
         }
     });
 }
@@ -342,7 +346,10 @@ function getProductOnCalculateAjax(calcId) {
             var str;
             if (data != "") {
                 for (var i = 0; i < data.length; i++) {
-                    str += '<tr style="font-size: 20px;"><td>' + data[i].name + ' №' + data[i].id + '</td><td>' + data[i].description + '</td><td>' + data[i].cost + '</td><td><button onclick="addLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')" style="background:rgba(255,0,0,0);float: left;margin-left: 20px; border: none;"> <i class="fa fa-check" aria-hidden="true" style="font-size: 30px;color:#910405;"></i></button><button onclick="deleteLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')" style="background:rgba(255,0,0,0);float: left;margin-left: 20px; border: none;"><i class="fa fa-times" aria-hidden="true" style="font-size: 30px;color:#910405;"></i></button></td></tr>';
+                    str += '<tr style="font-size: 20px;"><td>' + data[i].name + ' №' + data[i].id + '</td>' +
+                        '<td>' + data[i].description + '</td><td>' + data[i].cost + '</td>' +
+                        '<td><button onclick="addLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')" style="background:rgba(255,0,0,0);float: left;margin-left: 20px; border: none;"> <i class="fa fa-check" aria-hidden="true" style="font-size: 30px;color:#910405;"></i></button>' +
+                        '<button onclick="deleteLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')" style="background:rgba(255,0,0,0);float: left;margin-left: 20px; border: none;"><i class="fa fa-times" aria-hidden="true" style="font-size: 30px;color:#910405;"></i></button></td></tr>';
                 }
             } else {
                 str = null;

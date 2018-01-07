@@ -14,24 +14,8 @@
 
     <div class="container" style=" box-shadow: 0 3px 6px 0; border-radius: 10px;
      background: #ffffff; width:950px; ">
-
-        <!--modal window with create calculate-->
         <div th:replace="client/clientFragments/addCalculateFragment :: calculateModal"></div>
-        <div id="calcDescError" class="modal fade" role="dialog">
-            <div class="modal-dialog" style="width: 400px; margin-top: 100px">
-                <div class="modal-content">
-                    <div class="modal-body" style="padding-bottom: 48px;">
-                        <p id="errorMessage"></p>
-                        <button type="button" style="float: right"
-                                data-dismiss="modal"
-                                class="btn btn-primary">
-                            Закрыть
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- -->
+
 
         <br/>
         <div th:each="calculate : ${listCalculate}">
@@ -253,6 +237,25 @@
                         </button>
                         <div th:replace="client/clientFragments/getCheckFragment :: checkModal"></div>
                         <div th:replace="client/clientFragments/menuFragment :: menuModal"></div>
+
+                        <!--modal window with create calculate-->
+
+                        <div id="calcDescError" class="modal fade" role="dialog">
+                            <div class="modal-dialog" style="width: 400px; margin-top: 100px">
+                                <div class="modal-content">
+                                    <div class="modal-body" style="padding-bottom: 48px;">
+                                        <p id="errorMessage"></p>
+                                        <button type="button" style="float: right"
+                                                data-dismiss="modal"
+                                                class="btn btn-primary">
+                                            Закрыть
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- -->
+
                     </div>
 
                 </div>

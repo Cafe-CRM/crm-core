@@ -121,5 +121,31 @@ th > .btn-default:hover, th > .btn-default:focus, th > .btn-default:active, th >
 
 .nested-table thead {
     background: #DAEEFF !important;
+}
 
+.content-list li {
+    position: relative;
+}
+
+.content-list li:hover .prompt {
+    display: block;
+}
+
+.deleted-product {
+    text-align: left !important;
+    font-size: 15px;
+    color: #AEAEAE;
+    font-style: italic;
+}
+
+.prompt {
+    display: none;
+    position: absolute;
+    top: -30px;
+    right: 0px;
+
+    background: white;
+    border: 1px solid black;
+    border-radius: 3px;
+    padding: 2px 6px;
 }

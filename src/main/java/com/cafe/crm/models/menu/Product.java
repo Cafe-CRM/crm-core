@@ -48,6 +48,8 @@ public class Product extends BaseEntity {
 	@Column(name = "percent")
 	private Map<Position, Integer> staffPercent;
 
+	private boolean deleted = false;
+
 	private int rating;
 
 	public Product() {
@@ -121,6 +123,14 @@ public class Product extends BaseEntity {
 
 	public void setRating(int rating) {
 		this.rating = rating;
+	}
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
 	}
 
 	@Override
