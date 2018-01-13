@@ -109,7 +109,7 @@
                         <tbody id="clients">
                         <tr th:each="pair : ${totalStat.clientsOnDetails.entrySet()}">
                             <td class="commonCheck"
-                                th:text="${pair.getValue().allDirtyPrice + pair.getValue().otherPriceMenu}"
+                                th:text="${#numbers.formatDecimal((pair.getValue().allDirtyPrice + pair.getValue().otherPriceMenu), 1, 'COMMA', 1, 'POINT')}"
                                 th:unless="${cardEnable}"></td>
                             <td class="cashPayment" th:text="${pair.getKey().cache}" th:if="${cardEnable}"></td>
                             <td class="clubCardPayment" th:text="${pair.getKey().payWithCard}"

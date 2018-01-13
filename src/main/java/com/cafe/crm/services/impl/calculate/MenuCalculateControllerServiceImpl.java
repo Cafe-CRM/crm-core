@@ -9,6 +9,7 @@ import com.cafe.crm.services.interfaces.calculate.CalculateService;
 import com.cafe.crm.services.interfaces.calculate.MenuCalculateControllerService;
 import com.cafe.crm.services.interfaces.client.ClientService;
 import com.cafe.crm.services.interfaces.layerproduct.LayerProductService;
+import com.cafe.crm.services.interfaces.menu.IngredientsService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.utils.CompanyIdCache;
@@ -27,14 +28,17 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 	private final ClientService clientService;
 	private final ProductService productService;
 	private final CalculateService calculateService;
+	private final IngredientsService ingredientsService;
 
 	@Autowired
 	public MenuCalculateControllerServiceImpl(ProductService productService, ClientService clientService,
-											  LayerProductService layerProductService, CalculateService calculateService) {
+											  LayerProductService layerProductService, CalculateService calculateService,
+											  IngredientsService ingredientsService) {
 		this.productService = productService;
 		this.clientService = clientService;
 		this.layerProductService = layerProductService;
 		this.calculateService = calculateService;
+		this.ingredientsService = ingredientsService;
 	}
 
 	@Override
@@ -96,66 +100,100 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 	@Override
 	public LayerProduct addClientOnLayerProduct(long calculateId, long[] clientsId, long layerProductId) {
 		LayerProduct layerProduct = layerProductService.getOne(layerProductId);
+		List<Client> calculatedClients = clientService.findByIdIn(clientsId);
 		List<Client> clients = layerProduct.getClients();
+
 		for (Client client : clients) {
 			if (!client.isState()) {
 				return layerProduct;
 			}
 		}
-		clients.addAll(clientService.findByIdIn(clientsId));
-		layerProduct.setClients(new ArrayList<Client>(new LinkedHashSet<Client>(clients)));
+
+		clients.addAll(calculatedClients);
+		layerProduct.setClients(new ArrayList<Client>(new LinkedHashSet<Client>(clients))); //говнокод
 		// set на случай если продукт уже есть на клиенте, чтобы избежать дублирования
 		layerProductService.save(layerProduct);
+		clientService.saveAll(clients);
 		calculatePriceMenu(calculateId);
 		return layerProduct;
+
 	}
 
 	@Override
-	public LayerProduct deleteProductOnClient(long calculateId, long[] clientsId, long layerProductId) {
+	public List<Client> deleteProductOnClient(long calculateId, long[] clientsId, long layerProductId) {
 		LayerProduct layerProduct = layerProductService.getOne(layerProductId);
+		Product product = productService.findOne(layerProduct.getProductId());
 		List<Client> clients = layerProduct.getClients();
-		List<Client> forDelClients = clientService.findByIdIn(clientsId);
-		clients.removeAll(forDelClients);
-		if (layerProduct.getClients().isEmpty()) {
+
+		if (clientsId == null) {
+			layerProduct.setClients(new ArrayList<>());
 			layerProductService.delete(layerProduct);
+			ingredientsService.retrieveIngredientAmount(product.getRecipe());
+			calculatePriceMenu(calculateId);
+			return clients;
+		}
+
+		List<Client> forDelClients = clientService.findByIdIn(clientsId);
+		forDelClients.retainAll(clients);			//защита от лишних клиентов в добавленном списке
+		clients.removeAll(forDelClients);
+		layerProduct.setClients(clients);
+
+		if (clients.isEmpty()) {
+			layerProductService.delete(layerProduct);
+			ingredientsService.retrieveIngredientAmount(product.getRecipe());
 		} else {
 			layerProductService.save(layerProduct);
 		}
 		calculatePriceMenu(calculateId);
-		layerProduct.setClients(forDelClients);//for json
-		String name = layerProduct.getName();
-		String description = layerProduct.getDescription();
-		Double cost = !layerProduct.isFloatingPrice() ? layerProduct.getCost() : 0d;
-		Product product = productService.findByNameAndDescriptionAndCost(name, description, cost);
-		int oldRating = product.getRating();
-		product.setRating(--oldRating);
-		productService.saveAndFlush(product);
-		return layerProduct;
+
+		if (!product.isDeleted()) {
+			int oldRating = product.getRating();
+			product.setRating(--oldRating);
+			productService.saveAndFlush(product);
+		}
+
+		return forDelClients;
 	}
 
 	@Override
-	public Set<LayerProduct> getProductOnCalculate(long calculateId) {
+	public List<LayerProduct> getProductOnCalculate(long calculateId) {
 		Calculate calculate = calculateService.getAllOpenOnCalculate(calculateId);
 		List<Client> listClient = calculate.getClient();
-		Set<LayerProduct> products = new LinkedHashSet<>();
+		List<LayerProduct> allProducts = new ArrayList<>();
 		for (Client client : listClient) {
-			products.addAll(client.getLayerProducts());
+			allProducts.addAll(client.getLayerProducts());
 		}
-		return products;
+		List<LayerProduct> sortedProducts = allProducts.stream()
+				.distinct()
+				.sorted(Comparator.comparing(LayerProduct::getId))
+				.collect(Collectors.toList());
+		return sortedProducts;
 	}
 
 	public void calculatePriceMenu(long calculateId) {
 		Calculate calculate = calculateService.getAllOpenOnCalculate(calculateId);
 		List<Client> clients = calculate.getClient();
 		for (Client client : clients) {
+			Map<Long, Double> prodOnPrice = new HashMap<>();
 			client.setPriceMenu(0D);
 			for (LayerProduct layerProduct : client.getLayerProducts()) {
 				if (layerProduct.getClients().size() == 0) {
 					continue;
 				}
-				long clientCount = layerProduct.getClients().stream().filter(c -> !c.isDeleteState()).count();
-				client.setPriceMenu(Math.round((client.getPriceMenu() + layerProduct.getCost() / clientCount) * 100) / 100.00);
+				long prodId = layerProduct.getProductId();
+				long clientCount = layerProduct.getClients().stream().filter(c -> c.isState() && !c.isDeleteState()).count();
+				double partPrice = layerProduct.getCost() / clientCount;
+				double prodPrice = Math.round((client.getPriceMenu() + partPrice) * 100) / 100.00;
+				client.setPriceMenu(prodPrice);
+
+				if (prodOnPrice.containsKey(prodId)) {
+					double price = prodOnPrice.get(prodId);
+					prodOnPrice.put(prodId, Math.round((price + partPrice) * 100) / 100.00);
+				} else {
+					prodOnPrice.put(prodId, Math.round(partPrice * 100) / 100.00);
+				}
 			}
+			client.setProductOnPrice(prodOnPrice);
 		}
 		clientService.saveAll(clients);
 	}

@@ -8,12 +8,17 @@
     <div th:replace="shift/checklistOnCloseShift :: checklistOnClose"></div>
 
     <center>
-        <button class="btn btn-info open-button" data-toggle="modal" data-target="#calculateModal">
-            Открыть счет
+        <div class="open-calculate-block">
+            <button class="btn btn-info open-button"
+                    style="width: 130px; float: left;"
+                    data-toggle="modal"
+                    data-target="#calculateModal">
+                Открыть счет
+            </button>
             <div class="client-info">
                 <p th:text="${stateClients}"></p>
             </div>
-        </button>
+        </div>
     </center>
 
 

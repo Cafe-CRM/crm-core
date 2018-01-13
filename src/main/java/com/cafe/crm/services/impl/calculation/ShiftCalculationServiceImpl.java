@@ -227,40 +227,25 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		double otherPriceMenu = 0D;
 		List<LayerProduct> dirtyProduct = new ArrayList<>();
 		List<LayerProduct> otherProduct = new ArrayList<>();
+
+		for (Map.Entry<Long, Double> productSet : client.getProductOnPrice().entrySet()) {
+			Product product = productService.findOne(productSet.getKey());
+			if (product.getCategory().isDirtyProfit()) {
+				dirtyPriceMenu += productSet.getValue();
+			} else {
+				otherPriceMenu += productSet.getValue();
+			}
+		}
+
 		for (LayerProduct product : client.getLayerProducts()) {
 			if (product.isDirtyProfit()) {
-				dirtyPriceMenu += product.getCost() / product.getClients().stream().filter(c -> !c.isDeleteState()).count();
 				dirtyProduct.add(product);
 			} else {
-				otherPriceMenu += product.getCost() / product.getClients().stream().filter(c -> !c.isDeleteState()).count();
 				otherProduct.add(product);
 			}
 		}
+
 		allDirtyPrice = client.getPriceTime() + (Math.round(dirtyPriceMenu * 100) / 100.00) - client.getPayWithCard();
-
-		double allPriceMenu = dirtyPriceMenu + otherPriceMenu;
-		double allPriceMenuDB = client.getPriceMenu();
-
-		if (Math.floor(allPriceMenu) != Math.floor(allPriceMenuDB)) {
-
-			double dirtyPriceProc;
-			double otherPriceProc;
-
-			if (dirtyPriceMenu != 0D && otherPriceMenu == 0D) {
-				dirtyPriceProc = dirtyPriceMenu * 100 / allPriceMenu;
-				dirtyPriceMenu = allPriceMenuDB * dirtyPriceProc / 100;
-			} else if (dirtyPriceMenu == 0D && otherPriceMenu != 0D) {
-				otherPriceProc = otherPriceMenu * 100 / allPriceMenu;
-				otherPriceMenu = allPriceMenuDB * otherPriceProc / 100;
-			} else {
-				dirtyPriceProc = dirtyPriceMenu * 100 / allPriceMenu;
-				otherPriceProc = otherPriceMenu * 100 / allPriceMenu;
-				dirtyPriceMenu = allPriceMenuDB * dirtyPriceProc / 100;
-				otherPriceMenu = allPriceMenuDB * otherPriceProc / 100;
-			}
-
-		}
-
 		return new ClientDetails(allDirtyPrice, (Math.round(otherPriceMenu * 100) / 100.00),
 				(Math.round(dirtyPriceMenu * 100) / 100.00),
 				dirtyProduct, otherProduct);

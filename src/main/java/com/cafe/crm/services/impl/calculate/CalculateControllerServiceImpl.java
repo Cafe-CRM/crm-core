@@ -15,10 +15,7 @@ import com.cafe.crm.models.property.Property;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.services.interfaces.board.BoardService;
-import com.cafe.crm.services.interfaces.calculate.CalculateControllerService;
-import com.cafe.crm.services.interfaces.calculate.CalculatePriceService;
-import com.cafe.crm.services.interfaces.calculate.CalculateService;
-import com.cafe.crm.services.interfaces.calculate.TimerOfPauseService;
+import com.cafe.crm.services.interfaces.calculate.*;
 import com.cafe.crm.services.interfaces.card.CardService;
 import com.cafe.crm.services.interfaces.client.ClientService;
 import com.cafe.crm.services.interfaces.debt.DebtService;
@@ -63,6 +60,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	private final ProductService productService;
 	private final IngredientsService ingredientsService;
 	private final ConfirmTokenService confirmTokenService;
+	private final MenuCalculateControllerService menuCalculateControllerService;
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalculateControllerServiceImpl.class);
 
@@ -81,7 +79,8 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 										  PriceNameProperties priceNameProperties,
 										  ProductService productService,
 										  IngredientsService ingredientsService,
-										  ConfirmTokenService confirmTokenService) {
+										  ConfirmTokenService confirmTokenService,
+										  MenuCalculateControllerService menuCalculateControllerService) {
 		this.debtService = debtService;
 		this.calculatePriceService = calculatePriceService;
 		this.emailService = emailService;
@@ -97,6 +96,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		this.productService = productService;
 		this.ingredientsService = ingredientsService;
 		this.confirmTokenService = confirmTokenService;
+		this.menuCalculateControllerService = menuCalculateControllerService;
 	}
 
 	@Override
@@ -166,6 +166,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		calculate.setClient(list1);
 		shiftService.getLast().getClients().addAll(list);
 		calculateService.save(calculate);
+		//System.arraycopy();
 	}
 
 	@Override
@@ -451,12 +452,14 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		Set<LayerProduct> products = new HashSet<>();
+
 		for (Client client : clients) {
 			products.addAll(client.getLayerProducts());
 			client.setDeleteState(true);
 			client.setState(false);
 			logger.info("Удаление клиента c описанием: " + client.getDescription() + " и id: " + client.getId());
 		}
+
 		checkIngredients(products);
 		clientService.saveAll(clients);
 		boolean flag = false;
@@ -468,11 +471,13 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 				break;
 			}
 		}
+
 		for (Client client : clients1) {
 
 			if (client.isState() && !client.isDeleteState()) {
 
 				double menuPrice = 0D;
+				Map<Long, Double> productMap = new HashMap<>();
 
 				for (LayerProduct product : client.getLayerProducts()) {
 
@@ -480,24 +485,31 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 						double oneClientShare = product.getCost() / product.getClients().size();
 
-						double deletedClients = product.getClients().stream()
+						long deletedClients = product.getClients().stream()
 								.filter(Client::isDeleteState)
 								.count();
 
-						double remainingClients = product.getClients().stream()
+						long remainingClients = product.getClients().stream()
 								.filter(c -> c.isState() && !c.isDeleteState())
 								.count();
 
+						double mapStoredPrice = productMap.get(product.getProductId()) != null ? productMap.get(product.getProductId()) : 0.0;
+
 						if (remainingClients != product.getClients().size()) {
-							menuPrice += deletedClients * oneClientShare + (oneClientShare / remainingClients);
+							double addPrice = deletedClients * oneClientShare + (oneClientShare / remainingClients);
+							menuPrice += addPrice;
+							productMap.put(product.getProductId(), Math.round((mapStoredPrice + addPrice) * 100) / 100.00);
 						} else {
 							menuPrice += oneClientShare;
+							productMap.put(product.getProductId(), Math.round((mapStoredPrice + oneClientShare) * 100) / 100.00);
 						}
 					}
 				}
 				client.setPriceMenu(Math.round(menuPrice * 100) / 100.00);
+				client.setProductOnPrice(productMap);
 			}
 		}
+
 		clientService.saveAll(clients1);
 		if (!flag) {
 			calculate.setState(false);
@@ -631,12 +643,17 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 					.filter(Client::isState)
 					.count();
 		}
+
+		if (amount >= 10 && amount <= 20) {
+			return "Сейчас в заведении " + amount + " гостей";
+		}
+
 		int lastDigit = amount % 10;
 		String text;
 
 		if(lastDigit == 1) {
 			text = "Сейчас в заведении " + amount + " гость";
-		} else if(lastDigit >= 2 && lastDigit <=4) {
+		} else if(lastDigit >= 2 && lastDigit <= 4) {
 			text = "Сейчас в заведении " + amount + " гостя";
 		} else {
 			text = "Сейчас в заведении " + amount + " гостей";

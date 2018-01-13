@@ -58,15 +58,15 @@ public class MenuCalculateController {
 
 	@RequestMapping(value = {"/delete-product-with-client"}, method = RequestMethod.POST)
 	@ResponseBody
-	public LayerProduct deleteProductOnClient(@RequestParam("calculateId") long calculateId,
-											  @RequestParam("clientsId") long[] clientsId,
+	public List<Client> deleteProductOnClient(@RequestParam("calculateId") long calculateId,
+											  @RequestParam(name = "clientsId", required = false) long[] clientsId,
 											  @RequestParam("productId") long layerProductId) {
 		return menuCalculateService.deleteProductOnClient(calculateId, clientsId, layerProductId);
 	}
 
 	@RequestMapping(value = {"/get-products-on-calculate"}, method = RequestMethod.POST)
 	@ResponseBody
-	public Set<LayerProduct> getProductOnCalculate(@RequestParam("calculateId") long calculateId) {
+	public List<LayerProduct> getProductOnCalculate(@RequestParam("calculateId") long calculateId) {
 		return menuCalculateService.getProductOnCalculate(calculateId);
 	}
 

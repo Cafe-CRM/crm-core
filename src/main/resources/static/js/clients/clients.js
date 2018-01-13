@@ -229,6 +229,8 @@ function createLayerProductAjax(prodId, calcId) {
         data: $('#addProductOnClientForm' + calcId).serialize(),
         success: function (data) {
             var arr = data.clients;
+            var menuId = "pr" + data.id;
+            activeArr.push(menuId);
             for (var i = 0; i < arr.length; i++) {
                 $('#ajaxMenu' + arr[i].id + ' li:last').after('<li id = "pr' + data.id + '">' + data.name + ' №' + data.id + ' (' + data.cost + 'р)' + '</li>');
             }
@@ -248,10 +250,13 @@ function createLayerProductAjax(prodId, calcId) {
     });
 }
 
+var allProdArr = [];
+var testArr = [];
+
 function createLayerProductWithFloatingPriceAjax(prodId, calcId, inputId) {
     $('#productId' + calcId).val(prodId);
     var price = $(('#' + inputId) + prodId + calcId).val();
-    if (price == "" || price <= 0) {
+    if (price === "" || price <= 0) {
         return false;
     }
     var data = $('#addProductOnClientForm' + calcId).serializeArray();
@@ -262,6 +267,8 @@ function createLayerProductWithFloatingPriceAjax(prodId, calcId, inputId) {
         data: data,
         success: function (data) {
             var arr = data.clients;
+            var menuId = "pr" + data.id;
+            activeArr.push(menuId);
             for (var i = 0; i < arr.length; i++) {
                 $('#ajaxMenu' + arr[i].id + ' li:last').after('<li id = "pr' + data.id + '">' + data.name + ' №' + data.id + ' (' + data.cost + 'р)' + '</li>');
             }
@@ -289,11 +296,19 @@ function addLayerProductOnClientAjax(layerProdId, calcId) {
         data: $('#addProductOnClientForm' + calcId).serialize(),
         success: function (data) {
             var arr = data.clients;
+            var count = getCheckBoxCount(calcId, layerProdId);
+            for (var j = 0; j < count; j++) {
+                var menuId = "pr" + data.id;
+                var ai = testArr.indexOf(menuId);
+                testArr.splice(ai, 1);
+            }
+
             for (var i = 0; i < arr.length; i++) {
                 if (document.getElementById('ajaxMenu' + arr[i].id).querySelector("#pr" + data.id) == null) {
                     $('#ajaxMenu' + arr[i].id + ' li:last').after('<li id = "pr' + data.id + '">' + data.name + ' №' + data.id + ' (' + data.cost + 'р)' + '</li>');
                 }
             }
+            getProductOnCalculateAjax(calcId);
             setTimeout(function () {
                 getOpenClientsOnCalculateAjax(calcId)
             }, 500);
@@ -315,10 +330,15 @@ function deleteLayerProductOnClientAjax(layerProdId, calcId) {
         url: "/manager/delete-product-with-client",
         data: $('#addProductOnClientForm' + calcId).serialize(),
         success: function (data) {
-            var arr = data.clients;
+            var arr = data;
+            var menuId = "pr" + layerProdId;
+            var count = getDeletedCheckBoxCount(calcId);
+            for (var j = 0; j < count; j++) {
+                testArr.push(menuId);
+            }
             for (var i = 0; i < arr.length; i++) {
-                var v = document.getElementById('ajaxMenu' + arr[i].id).querySelector("#pr" + data.id);
-                if (v != null) {
+                var v = document.getElementById('ajaxMenu' + arr[i].id).querySelector("#pr" + layerProdId);
+                if (v !== null) {
                     v.remove();
                 }
             }
@@ -344,12 +364,28 @@ function getProductOnCalculateAjax(calcId) {
         data: {calculateId: calcId},
         success: function (data) {
             var str;
-            if (data != "") {
+            if (data.length !== 0) {
+                allProdArr = [];
+                testArr = [];
+                for (var j = 0; j < data.length; j++) {
+                    var menuId1 = "pr" + data[j].id;
+                    allProdArr.push(menuId1);
+                }
+                checkBoxIterate(calcId);
                 for (var i = 0; i < data.length; i++) {
-                    str += '<tr style="font-size: 20px;"><td>' + data[i].name + ' №' + data[i].id + '</td>' +
-                        '<td>' + data[i].description + '</td><td>' + data[i].cost + '</td>' +
-                        '<td><button onclick="addLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')" style="background:rgba(255,0,0,0);float: left;margin-left: 20px; border: none;"> <i class="fa fa-check" aria-hidden="true" style="font-size: 30px;color:#910405;"></i></button>' +
-                        '<button onclick="deleteLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')" style="background:rgba(255,0,0,0);float: left;margin-left: 20px; border: none;"><i class="fa fa-times" aria-hidden="true" style="font-size: 30px;color:#910405;"></i></button></td></tr>';
+                    var menuId = "pr" + data[i].id;
+                    var trId = "id=" +"\"" + "forpr" + data[i].id +"\"";
+                    if (testArr.indexOf(menuId) === -1) {
+                        str += '<tr ' + trId + ' style="font-size: 20px;"><td>' + data[i].name + ' №' + data[i].id + '</td>' +
+                            '<td>' + data[i].description + '</td><td>' + data[i].cost + '</td>' +
+                            '<td class="buttonTd"><button class="share-order order-button inactive" disabled="disabled" onclick="addLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')"> <i class="fa fa-check" aria-hidden="true"></i></button>' +
+                            '<button class="delete-order order-button" onclick="deleteLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')"><i class="fa fa-times" aria-hidden="true"></i></button></td></tr>';
+                    } else {
+                        str += '<tr ' + trId + ' style="font-size: 20px;"><td>' + data[i].name + ' №' + data[i].id + '</td>' +
+                            '<td>' + data[i].description + '</td><td>' + data[i].cost + '</td>' +
+                            '<td class="buttonTd"><button class="share-order order-button" onclick="addLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')"> <i class="fa fa-check" aria-hidden="true"></i></button>' +
+                            '<button class="delete-order order-button" onclick="deleteLayerProductOnClientAjax(' + data[i].id + ',' + calcId + ')"><i class="fa fa-times" aria-hidden="true"></i></button></td></tr>';
+                    }
                 }
             } else {
                 str = null;
@@ -361,6 +397,169 @@ function getProductOnCalculateAjax(calcId) {
             console.log('getProductOnCalculateAjax сломался? ');
         }
     });
+}
+
+function getDeletedCheckBoxCount(calcId) {
+    var box = "div#boxWrapper" + calcId + " div div input";
+    var count = 0;
+    $(box).each(function (index, element) {
+        if ($(element).prop("checked")) {
+            count++
+        }
+    });
+    return count;
+}
+
+function getCheckBoxCount(calcId, layerProdId) {
+    var box = "div#boxWrapper" + calcId + " div div input";
+    var count = 0;
+    var externalArr = [];
+    $(box).each(function (index, element) {
+        if ($(element).prop("checked")) {
+            var clientMenuId = $(element).attr('value');
+            var productId = "pr" + layerProdId;
+            //arr
+            var str = "div#ajaxMenu" + clientMenuId + " div li";
+            var sstr = "div#ajaxMenu" + clientMenuId + " li";
+            var ownProducts = []; //pr00
+            if (typeof $(str).html() !== "undefined") {
+                $(str).each(function (index, element) {
+                    ownProducts.push($(element).attr('id'));
+                });
+            } else if (typeof $(sstr).html() !== "undefined") {
+                $(sstr).each(function (index, element) {
+                    ownProducts.push($(element).attr('id'));
+                });
+            }
+            if  (ownProducts.indexOf(productId) === -1) {
+                count++
+            }
+            $(ownProducts).each(function (index, element) {
+                if (element !== "") {
+                    externalArr.push(element);
+                }
+            });
+
+        }
+    });
+    return count;
+}
+
+function checkBoxIterate(calcId) {
+    var box = "div#boxWrapper" + calcId + " div div input";
+    $(box).each(function (index, element) {
+        if ($(element).prop("checked")) {
+            var clientMenuId = $(element).attr('value');
+            var str = "div#ajaxMenu" + clientMenuId + " div li";
+            var sstr = "div#ajaxMenu" + clientMenuId + " li";
+            if (typeof $(str).html() !== "undefined") {
+
+                var isOpening = $("#checkMenu" + clientMenuId).prop("checked");
+
+                var cleanArr = allProdArr.filter(function (item) {
+                    var isRepeated = true;
+                    $(str).each(function (index, element) {
+                        if (item === $(element).attr('id')) {
+                            isRepeated = false;
+                        }
+                    });
+                    return isRepeated;
+                });
+                if (isOpening) {
+                    $(cleanArr).each(function (index, element) {
+                        var id = "#for" + element;
+                        var shareBt = "tr" + id + " td.buttonTd button.share-order";
+                        $(shareBt).removeAttr("disabled").removeClass("inactive");
+                        if (testArr.indexOf(element) === -1) {
+                            testArr.push(element);
+                        }
+                    });
+                }
+
+
+            } else if (typeof $(sstr).html() !== "undefined") {
+
+                var isOpening1 = $("#checkMenu" + clientMenuId).prop("checked");
+
+                var cleanArr1 = allProdArr.filter(function (item) {
+                    var isRepeated = true;
+                    $(sstr).each(function (index, element) {
+                        if (item === $(element).attr('id')) {
+                            isRepeated = false;
+                        }
+                    });
+                    return isRepeated;
+                });
+                if (isOpening1) {
+                    $(cleanArr1).each(function (index, element) {
+                        var id = "#for" + element;
+                        var shareBt = "tr" + id + " td.buttonTd button.share-order";
+                        $(shareBt).removeAttr("disabled").removeClass("inactive");
+                        //alert("push element!");
+                        if (testArr.indexOf(element) === -1) {
+                            testArr.push(element);
+                        }
+                    });
+                }
+
+
+            }
+        }
+    });
+}
+
+
+function openCloseButtons(clientMenuId) {
+    var str = "div#ajaxMenu" + clientMenuId + " div li";
+    var sstr = "div#ajaxMenu" + clientMenuId + " li";
+    if (typeof $(str).html() !== "undefined"){
+        addButtonIterate(str, clientMenuId);
+    } else if (typeof $(sstr).html() !== "undefined") {
+        addButtonIterate(sstr, clientMenuId);
+    }
+}
+
+function addButtonIterate(arr, clientMenuId) {
+    var isOpening = $("#checkMenu" + clientMenuId).prop("checked");
+
+    var cleanArr = allProdArr.filter(function (item) {
+        var isRepeated = true;
+        $(arr).each(function (index, element) {
+            if (item === $(element).attr('id')) {
+                isRepeated = false;
+            }
+        });
+        return isRepeated;
+    });
+    if (isOpening) {
+        $(cleanArr).each(function (index, element) {
+            var id = "#for" + element;
+            var shareBt = "tr" + id + " td.buttonTd button.share-order";
+            $(shareBt).removeAttr("disabled").removeClass("inactive");
+            testArr.push(element);
+        });
+    } else {
+        $(cleanArr).each(function (index, element) {
+            var id = "#for" + element;
+            var shareBt = "tr" + id + " td.buttonTd button.share-order";
+            if (getCount(element, testArr) === 1) {
+                $(shareBt).attr("disabled", "disabled").addClass("inactive");
+                testArr.splice(testArr.indexOf(element), 1);
+            } else if (getCount(element, testArr) > 1) {
+                testArr.splice(testArr.indexOf(element), 1);
+            }
+        });
+    }
+}
+
+function getCount(ownID, arr) {
+    var count = 0;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === ownID) {
+            count++
+        }
+    }
+    return count;
 }
 
 function getOpenClientsOnCalculateAjax(calcId) {

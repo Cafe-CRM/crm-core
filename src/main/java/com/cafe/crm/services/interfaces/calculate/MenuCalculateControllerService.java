@@ -1,7 +1,9 @@
 package com.cafe.crm.services.interfaces.calculate;
 
+import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.client.LayerProduct;
 
+import java.util.List;
 import java.util.Set;
 
 public interface MenuCalculateControllerService {
@@ -12,9 +14,9 @@ public interface MenuCalculateControllerService {
 
 	LayerProduct addClientOnLayerProduct(long calculateId, long[] clientsId, long layerProductId);
 
-	LayerProduct deleteProductOnClient(long calculateId, long[] clientsId, long layerProductId);
+	List<Client> deleteProductOnClient(long calculateId, long[] clientsId, long layerProductId);
 
-	Set<LayerProduct> getProductOnCalculate(long calculateId);
+	List<LayerProduct> getProductOnCalculate(long calculateId);
 
 	void calculatePriceMenu(long calculateId);
 }

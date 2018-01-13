@@ -13,7 +13,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Entity
@@ -56,6 +58,12 @@ public class Client extends BaseEntity {
 	private Double priceMenu = 0D;
 
 	private Double priceTime = 0D;
+
+	@NotTransform
+	@ElementCollection(fetch = FetchType.LAZY)
+	@MapKeyColumn(name = "prod_id")
+	@Column(name = "price")
+	private Map<Long, Double> productOnPrice = new HashMap<>();
 
 	@NotNull
 	@NotTransform
@@ -222,6 +230,14 @@ public class Client extends BaseEntity {
 
 	public void setTimeStart(LocalDateTime timeStart) {
 		this.timeStart = timeStart;
+	}
+
+	public Map<Long, Double> getProductOnPrice() {
+		return productOnPrice;
+	}
+
+	public void setProductOnPrice(Map<Long, Double> productOnPrice) {
+		this.productOnPrice = productOnPrice;
 	}
 
 	@Override
