@@ -230,7 +230,6 @@ function createLayerProductAjax(prodId, calcId) {
         success: function (data) {
             var arr = data.clients;
             var menuId = "pr" + data.id;
-            activeArr.push(menuId);
             for (var i = 0; i < arr.length; i++) {
                 $('#ajaxMenu' + arr[i].id + ' li:last').after('<li id = "pr' + data.id + '">' + data.name + ' №' + data.id + ' (' + data.cost + 'р)' + '</li>');
             }
@@ -268,7 +267,6 @@ function createLayerProductWithFloatingPriceAjax(prodId, calcId, inputId) {
         success: function (data) {
             var arr = data.clients;
             var menuId = "pr" + data.id;
-            activeArr.push(menuId);
             for (var i = 0; i < arr.length; i++) {
                 $('#ajaxMenu' + arr[i].id + ' li:last').after('<li id = "pr' + data.id + '">' + data.name + ' №' + data.id + ' (' + data.cost + 'р)' + '</li>');
             }
