@@ -850,11 +850,13 @@ function openNewCalc() {
     var description = $('#description').val();
 
     if (description === "") {
-        $('#calcDescError').modal('show');
-        $('#errorMessage').html('<h4 style="color:red;" align="center">Описание стола не может быть пустым!</h4>')
+        //alert("set descr!");
+        //$('#calcDescError').modal('show');
+        $('#calcModalErrorMessage').html('<h4 style="color:red;" align="center">Описание стола не может быть пустым!</h4>')
     } else if (boardId === "") {
-        $('#calcDescError').modal('show');
-        $('#errorMessage').html('<h4 style="color:red;" align="center">Выберите стол!</h4>')
+        //alert("chose calc");
+        //$('#calcDescError').modal('show');
+        $('#calcModalErrorMessage').html('<h4 style="color:red;" align="center">Выберите стол!</h4>')
     } else {
         sendNewCalc(boardId, number, description);
     }
@@ -878,7 +880,7 @@ function sendNewCalc(boardId, number, description) {
         error: function (error) {
             $('#calcDescError').modal('show');
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
-            $('#errorMessage').html(errorMessage);
+            $('#calcModalErrorMessage').html(errorMessage);
         }
     });
 }

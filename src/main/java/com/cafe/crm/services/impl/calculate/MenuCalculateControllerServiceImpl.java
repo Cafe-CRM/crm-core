@@ -43,11 +43,17 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 
 	@Override
 	public LayerProduct createLayerProduct(long calculateId, long[] clientsId, long productId) {
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для добавления!");
+		}
+
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		Product product = productService.findOne(productId);
+
 		if (product.isDeleted()) {
 			throw new ClientDataException("Нельзя добавить удалённый продукт!");
 		}
+
 		int oldRating = product.getRating();
 		product.setRating(++oldRating);
 		LayerProduct layerProduct = new LayerProduct();
@@ -56,12 +62,14 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 		layerProduct.setName(product.getName());
 		layerProduct.setDescription(product.getDescription());
 		layerProduct.setClients(clients);
+
 		if (!product.getCategory().isDirtyProfit()) {
 			layerProduct.setDirtyProfit(false);
 		}
 		if (product.getCategory().isAccountability()) {
 			layerProduct.setAccountability(true);
 		}
+
 		productService.reduceIngredientAmount(product);
 		layerProductService.save(layerProduct);
 		calculatePriceMenu(calculateId);
@@ -70,11 +78,21 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 
 	@Override
 	public LayerProduct createLayerProductWithFloatingPrice(long calculateId, long[] clientsId, long productId, double productPrice) {
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для добавления!");
+		}
+
+		if (productPrice >= 1_000_000) {
+			throw new ClientDataException("Вы ввели слишком большую сумму!");
+		}
+
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		Product product = productService.findOne(productId);
+
 		if (product.isDeleted()) {
 			throw new ClientDataException("Нельзя добавить удалённый продукт!");
 		}
+
 		int oldRating = product.getRating();
 		product.setRating(++oldRating);
 		LayerProduct layerProduct = new LayerProduct();
@@ -83,6 +101,7 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 		layerProduct.setName(product.getName());
 		layerProduct.setDescription(product.getDescription());
 		layerProduct.setClients(clients);
+
 		if (product.getCategory().isFloatingPrice()) {
 			layerProduct.setFloatingPrice(true);
 		}
@@ -92,6 +111,7 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 		if (product.getCategory().isAccountability()) {
 			layerProduct.setAccountability(true);
 		}
+
 		layerProductService.save(layerProduct);
 		calculatePriceMenu(calculateId);
 		return layerProduct;

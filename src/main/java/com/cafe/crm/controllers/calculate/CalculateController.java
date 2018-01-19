@@ -105,7 +105,7 @@ public class CalculateController {
 	@RequestMapping(value = {"/add-calculate"}, method = RequestMethod.POST)
 	public ResponseEntity createCalculate(@RequestParam("boardId") Long id,
 	                              @RequestParam("number") Double number,
-	                              @RequestParam("description") String description) {
+	                              @RequestParam(name = "description", required = false) String description) {
 		if (StringUtils.isBlank(description)) {
 			throw new ClientDataException("Описание стола не может быть пустым!");
 		}
