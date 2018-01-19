@@ -60,6 +60,7 @@ public class Client extends BaseEntity {
 	private Double priceTime = 0D;
 
 	@NotTransform
+	@CollectionTable(name = "product_on_price", joinColumns = @JoinColumn(name = "id"))
 	@ElementCollection(fetch = FetchType.LAZY)
 	@MapKeyColumn(name = "prod_id")
 	@Column(name = "price")
