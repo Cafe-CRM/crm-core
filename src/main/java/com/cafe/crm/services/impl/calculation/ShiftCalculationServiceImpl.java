@@ -329,7 +329,11 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 					long productNum = products.stream()
 							.filter(p -> p.getName().equals(name) && Double.compare(p.getCost(), cost) == 0)
 							.count();
-					contentList.add(new ProductStat(name, productNum, cost, prod.isDeleted()));
+					if (prod == null) {
+						contentList.add(new ProductStat(name, productNum, cost, true));
+					} else {
+						contentList.add(new ProductStat(name, productNum, cost, prod.isDeleted()));
+					}
 				}
 			}
 		}
