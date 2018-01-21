@@ -145,6 +145,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		}
 		profit += profitRecalculate;
 		profit -= lossRecalculate;
+		profit = Math.round(profit * 100) / 100.00;
 
 		return new TotalStatisticView(profit, totalShiftSalary, otherCosts, profitRecalculate, lossRecalculate,
 				users, clientsOnDetails, otherCost, givenDebts, repaidDebt);
@@ -505,10 +506,14 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 	private Double getAllDirtyPrice(Client client) {
 		Double dirtyPriceMenu = 0D;
-		for (LayerProduct product : client.getLayerProducts()) {
-			if (product.isDirtyProfit())
-				dirtyPriceMenu += product.getCost() / product.getClients().stream().filter(c -> !c.isDeleteState()).count();
+
+		for (Map.Entry<Long, Double> productSet : client.getProductOnPrice().entrySet()) {
+			Product product = productService.findOne(productSet.getKey());
+			if (product.getCategory().isDirtyProfit()) {
+				dirtyPriceMenu += productSet.getValue();
+			}
 		}
+
 		return client.getPriceTime() + Math.round(dirtyPriceMenu) - client.getPayWithCard();
 	}
 
