@@ -231,7 +231,12 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 		for (Map.Entry<Long, Double> productSet : client.getProductOnPrice().entrySet()) {
 			Product product = productService.findOne(productSet.getKey());
-			if (product.getCategory().isDirtyProfit()) {
+			if (product == null) {
+				dirtyPriceMenu += client.getLayerProducts().stream()
+						.filter(p -> Objects.equals(p.getProductId(), productSet.getKey()))
+						.mapToDouble(p -> p.getCost() / p.getClients().size())
+						.reduce((price1, price2) -> price1 + price2).orElse(0D);
+			} else if (product.getCategory().isDirtyProfit()) {
 				dirtyPriceMenu += productSet.getValue();
 			} else {
 				otherPriceMenu += productSet.getValue();
@@ -509,7 +514,12 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 		for (Map.Entry<Long, Double> productSet : client.getProductOnPrice().entrySet()) {
 			Product product = productService.findOne(productSet.getKey());
-			if (product.getCategory().isDirtyProfit()) {
+			if (product == null) {
+				dirtyPriceMenu += client.getLayerProducts().stream()
+						.filter(p -> Objects.equals(p.getProductId(), productSet.getKey()))
+						.mapToDouble(p -> p.getCost() / p.getClients().size())
+						.reduce((price1, price2) -> price1 + price2).orElse(0D);
+			} else if (product.getCategory().isDirtyProfit()) {
 				dirtyPriceMenu += productSet.getValue();
 			}
 		}
