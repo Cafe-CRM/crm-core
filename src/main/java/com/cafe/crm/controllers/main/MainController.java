@@ -23,10 +23,10 @@ public class MainController {
 
 	@RequestMapping(value = {"/login"}, method = RequestMethod.GET)
 	public String showLoginPage(HttpServletRequest request, Model model) {
-		LoginData loginData = loginDataService.findByRemoteAddress(request.getRemoteAddr());
+		/*LoginData loginData = loginDataService.findByRemoteAddress(request.getRemoteAddr());
 		if (loginData != null && loginData.getErrorCount() > 2) {
 			model.addAttribute("recaptcha", true);
-		}
+		}*/
 		return "login";
 	}
 

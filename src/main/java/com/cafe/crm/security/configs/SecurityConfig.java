@@ -70,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
-		ReCaptchaFilter reCaptchaFilter = reCaptchaFilter();
+		//ReCaptchaFilter reCaptchaFilter = reCaptchaFilter();
 		characterEncodingFilter.setEncoding("UTF-8");
 		characterEncodingFilter.setForceEncoding(true);
 
@@ -95,8 +95,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.permitAll()
 				.and()
 				.csrf().disable()
-				.addFilterBefore(characterEncodingFilter, CsrfFilter.class)
-				.addFilterBefore(reCaptchaFilter, UsernamePasswordAuthenticationFilter.class);
+				.addFilterBefore(characterEncodingFilter, CsrfFilter.class);
+				//.addFilterBefore(reCaptchaFilter, UsernamePasswordAuthenticationFilter.class);
 
 		http
 				.sessionManagement()

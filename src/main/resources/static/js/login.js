@@ -7,10 +7,10 @@ $( document ).ready(function() {
 });
 
 
-var recaptchaAnswer = "";
+/*var recaptchaAnswer = "";
 var onloadCallback = function() {
     grecaptcha.render('reCaptcha', {
-        'sitekey' : '6LeBQT4UAAAAANTIS1WPCx_ZqxxynMQO04zM5mkn',
+        'sitekey' : '6LcDDEIUAAAAAMvfEnSuTFknE8toAxNggR_196ah',
         'callback' : verifyCallback,
         "expired-callback": onRecaptchaExpired
     });
@@ -22,7 +22,7 @@ var verifyCallback = function(response) {
 var onRecaptchaExpired = function() {
     recaptchaAnswer = "";
     $("#reCaptchaAnswer").val("");
-};
+};*/
 
 
 function validateEmail(email) { //Validates the email address
