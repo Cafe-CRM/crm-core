@@ -164,7 +164,7 @@ public class VkServiceImpl implements VkService {
 	}
 
 	private String formatMessage(Shift shift, String raw) {
-		Object[] params = new Object[16];
+		Object[] params = new Object[17];
 		DecimalFormat df = new DecimalFormat("#.##");
 
 		StringBuilder salaryCosts = new StringBuilder();
@@ -177,18 +177,19 @@ public class VkServiceImpl implements VkService {
 		params[1] = getDayOfWeek(shift.getShiftDate());
 		params[2] = getDate(shift.getShiftDate());
 		params[3] = getProfit(shift);
-		params[4] = getAmountOfClients(clients);
-		params[5] = clients.size();
-		params[6] = getProdInfo(shift);
-		params[7] = getAdmins(shift);
-		params[8] = salaryCosts.toString();
-		params[9] = otherCosts.toString();
-		params[10] = df.format(totalCosts);
-		params[11] = df.format(shift.getCashBox());
-		params[12] = df.format(shift.getBankCashBox());
-		params[13] = df.format(shift.getBankCashBox() + shift.getCashBox());
-		params[14] = getComment(shift.getComment());
-		params[15] = getNotes(shift.getNoteRecords());
+		params[4] = df.format(shift.getAlteredCashAmount());
+		params[5] = getAmountOfClients(clients);
+		params[6] = clients.size();
+		params[7] = getProdInfo(shift);
+		params[8] = getAdmins(shift);
+		params[9] = salaryCosts.toString();
+		params[10] = otherCosts.toString();
+		params[11] = df.format(totalCosts);
+		params[12] = df.format(shift.getCashBox());
+		params[13] = df.format(shift.getBankCashBox());
+		params[14] = df.format(shift.getBankCashBox() + shift.getCashBox());
+		params[15] = getComment(shift.getComment());
+		params[16] = getNotes(shift.getNoteRecords());
 
 		return MessageFormat.format(raw, params);
 	}

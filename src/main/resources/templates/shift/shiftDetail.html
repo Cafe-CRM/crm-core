@@ -15,10 +15,15 @@
 </div>
 <hr></hr>
 
-<div class="container" style="width: 70%">
-    <div class="col-md-2" style="margin-left: 10%">
+<div class="container" style="width: 80%">
+    <div class="col-md-2" style="">
         <h4 style="color: #5bc0de;">Касса</h4>
         <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(detailStatisticView.cashBox,0)}"></span>
+        <br></br>
+    </div>
+    <div class="col-md-2" style="">
+        <h4 style="color: #5bc0de;">Изменение кассы</h4>
+        <span style="color: white;font-size: 30px" th:text="${#numbers.formatInteger(detailStatisticView.alteredCashAmount,0)}"></span>
         <br></br>
     </div>
     <div class="col-md-2 ">

@@ -11,6 +11,7 @@ import java.util.*;
 public class TotalStatisticView {
 
 	private double profit;
+	private double alteredCashAmount;
 	private double salariesCosts;
 	private double otherCosts;
 	private double profitRecalculation;
@@ -21,11 +22,12 @@ public class TotalStatisticView {
 	private List<Debt> givenDebts;
 	private List<Debt> repaidDebt;
 
-	public TotalStatisticView(double profit, double salariesCosts, double otherCosts, double profitRecalculation,
+	public TotalStatisticView(double profit, double alteredCashAmount, double salariesCosts, double otherCosts, double profitRecalculation,
 							  double lossRecalculation, List<UserDTO> users,
 							  Map<Client, ClientDetails> clientsOnDetails, List<Cost> listOfOtherCosts,
 							  List<Debt> givenDebts, List<Debt> repaidDebt) {
 		this.profit = profit;
+		this.alteredCashAmount = alteredCashAmount;
 		this.salariesCosts = salariesCosts;
 		this.otherCosts = otherCosts;
 		this.profitRecalculation = profitRecalculation;
@@ -43,6 +45,14 @@ public class TotalStatisticView {
 
 	public void setProfit(double profit) {
 		this.profit = profit;
+	}
+
+	public double getAlteredCashAmount() {
+		return alteredCashAmount;
+	}
+
+	public void setAlteredCashAmount(double alteredCashAmount) {
+		this.alteredCashAmount = alteredCashAmount;
 	}
 
 	public double getSalariesCosts() {

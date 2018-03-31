@@ -42,6 +42,8 @@ public class Shift extends BaseEntity {
 
 	private double profit;
 
+	private double alteredCashAmount;
+
 	@Column(name = "bank_cash_box")
 	private double bankCashBox;
 
@@ -62,7 +64,6 @@ public class Shift extends BaseEntity {
 
 	@OneToMany(mappedBy = "shift")
 	private List<Receipt> receipts;
-
 
 	// TODO: 26.07.2017 Подумать над размером
 	private String comment;
@@ -133,6 +134,14 @@ public class Shift extends BaseEntity {
 
 	public void setProfit(double profit) {
 		this.profit = profit;
+	}
+
+	public double getAlteredCashAmount() {
+		return alteredCashAmount;
+	}
+
+	public void setAlteredCashAmount(double alteredCashAmount) {
+		this.alteredCashAmount = alteredCashAmount;
 	}
 
 	public Set<Calculate> getCalculates() {

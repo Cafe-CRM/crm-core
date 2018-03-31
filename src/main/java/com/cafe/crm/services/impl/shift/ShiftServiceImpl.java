@@ -73,6 +73,19 @@ public class ShiftServiceImpl implements ShiftService {
 		shiftRepository.saveAndFlush(shift);
 	}
 
+	@Override
+	public Shift createNewShiftWithAlteredCashAmount(Double cashBox, Double bankCashBox, long... usersIdsOnShift) {
+		Shift lastShift = getLast();
+		Shift shift = createNewShift(cashBox, bankCashBox, usersIdsOnShift);
+
+		Double currentCashAmount = cashBox + bankCashBox;
+		Double lastCashAmount = lastShift.getCashBox() + lastShift.getBankCashBox();
+		Double alteredCashAmount = currentCashAmount - lastCashAmount;
+
+		shift.setAlteredCashAmount(alteredCashAmount);
+		return shift;
+	}
+
     @Override
     public Shift createNewShift(Double cashBox, Double bankCashBox, long... usersIdsOnShift) {
         List<User> users = userService.findByIdIn(usersIdsOnShift);

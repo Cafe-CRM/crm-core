@@ -269,12 +269,14 @@ public class ShiftController {
 
 		if (usersIdsOnShift == null) {
 			User user = userService.findByEmail(authentication.getName());
-			shiftService.createNewShift(cashBox, bankCashBox, user.getId());
-			logger.info(getLogMessage(shiftService.getLast().getId(), lastShift.getCashBox(), lastShift.getBankCashBox(), cashBox, bankCashBox));
+			shiftService.createNewShiftWithAlteredCashAmount(cashBox, bankCashBox, user.getId());
 		} else {
-			shiftService.createNewShift(cashBox, bankCashBox, usersIdsOnShift);
-			logger.info(getLogMessage(shiftService.getLast().getId(), lastShift.getCashBox(), lastShift.getBankCashBox(), cashBox, bankCashBox));
+			shiftService.createNewShiftWithAlteredCashAmount(cashBox, bankCashBox, usersIdsOnShift);
 		}
+
+		logger.info(getLogMessage(shiftService.getLast().getId(), lastShift.getCashBox(),
+				lastShift.getBankCashBox(), cashBox, bankCashBox));
+
 		return "redirect:/manager";
     }
 

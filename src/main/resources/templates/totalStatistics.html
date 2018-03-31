@@ -27,6 +27,7 @@
                     <thead>
                     <tr>
                         <th>Касса</th>
+                        <th>Изменение кассы</th>
                         <th>Прибыль грязными</th>
                         <th>Прочие расходы</th>
                         <th>Зарплатные расходы</th>
@@ -36,6 +37,7 @@
                     <tbody>
                     <tr>
                         <td th:text="${cashBox}"></td>
+                        <td th:text="${totalStat.alteredCashAmount}"></td>
                         <td th:text="${totalStat.profit}"></td>
                         <td th:text="${totalStat.otherCosts}"></td>
                         <td th:text="${totalStat.salariesCosts}"></td>
@@ -44,6 +46,7 @@
                     </tbody>
                     <tfoot>
                     <tr>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>

@@ -14,6 +14,8 @@ public interface ShiftService {
 
 	void saveAndFlush(Shift shift);
 
+	Shift createNewShiftWithAlteredCashAmount(Double cashBox, Double bankCashBox, long... usersIdsOnShift);
+
 	Shift createNewShift(Double cashBox, Double bankCashBox, long... usersId);
 
 	Shift findOne(Long L);
