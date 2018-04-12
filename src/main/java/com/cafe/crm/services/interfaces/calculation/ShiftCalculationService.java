@@ -25,4 +25,5 @@ public interface ShiftCalculationService {
 	List<CalculateDTO> getCalculates(Shift shift);
 	double getAllPrice(Shift shift);
 	List<Client> getClients(Shift shift);
+	void paySalary(List<User> salaryUsers);
 }

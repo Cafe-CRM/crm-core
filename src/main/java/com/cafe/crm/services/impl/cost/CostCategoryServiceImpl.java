@@ -38,23 +38,23 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 	}
 
 	@Override
-	public void save(CostCategory costCategory) {
+	public CostCategory save(CostCategory costCategory) {
 		setCompany(costCategory);
 		checkForUniqueName(costCategory);
-		costCategoryRepository.save(costCategory);
+		return checkSalaryStateAndSave(costCategory);
 	}
 
 	@Override
 	public void update(CostCategory costCategory) {
-		checkForUniqueName(costCategory);
 		CostCategory editedCategory = costCategoryRepository.findOne(costCategory.getId());
 		if (editedCategory != null) {
 			editedCategory.setName(costCategory.getName());
 			setCompany(costCategory);
-			costCategoryRepository.save(editedCategory);
 		} else {
 			throw new CostCategoryDataException("Вы пытаетесь обновить несуществующую категорию!");
 		}
+
+		checkSalaryStateAndSave(costCategory);
 	}
 
 
@@ -88,6 +88,23 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 		}
 	}
 
+	@Override
+	public CostCategory getSalaryCategory() {
+		return costCategoryRepository.findByIsSalaryCostAndCompanyId(true, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public boolean isAnyCostCategoryExist() {
+		Long costCount = costCategoryRepository.countByCompanyId(companyIdCache.getCompanyId());
+		return costCount > 0;
+	}
+
+	@Override
+	public boolean isSalaryCostExist() {
+		CostCategory category = getSalaryCategory();
+		return category != null;
+	}
+
 	private String printAllCostOnCategory(List<Cost> costs) {
 		if (costs.size() < 3) {
 			return costs.stream().map(Cost::getName).collect(Collectors.joining("\n"));
@@ -103,4 +120,18 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 			throw new CostCategoryDataException("Категория с таким названием уже существует!");
 		}
 	}
+
+	private CostCategory checkSalaryStateAndSave(CostCategory category) {
+		if (category.isSalaryCost()) {
+			CostCategory salaryCategory = getSalaryCategory();
+			if (salaryCategory != null) {
+				throw new CostCategoryDataException("Категория с именем: \"" + salaryCategory.getName() +
+						"\" уже является зарплатной. Нельзя иметь две зарплатные категории!");
+			}
+			category.setSalaryCost(true);
+		}
+
+		return costCategoryRepository.save(category);
+	}
+
 }

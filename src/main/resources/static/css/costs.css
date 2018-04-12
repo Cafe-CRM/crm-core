@@ -29,3 +29,7 @@ th > .btn-default:hover, th > .btn-default:focus, th > .btn-default:active, th >
 .ui-autocomplete {
     z-index: 1500 !important;
 }
+
+.active{
+    background: #D7D7D7;
+}

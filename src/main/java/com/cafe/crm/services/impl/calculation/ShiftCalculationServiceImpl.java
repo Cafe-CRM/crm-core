@@ -8,6 +8,7 @@ import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.client.LayerProduct;
 import com.cafe.crm.models.cost.Cost;
+import com.cafe.crm.models.cost.CostCategory;
 import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.models.note.Note;
 import com.cafe.crm.models.shift.Shift;
@@ -17,6 +18,7 @@ import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.repositories.debt.DebtRepository;
 import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
+import com.cafe.crm.services.interfaces.cost.CostCategoryService;
 import com.cafe.crm.services.interfaces.cost.CostService;
 import com.cafe.crm.services.interfaces.debt.DebtService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
@@ -42,6 +44,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 	private final NoteService noteService;
 	private final ProductService productService;
 	private final UserSalaryDetailService userSalaryDetailService;
+	private final CostCategoryService costCategoryService;
 
 	@Autowired
 	private ReceiptService receiptService;
@@ -49,13 +52,15 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 	@Autowired
 	public ShiftCalculationServiceImpl(CostService costService, ShiftService shiftService, Transformer transformer,
 									   NoteService noteService, ProductService productService,
-									   UserSalaryDetailService userSalaryDetailService) {
+									   UserSalaryDetailService userSalaryDetailService,
+									   CostCategoryService costCategoryService) {
 		this.costService = costService;
 		this.shiftService = shiftService;
 		this.transformer = transformer;
 		this.noteService = noteService;
 		this.productService = productService;
 		this.userSalaryDetailService = userSalaryDetailService;
+		this.costCategoryService = costCategoryService;
 	}
 
 	@Override
@@ -82,7 +87,8 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 	@Override
 	public UserSalaryDetail getUserSalaryDetail(User user, int percent, int bonus, Shift shift) {
-		int salary = user.getShiftSalary() + bonus + percent;
+		//int salary = user.getShiftSalary() + bonus + percent;
+		int salary = user.getSalary();
 		int shiftSalary = user.getShiftSalary();
 		int shiftAmount = user.getShifts().size();
 		return new UserSalaryDetail(user, salary, shiftSalary, shiftAmount, bonus, shift);
@@ -119,11 +125,16 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		}
 		clientsOnDetails = getClientsOnDetails(allCalculate);
 		givenDebts.removeAll(repaidDebt);
-		for (UserDTO user : users) {
+		/*for (UserDTO user : users) {
 			totalShiftSalary += user.getSalary();
-		}
+		}*/
 		for (Cost cost : otherCost) {
-			otherCosts += cost.getPrice() * cost.getQuantity();
+			if (cost.getCategory().isSalaryCost()) {
+				totalShiftSalary += cost.getPrice();
+			} else {
+				otherCosts += cost.getPrice() * cost.getQuantity();
+			}
+			//otherCosts += cost.getPrice() * cost.getQuantity();
 		}
 		for (Map.Entry<Client, ClientDetails> entry : clientsOnDetails.entrySet()) {
 			profit += entry.getValue().getAllDirtyPrice();
@@ -172,7 +183,8 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 			int shiftSalary = lastDetail.getShiftSalary();
 
 			for (UserSalaryDetail detail : details) {
-				salary += detail.getSalary();
+				//salary += detail.getSalary();
+				salary = lastDetail.getSalary();
 				bonus += detail.getBonus();
 			}
 
@@ -395,11 +407,15 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 				allCalculate.add(calcDto);
 			}
 		}
-		for (UserSalaryDetail detail : salaryDetails) {
+		/*for (UserSalaryDetail detail : salaryDetails) {
 			allSalaryCost += detail.getSalary();
-		}
-		for (Cost otherGood : otherCost) {
-			allOtherCost += otherGood.getPrice() * otherGood.getQuantity();
+		}*/
+		for (Cost cost : otherCost) {
+			if (cost.getCategory().isSalaryCost()) {
+				allSalaryCost += cost.getPrice();
+			} else {
+				allOtherCost += cost.getPrice() * cost.getQuantity();
+			}
 		}
 		for (Debt debt : shift.getGivenDebts()) {
 			givenDebts += debt.getDebtAmount();
@@ -469,21 +485,29 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		double otherCosts = 0d;
 
 		for (Cost cost : costWithoutUsersSalaries) {
-			otherCosts += (cost.getPrice() * cost.getQuantity());
+			if (cost.getCategory().isSalaryCost()) {
+				usersTotalShiftSalary += cost.getPrice();
+			} else {
+				otherCosts += (cost.getPrice() * cost.getQuantity());
+			}
 		}
+
+		//tOdO remove logick from shift view
 
 		for (UserDTO user : usersOnShift) {
 			int amountOfPositionsPercent = user.getPositions().stream().filter(PositionDTO::isPositionUsePercentOfSales).mapToInt(PositionDTO::getPercentageOfSales).sum();
 			user.setShiftSalary((int) (user.getShiftSalary() + (allPrice * amountOfPositionsPercent) / 100));
-			usersTotalShiftSalary += user.getShiftSalary();
+			//usersTotalShiftSalary += user.getShiftSalary();
 		}
 
 		totalCashBox = (cashBox + bankCashBox + allPrice) - (usersTotalShiftSalary + otherCosts);
+		//totalCashBox = cashBox + bankCashBox + allPrice - otherCosts;
 
 		return new ShiftView(usersOnShift, clients, activeCalculate, allCalculate,
 				cashBox, totalCashBox, usersTotalShiftSalary, card, allPrice, shiftDate, otherCosts, bankCashBox, enabledNotes, staffPercentBonusesMap);
 	}
 
+	@Override
 	public double getAllPrice(Shift shift) {
 		List<Client> clients = getClients(shift);
 		List<Receipt> receiptAmount = receiptService.findByShiftId(shift.getId());
@@ -511,6 +535,23 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 			}
 		}
 		return allPrice;
+	}
+
+	@Override
+	public void paySalary(List<User> salaryUsers) {
+		double totalSalary = 0;
+
+		for (User user : salaryUsers) {
+			totalSalary += user.getSalary();
+		}
+
+		CostCategory salaryCategory = costCategoryService.getSalaryCategory();
+		LocalDate lastDate = shiftService.getLastShiftDate();
+
+		Cost cost = new Cost(salaryCategory.getName(), totalSalary, 1.0, salaryCategory, lastDate);
+
+		costService.save(cost);
+
 	}
 
 	private Double getAllDirtyPrice(Client client) {

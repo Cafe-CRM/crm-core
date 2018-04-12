@@ -18,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +38,9 @@ public class CompanyConfigurationController {
 	@RequestMapping(value = "/boss/company/configuration", method = RequestMethod.GET)
 	public String showStartSettings(Model model) throws IOException {
 		ConfigurationStep step = stepByStepConfiguration.getNextStep();
+
+		model.addAttribute("isReconfigured", step.isIsReconfigured());
+		model.addAttribute(step.getAttrName(), step.getAttribute());
 		model.addAttribute("stepName", step.getStepName());
 
 		return "company/configuration/configuration";

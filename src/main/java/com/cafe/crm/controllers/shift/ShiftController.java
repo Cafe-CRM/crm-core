@@ -27,6 +27,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -64,6 +65,12 @@ public class ShiftController {
         this.shiftCalculationService = shiftCalculationService;
         this.confirmTokenService = confirmTokenService;
     }
+
+    @RequestMapping(value = "/shift/send-date-report/{date}", method = RequestMethod.GET)
+    public void sendVkReportByShiftDate(@PathVariable(name = "date") String date) {
+    	Shift shift = shiftService.findByDateShift(LocalDate.parse(date));
+    	vkService.sendDailyReportToConference(shift);
+	}
 
     @Transactional
     @RequestMapping(value = "/shift/", method = RequestMethod.GET)

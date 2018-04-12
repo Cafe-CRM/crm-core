@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="costCategory">
+    <div class="row">
+        <h2 align="center">Настройка категорий расходов</h2>
+        <div class="errorMessage"></div>
+        <div id="reconfiguredMessage" th:if="${isReconfigured}">
+            <h4 style="color:red;" align="center">
+                В компании должна быть зарплатная категория! Выберите зарплатную категорию из существующих, или создайте новую
+            </h4>
+        </div>
+        <br/>
+    </div>
+    <div class="row">
+        <div class="form-group" align="center">
+            <div class="col-md-3 col-md-offset-3">
+                <input type="text" class="form-control" name="name" placeholder="Название категории" id="inputCategoryName"/>
+            </div>
+            <div class="col-md-3">
+                <button type="button" class="btn btn-success" id="buttonAddCategory">Добавить</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="categoryBlock" class="col-md-6 col-md-offset-3" style="text-align: center;">
+            <table class="table" id="categoryTable" style="border-top: black 1px solid;border-bottom: black 1px solid; margin: 20px 0px 20px 0px">
+                <thead>
+                </thead>
+                <tbody>
+                    <tr th:each="category : ${categories}" th:id="${category.id}">
+                        <td class="categoryName" th:text="${category.name}"></td>
+                        <td align="center">
+                            <button type="button" class="btn btn-danger buttonDeleteCategory" th:id="${category.id}">Удалить</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul id="salaryCostList" class="dropdown-menu"></ul>
+        </div>
+    </div>
+
+    <div id="salaryCostTable" class="modal fade">
+        <div class="modal-dialog" role="document" style="width: 400px; margin: 100px auto;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Выберите зарплатную категорию</h4>
+                    <div id="salaryErrorMessage"></div>
+                </div>
+                <div class="modal-body">
+                    <table id="salaryCategoryTable" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th align="center">Название</th>
+                            <th align="center">Отметить категорию как зарплатную</th>
+                        </tr>
+                        </thead>
+                        <tbody id="salaryCategoryBody">
+                            <tr th:each="category : ${categories}">
+                                <td th:text="${category.name}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/company/configuration/step/costCategory.js}"></script>
+</div>
+</body>
+</html>

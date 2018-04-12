@@ -14,13 +14,16 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title" align="center">Настройка системы</h3>
+                        <div th:if="${test}">
+                            <h1>In configuration!</h1>
+                        </div>
                     </div>
                     <div class="panel-body">
                         <div th:replace="@{'company/configuration/step/' + ${stepName}} :: ${stepName}" th:remove="tag"></div>
                     </div>
                     <div class="panel-footer ">
                         <div class="row">
-                            <div class="col-md-2 col-md-offset-10">
+                            <div id="submitBlock" class="col-md-2 col-md-offset-10">
                                 <button type="submit" id="buttonEndPrice" class="btn btn-primary">Сохранить</button>
                             </div>
                         </div>

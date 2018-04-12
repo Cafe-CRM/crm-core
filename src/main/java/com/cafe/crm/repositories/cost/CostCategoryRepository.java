@@ -10,6 +10,10 @@ public interface CostCategoryRepository extends JpaRepository<CostCategory, Long
 
 	CostCategory findByNameIgnoreCaseAndCompanyId(String name, long companyId);
 
+	CostCategory findByIsSalaryCostAndCompanyId(Boolean isSalaryCost, long companyId);
+
+	Long countByCompanyId(Long companyId);
+
 	List<CostCategory> findByNameStartingWithAndCompanyId(String startName, long companyId);
 
 	List<CostCategory> findByCompanyId(Long companyId);

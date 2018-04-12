@@ -15,6 +15,8 @@ public class CostCategory extends BaseEntity {
 	@NotBlank(message = "Поле \"Название\" не может быть пустым")
 	private String name;
 
+	private boolean isSalaryCost;
+
 	public CostCategory() {
 	}
 
@@ -37,6 +39,23 @@ public class CostCategory extends BaseEntity {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public boolean isSalaryCost() {
+		return isSalaryCost;
+	}
+
+	public void setSalaryCost(boolean salaryCost) {
+		isSalaryCost = salaryCost;
+	}
+
+	public boolean getIsSalaryCost() {
+		return isSalaryCost;
+	}
+
+	public void setIsSalaryCost(boolean salaryCost) {
+		isSalaryCost = salaryCost;
+	}
+
 
 	@Override
 	public boolean equals(Object o) {

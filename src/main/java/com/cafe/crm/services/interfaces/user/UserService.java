@@ -56,4 +56,6 @@ public interface UserService {
 
 	List<User> findByRoleIdAndOrderByLastName(Long roleId);
 
+	void resetSalaryData(List<User> users);
+
 }

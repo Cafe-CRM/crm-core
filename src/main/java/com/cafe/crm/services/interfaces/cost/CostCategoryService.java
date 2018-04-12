@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CostCategoryService {
 
-	void save(CostCategory costCategory);
+	CostCategory save(CostCategory costCategory);
 
 	void update(CostCategory costCategory);
 
@@ -17,6 +17,12 @@ public interface CostCategoryService {
 	CostCategory find(String name);
 
 	List<CostCategory> findByNameStartingWith(String startName);
+
+	CostCategory getSalaryCategory();
+
+	boolean isAnyCostCategoryExist();
+
+	boolean isSalaryCostExist();
 
 	void delete(Long id);
 }

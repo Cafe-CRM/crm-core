@@ -15,13 +15,13 @@ import java.util.List;
 @Service
 public class MailSettingsServiceImpl implements MailSettingsService {
 
-	private final MailSettingsRepository repository;
+	private final MailSettingsRepository mailSettingsRepository;
 	private final CompanyService companyService;
 	private final CompanyIdCache companyIdCache;
 
 	@Autowired
-	public MailSettingsServiceImpl(MailSettingsRepository repository, CompanyService companyService, CompanyIdCache companyIdCache) {
-		this.repository = repository;
+	public MailSettingsServiceImpl(MailSettingsRepository mailSettingsRepository, CompanyService companyService, CompanyIdCache companyIdCache) {
+		this.mailSettingsRepository = mailSettingsRepository;
 		this.companyService = companyService;
 		this.companyIdCache = companyIdCache;
 	}
@@ -35,37 +35,37 @@ public class MailSettingsServiceImpl implements MailSettingsService {
 	@Override
 	public void save(MailSettings settings) {
 		setCompany(settings);
-		repository.save(settings);
+		mailSettingsRepository.save(settings);
 	}
 
 	@Override
 	public void delete(MailSettings settings) {
-		repository.delete(settings);
+		mailSettingsRepository.delete(settings);
 	}
 
 	@Override
 	public void delete(Long id) {
-		repository.delete(id);
+		mailSettingsRepository.delete(id);
 	}
 
 	@Override
 	public MailSettings get(Long id) {
-		return repository.findOne(id);
+		return mailSettingsRepository.findOne(id);
 	}
 
 	@Override
 	public MailSettings findByEmail(String email) {
-		return repository.findByEmailIgnoreCaseAndCompanyId(email, companyIdCache.getCompanyId());
+		return mailSettingsRepository.findByEmailIgnoreCaseAndCompanyId(email, companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public List<MailSettings> getAll() {
-		return repository.findByCompanyId(companyIdCache.getCompanyId());
+		return mailSettingsRepository.findByCompanyId(companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public boolean isExist() {
-		Long count = repository.countByCompanyId(companyIdCache.getCompanyId());
+		Long count = mailSettingsRepository.countByCompanyId(companyIdCache.getCompanyId());
 		return count > 0L;
 	}
 

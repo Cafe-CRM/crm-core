@@ -178,7 +178,7 @@ public class ShiftServiceImpl implements ShiftService {
 			int amountOfPositionsPercent = user.getPositions().stream().filter(Position::isPositionUsePercentOfSales).mapToInt(Position::getPercentageOfSales).sum();
 			int percent = (int) (allPrice * amountOfPositionsPercent) / 100;
 
-			user.setSalary(user.getSalary() + percent);
+			user.setSalary(user.getSalary() + bonus + percent);
 			UserSalaryDetail salaryDetail = shiftCalculationService.getUserSalaryDetail(user, percent, bonus, shift);
 			if (salaryDetailList == null) {
 				salaryDetailList = new ArrayList<>();

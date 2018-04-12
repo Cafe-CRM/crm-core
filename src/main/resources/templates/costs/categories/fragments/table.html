@@ -18,10 +18,11 @@
     <tr th:each="category : ${categoryList}" th:id="'category' + ${category.id}">
         <td th:text="${category.id}" class="id">1</td>
         <td th:text="${category.name}" class="name">Масло</td>
+        <!--<td th:text="${category.isSalaryCost}" class="name">Масло</td>-->
 
         <td>
             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalEditCategory"
-                    th:onclick="'javascript:categoryEditModal(\'' + ${category.id} + '\');'">Редактировать
+                    th:onclick="'javascript:categoryEditModal(\'' + ${category.id} + '\', \'' + ${category.isSalaryCost} + '\');'">Редактировать
             </button>
         </td>
         <td>

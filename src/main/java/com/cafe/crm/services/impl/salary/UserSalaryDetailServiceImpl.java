@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class UserSalaryDetailServiceImpl implements UserSalaryDetailService{
 
-	private UserSalaryDetailRepository userSalaryDetailRepository;
+	private final UserSalaryDetailRepository userSalaryDetailRepository;
 	private ShiftService shiftService;
 
 	@Autowired

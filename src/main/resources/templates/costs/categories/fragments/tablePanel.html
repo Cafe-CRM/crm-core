@@ -13,6 +13,23 @@
                     Добавить
                 </button>
             </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" type="button">
+                    Выбрать зарплатную категорию
+                </button>
+                <ul id="salaryCostList" class="dropdown-menu">
+                    <li th:each="category : ${categoryList}" th:id="'categorySelect' + ${category.id}">
+                        <a th:href="'javascript:sendSalaryCategoryFromList(' + ${category.id} + ')'"
+                           th:text="${category.name}" th:if="${category.isSalaryCost}" class="active">
+
+                        </a>
+                        <a th:href="'javascript:sendSalaryCategoryFromList(' + ${category.id} + ')'" th:text="${category.name}"
+                           th:if="${!category.isSalaryCost}">
+
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
     <div th:replace="costs/categories/fragments/table :: categoryTable" th:remove="tag"></div>

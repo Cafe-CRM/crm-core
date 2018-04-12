@@ -2,6 +2,7 @@ package com.cafe.crm.controllers.cost;
 
 import com.cafe.crm.exceptions.cost.category.CostCategoryDataException;
 import com.cafe.crm.models.cost.CostCategory;
+import com.cafe.crm.services.impl.company.configuration.step.CostCategoryStep;
 import com.cafe.crm.services.interfaces.cost.CostCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,12 @@ public class CostCategoryController {
 
 	private final CostCategoryService categoryService;
 
+	private final CostCategoryStep costCategoryStep;
+
 	@Autowired
-	public CostCategoryController(CostCategoryService categoryService) {
+	public CostCategoryController(CostCategoryService categoryService, CostCategoryStep costCategoryStep) {
 		this.categoryService = categoryService;
+		this.costCategoryStep = costCategoryStep;
 	}
 
 
@@ -49,14 +53,23 @@ public class CostCategoryController {
 		if (bindingResult.hasErrors()) {
 			return ResponseEntity.badRequest().body("Не удалось обновить категорию");
 		}
+		checkAsSalary(category.getId());
 		categoryService.update(category);
 		return ResponseEntity.ok("Категория успешно обновлена!");
 	}
 
-	@RequestMapping(value = "/delete")
+	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public ResponseEntity<?> delete(@RequestParam(name = "id") Long id) {
+		checkAsSalary(id);
 		categoryService.delete(id);
 		return ResponseEntity.ok("Категория успешно удалена!");
+	}
+
+	private void checkAsSalary(Long id) {
+		CostCategory category = categoryService.find(id);
+		if (category.isSalaryCost()) {
+			costCategoryStep.setIsReconfigured(true);
+		}
 	}
 
 	@ExceptionHandler(value = CostCategoryDataException.class)
