@@ -6,5 +6,5 @@ import com.cafe.crm.utils.Target;
 
 public interface VkService {
 	void sendDailyReportToConference(Shift shift);
-	public void sendConfirmToken(String prefix, Target target);
+	void sendConfirmToken(String prefix, Target target);
 }

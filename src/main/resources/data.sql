@@ -34,20 +34,20 @@ values
   (5, 4);
 
 INSERT INTO companies
-(id, name)
+(id, name, is_configured)
 VALUES
-  (100, 'SuperAdminCompany');
+  (100, 'SuperAdminCompany', false);
 --   (1, 'companyA'),
 --   (2, 'companyB');
 
 INSERT INTO users
-(id, first_name, last_name, email, phone, password, shift_salary, salary, bonus, activated, enabled, company_id)
+(id, first_name, last_name, email, phone, password, shift_salary, balance, salary, bonus, activated, enabled, company_id)
 VALUES
 --   (2, 'Anna', 'Jons', 'manager@mail.ru', '89233456789', '$2a$10$OHs.TsEaLmklqTwStaTHLeW3Y/k8fJO5kXklV0nO3ad2b5QbmeVua', 1500, 0, 0, TRUE, TRUE, 1),
 --   (1, 'Герман', 'Севостьянов', 'boss@mail.ru', '89123456789', '$2a$10$Rqc3K45Z8GYbklMvy3640uj/XY4supJ2XmWmS4t1zjBlXiVh3h4aC', 2000, 0, 0, TRUE, TRUE, 1),
 --   (3, 'Ахмад', 'Чай', 'worker@mail.ru', '89111111111', '$2a$10$ffBOimLAaDY5o6jU62oecuKgSgcYAY3FpAS3okZHQw0tHRxV39Oa.', 0, 0, 0, TRUE, TRUE, 1),
 --   (4, 'Намрег', 'Инверг', 'boss2@mail.ru', '89123456780', '$2a$10$ufhLqzo3wbuWKIuQjPnyrOYplalLZsJ8X2NXufOycc/IT2qZKB4m6', 2000, 0, 0, TRUE, TRUE, 2),
-  (5, 'super', 'super', 'super@mail.ru', '80000000000', '$2a$10$Rqc3K45Z8GYbklMvy3640uj/XY4supJ2XmWmS4t1zjBlXiVh3h4aC', 0, 0, 0, TRUE, TRUE, 100);
+  (5, 'super', 'super', 'super@mail.ru', '80000000000', '$2a$10$Rqc3K45Z8GYbklMvy3640uj/XY4supJ2XmWmS4t1zjBlXiVh3h4aC', 0, 0, 0, 0, TRUE, TRUE, 100);
 
 --
 -- insert into ingredients
@@ -143,9 +143,9 @@ VALUES
 --   (8, TRUE, 'Xbox точки', 2),
 --   (9, TRUE, 'НеБар', 2);
 --
--- insert into cards (id, name, balance, discount, surname, phone_number, email, advertising, company_id) values (1, 'Данила', 5000, 10, 'Питерский', '82222222222', 'cafe.crm.test@gmail.com', true, 1);
+-- insert into cards (id, name, salary, discount, surname, phone_number, email, advertising, company_id) values (1, 'Данила', 5000, 10, 'Питерский', '82222222222', 'cafe.crm.test@gmail.com', true, 1);
 -- insert into cards
--- (id, name, balance, discount, surname, phone_number, advertising, company_id)
+-- (id, name, salary, discount, surname, phone_number, advertising, company_id)
 -- values
 --   (2, 'Кот', 0, 15, 'Барсик', '881111111111', true, 1),
 --   (3, 'Пес', 0, 15, 'Барбос', '881111111188', true, 2),
@@ -313,7 +313,7 @@ values
 <h2 th:text="''Здравствуйте, с баланса вашей карты было списано : '' + ${deductionAmount} + '' руб.''"></h2>
 <h2 th:text="''Текущий баланс карты : '' + ${newBalance} + '' руб.''"></h2>
 </body>
-</html>', 'balance-info-deduction'),
+</html>', 'salary-info-deduction'),
 
   (5, '<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns="http://www.w3.org/1999/html">
@@ -325,7 +325,7 @@ values
 <h2 th:text="''Здравствуйте, на баланс вашей карты было начислено : '' + ${refillAmount} + '' руб.''"></h2>
 <h2 th:text="''Текущий баланс карты : '' + ${newBalance} + '' руб.''"></h2>
 </body>
-</html>', 'balance-info-refill'),
+</html>', 'salary-info-refill'),
 
   (6, '<!DOCTYPE html>
 <html lang="en">

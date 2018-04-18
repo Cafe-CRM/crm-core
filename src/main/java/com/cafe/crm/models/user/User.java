@@ -60,7 +60,7 @@ public class User extends BaseEntity {
 			inverseJoinColumns = {@JoinColumn(name = "position_id")})
 	private List<Position> positions;
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "users_shifts", joinColumns = {@JoinColumn(name = "user_id")},
 			inverseJoinColumns = {@JoinColumn(name = "shift_id")})
 	@NotTransform
@@ -70,6 +70,10 @@ public class User extends BaseEntity {
 	@Max(value = Integer.MAX_VALUE, message = "Поле \"shiftSalary\" должно быть цифрой меньшей 2147483647!")
 	@Column(name = "shift_salary")
 	private int shiftSalary;
+
+	@Min(value = 0, message = "Поле \"salary\" должно быть цифрой большей 0!")
+	@Max(value = Integer.MAX_VALUE, message = "Поле \"salary\" должно быть цифрой меньшей 2147483647!")
+	private int balance;
 
 	@Min(value = 0, message = "Поле \"salary\" должно быть цифрой большей 0!")
 	@Max(value = Integer.MAX_VALUE, message = "Поле \"salary\" должно быть цифрой меньшей 2147483647!")
@@ -174,6 +178,14 @@ public class User extends BaseEntity {
 		this.shiftSalary = shiftSalary;
 	}
 
+	public int getBalance() {
+		return balance;
+	}
+
+	public void setBalance(int balance) {
+		this.balance = balance;
+	}
+
 	public int getSalary() {
 		return salary;
 	}
@@ -213,20 +225,18 @@ public class User extends BaseEntity {
 
 		User user = (User) o;
 
-		if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
-		if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
-		if (email != null ? !email.equals(user.email) : user.email != null) return false;
-		return phone != null ? phone.equals(user.phone) : user.phone == null;
-
+		if (!firstName.equals(user.firstName)) return false;
+		if (!lastName.equals(user.lastName)) return false;
+		if (!email.equals(user.email)) return false;
+		return phone.equals(user.phone);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = firstName != null ? firstName.hashCode() : 0;
-		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-		result = 31 * result + (email != null ? email.hashCode() : 0);
-		result = 31 * result + (phone != null ? phone.hashCode() : 0);
+		int result = firstName.hashCode();
+		result = 31 * result + lastName.hashCode();
+		result = 31 * result + email.hashCode();
+		result = 31 * result + phone.hashCode();
 		return result;
 	}
-
 }

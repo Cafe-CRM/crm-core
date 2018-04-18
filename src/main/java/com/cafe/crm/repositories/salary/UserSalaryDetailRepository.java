@@ -9,7 +9,9 @@ import java.util.List;
 
 public interface UserSalaryDetailRepository extends JpaRepository<UserSalaryDetail, Long> {
 	List<UserSalaryDetail> findByShiftId(Long shiftId);
+	List<UserSalaryDetail> findByShiftIdAndIsPaidDetailTrue(Long shiftId);
 	UserSalaryDetail findFirstByUserIdAndShiftId(Long userId, Long shiftId);
+	UserSalaryDetail findFirstByUserIdAndShiftIdAndIsPaidDetailFalse(Long userId, Long shiftId);
 	List<UserSalaryDetail> findByUserIdAndShiftIdBetween(Long userId, Long from, Long to);
 	List<UserSalaryDetail> findByUserIdAndShiftShiftDateBetween(Long userId, LocalDate from, LocalDate to);
 	void deleteByUserIdAndShiftId (Long userId, Long shiftId);

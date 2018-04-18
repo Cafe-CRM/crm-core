@@ -45,6 +45,11 @@ public class UserSalaryDetailServiceImpl implements UserSalaryDetailService{
 	}
 
 	@Override
+	public List<UserSalaryDetail> findPaidDetailsByShiftId(Long shiftId) {
+		return userSalaryDetailRepository.findByShiftIdAndIsPaidDetailTrue(shiftId);
+	}
+
+	@Override
 	public List<UserSalaryDetail> findByUserIdAndShiftIdBetween(Long userId, Long from, Long to) {
 		return userSalaryDetailRepository.findByUserIdAndShiftIdBetween(userId, from, to);
 	}
@@ -57,6 +62,11 @@ public class UserSalaryDetailServiceImpl implements UserSalaryDetailService{
 	@Override
 	public UserSalaryDetail findFirstByUserIdAndShiftId(Long userId, Long shiftId) {
 		return userSalaryDetailRepository.findFirstByUserIdAndShiftId(userId, shiftId);
+	}
+
+	@Override
+	public UserSalaryDetail findFirstUnpaidByUserIdAndShiftId(Long userId, Long shiftId) {
+		return userSalaryDetailRepository.findFirstByUserIdAndShiftIdAndIsPaidDetailFalse(userId, shiftId);
 	}
 
 	@Override

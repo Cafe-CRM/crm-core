@@ -120,7 +120,7 @@
                                                         th:selected="${client.card} == null ? 'true' : 'false'">Нет
                                                 </option>
                             <p th:each="card : ${calculate.cards}">
-                                <option th:text="${card.name} + ' ('+${card.balance}+ 'р, ' + ${card.discount} +'% )'"
+                                <option th:text="${card.name} + ' ('+${card.salary}+ 'р, ' + ${card.discount} +'% )'"
                                         th:value="${card.id}"
                                         th:selected="(${client.card} == ${card}) ? 'true' : 'false' ">
 

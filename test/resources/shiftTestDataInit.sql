@@ -143,9 +143,9 @@ values
   (8, TRUE, 'Xbox точки', 2),
   (9, TRUE, 'НеБар', 2);
 
--- insert into cards (id, name, balance, discount, surname, phone_number, email, advertising, company_id) values (1, 'Данила', 5000, 10, 'Питерский', '82222222222', 'cafe.crm.test@gmail.com', true, 1);
+-- insert into cards (id, name, salary, discount, surname, phone_number, email, advertising, company_id) values (1, 'Данила', 5000, 10, 'Питерский', '82222222222', 'cafe.crm.test@gmail.com', true, 1);
 -- insert into cards
--- (id, name, balance, discount, surname, phone_number, advertising, company_id)
+-- (id, name, salary, discount, surname, phone_number, advertising, company_id)
 -- values
 --   (2, 'Кот', 0, 15, 'Барсик', '881111111111', true, 1),
 --   (3, 'Пес', 0, 15, 'Барбос', '881111111188', true, 2),
@@ -313,7 +313,7 @@ values
 # <h2 th:text="''Здравствуйте, с баланса вашей карты было списано : '' + ${deductionAmount} + '' руб.''"></h2>
 # <h2 th:text="''Текущий баланс карты : '' + ${newBalance} + '' руб.''"></h2>
 # </body>
-# </html>', 'balance-info-deduction'),
+# </html>', 'salary-info-deduction'),
 #
 #   (5, '<!DOCTYPE html>
 # <html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns="http://www.w3.org/1999/html">
@@ -325,7 +325,7 @@ values
 # <h2 th:text="''Здравствуйте, на баланс вашей карты было начислено : '' + ${refillAmount} + '' руб.''"></h2>
 # <h2 th:text="''Текущий баланс карты : '' + ${newBalance} + '' руб.''"></h2>
 # </body>
-# </html>', 'balance-info-refill'),
+# </html>', 'salary-info-refill'),
 #
 #   (6, '<!DOCTYPE html>
 # <html lang="en">

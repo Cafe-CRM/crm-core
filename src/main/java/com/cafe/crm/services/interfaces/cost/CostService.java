@@ -19,23 +19,35 @@ public interface CostService {
 
 	void offVisibleStatus(long[] ids);
 
-	List<Cost> findByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to);
+	List<Cost> findOtherCostByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to);
 
-	List<Cost> findByNameAndDateBetween(String name, LocalDate from, LocalDate to);
+	List<Cost> findAllCostByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to);
 
-	List<Cost> findByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to);
+	List<Cost> findOtherCostByNameAndDateBetween(String name, LocalDate from, LocalDate to);
 
-	List<Cost> findByDateBetween(LocalDate from, LocalDate to);
+	List<Cost> findAllCostByNameAndDateBetween(String name, LocalDate from, LocalDate to);
 
-	Set<Cost> findByNameStartingWith(String startName);
+	List<Cost> findOtherCostByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to);
 
-	List<Cost> findByDateAndVisibleTrue(LocalDate date);
+	List<Cost> findAllCostByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to);
 
-	List<Cost> findByDateAndCategoryNameAndVisibleTrue(LocalDate date, String name);
+	List<Cost> findOtherCostByDateBetween(LocalDate from, LocalDate to);
 
-	List<Cost> findByShiftIdAndCategoryNameNot(Long shiftId, String name);
+	List<Cost> findAllCostByDateBetween(LocalDate from, LocalDate to);
 
-	List<Cost> findByShiftId(Long shiftId);
+	Set<Cost> findOtherCostByNameStartingWith(String startName);
 
-	List<Cost> findByCategoryName(String name);
+	List<Cost> findOtherCostByDateAndVisibleTrue(LocalDate date);
+
+	List<Cost> findOtherCostByDateAndCategoryNameAndVisibleTrue(LocalDate date, String name);
+
+	List<Cost> findOtherCostByShiftIdAndCategoryNameNot(Long shiftId, String name);
+
+	List<Cost> findOtherCostByShiftId(Long shiftId);
+
+	List<Cost> findOtherCostByCategoryName(String name);
+
+	List<Cost> findSalaryCostAtShift(Long shiftId);
+
+	List<Cost> findSalaryCostByDateBetween(LocalDate from, LocalDate to);
 }

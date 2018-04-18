@@ -31,13 +31,13 @@ public class Cost extends BaseEntity {
 
 	@Valid
 	@NotNull(message = "Поле \"Категория\" не может быть пустым")
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "cost_category_id")
 	private CostCategory category;
 
 	private boolean visible = true;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shift_id", nullable = false)
 	private Shift shift;
 

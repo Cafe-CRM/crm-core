@@ -1,9 +1,12 @@
 package com.cafe.crm.services.impl.company.configuration.step;
 
 
+import com.cafe.crm.models.company.Company;
 import com.cafe.crm.models.cost.CostCategory;
+import com.cafe.crm.services.interfaces.company.CompanyService;
 import com.cafe.crm.services.interfaces.company.configuration.ConfigurationStep;
 import com.cafe.crm.services.interfaces.cost.CostCategoryService;
+import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +23,17 @@ public class CostCategoryStep implements ConfigurationStep<List<CostCategory>> {
 
 	private final CostCategoryService costCategoryService;
 
+	private final CompanyIdCache companyIdCache;
+
+	private final CompanyService companyService;
+
 	@Autowired
-	public CostCategoryStep(CostCategoryService costCategoryService) {
+	public CostCategoryStep(CostCategoryService costCategoryService, CompanyIdCache companyIdCache, CompanyService companyService) {
 		this.costCategoryService = costCategoryService;
+		this.companyIdCache = companyIdCache;
+		this.companyService = companyService;
 	}
+
 
 	@Override
 	public void setIsReconfigured(boolean value) {
@@ -32,7 +42,9 @@ public class CostCategoryStep implements ConfigurationStep<List<CostCategory>> {
 
 	@Override
 	public boolean isIsReconfigured() {
-		return isReconfigured;
+		Company company = companyService.findOne(companyIdCache.getCompanyId());
+		return company.isConfigured() || isReconfigured;
+
 	}
 
 	@Override

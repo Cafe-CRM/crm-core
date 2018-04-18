@@ -16,7 +16,7 @@ public class NoteRecord extends BaseEntity {
 
 	private String value;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shift_id", nullable = false)
 	private Shift shift;
 

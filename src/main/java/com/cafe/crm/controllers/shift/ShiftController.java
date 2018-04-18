@@ -8,6 +8,7 @@ import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.exceptions.transferDataException.TransferException;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.User;
+import com.cafe.crm.services.impl.user.UserServiceImpl;
 import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.email.EmailService;
@@ -65,12 +66,6 @@ public class ShiftController {
         this.shiftCalculationService = shiftCalculationService;
         this.confirmTokenService = confirmTokenService;
     }
-
-    @RequestMapping(value = "/shift/send-date-report/{date}", method = RequestMethod.GET)
-    public void sendVkReportByShiftDate(@PathVariable(name = "date") String date) {
-    	Shift shift = shiftService.findByDateShift(LocalDate.parse(date));
-    	vkService.sendDailyReportToConference(shift);
-	}
 
     @Transactional
     @RequestMapping(value = "/shift/", method = RequestMethod.GET)
@@ -152,6 +147,12 @@ public class ShiftController {
         model.addAttribute("closeShiftView", shiftCalculationService.createShiftView(shiftService.getLast()));
         return "shift/shiftClose";
     }
+
+	@RequestMapping(value = "/shift/close-another/{id}", method = RequestMethod.GET)
+	public String showShiftClosePage(@PathVariable(name = "id") Long id, Model model) {
+		model.addAttribute("closeShiftView", shiftCalculationService.createShiftView(shiftService.findOne(id)));
+		return "shift/shiftClose";
+	}
 
     @RequestMapping(value = "/shift/close", method = RequestMethod.POST)
     public String closeShift(ShiftCloseDTO shiftCloseDTO) {

@@ -80,7 +80,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 
 	@Override
 	public void delete(Long id) {
-		List<Cost> allCostsOnCategory = costService.findByCategoryNameAndVisibleIsTrueAndCompanyId(costCategoryRepository.findOne(id).getName(), companyIdCache.getCompanyId());
+		List<Cost> allCostsOnCategory = costService.findByCategoryNameAndVisibleIsTrueAndCompanyIdAndCategoryIsSalaryCostFalse(costCategoryRepository.findOne(id).getName(), companyIdCache.getCompanyId());
 		if (allCostsOnCategory == null || allCostsOnCategory.size() == 0) {
 			costCategoryRepository.delete(id);
 		} else {

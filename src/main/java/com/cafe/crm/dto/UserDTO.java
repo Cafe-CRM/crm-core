@@ -18,6 +18,7 @@ public class UserDTO {
     private String password;
     private List<PositionDTO> positions;
     private int shiftSalary;
+    private int balance;
     private int salary;
 	private int shiftAmount;
     private int bonus;
@@ -88,12 +89,28 @@ public class UserDTO {
         this.shiftSalary = shiftSalary;
     }
 
+    public int getBalance() {
+        return balance;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
+    }
+
     public int getSalary() {
         return salary;
     }
 
     public void setSalary(int salary) {
         this.salary = salary;
+    }
+
+    public int getShiftAmount() {
+        return shiftAmount;
+    }
+
+    public void setShiftAmount(int shiftAmount) {
+        this.shiftAmount = shiftAmount;
     }
 
     public int getBonus() {
@@ -112,20 +129,54 @@ public class UserDTO {
         this.activated = activated;
     }
 
-	public int getShiftAmount() {
-		return shiftAmount;
-	}
-
-	public void setShiftAmount(int shiftAmount) {
-		this.shiftAmount = shiftAmount;
-	}
-
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserDTO userDTO = (UserDTO) o;
+
+        if (shiftSalary != userDTO.shiftSalary) return false;
+        if (balance != userDTO.balance) return false;
+        if (salary != userDTO.salary) return false;
+        if (shiftAmount != userDTO.shiftAmount) return false;
+        if (bonus != userDTO.bonus) return false;
+        if (activated != userDTO.activated) return false;
+        if (enabled != userDTO.enabled) return false;
+        if (!id.equals(userDTO.id)) return false;
+        if (!firstName.equals(userDTO.firstName)) return false;
+        if (!lastName.equals(userDTO.lastName)) return false;
+        if (!email.equals(userDTO.email)) return false;
+        if (!phone.equals(userDTO.phone)) return false;
+        if (!password.equals(userDTO.password)) return false;
+        return positions.equals(userDTO.positions);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + firstName.hashCode();
+        result = 31 * result + lastName.hashCode();
+        result = 31 * result + email.hashCode();
+        result = 31 * result + phone.hashCode();
+        result = 31 * result + password.hashCode();
+        result = 31 * result + positions.hashCode();
+        result = 31 * result + shiftSalary;
+        result = 31 * result + balance;
+        result = 31 * result + salary;
+        result = 31 * result + shiftAmount;
+        result = 31 * result + bonus;
+        result = 31 * result + (activated ? 1 : 0);
+        result = 31 * result + (enabled ? 1 : 0);
+        return result;
     }
 
     @Override
@@ -139,34 +190,12 @@ public class UserDTO {
                 ", password='" + password + '\'' +
                 ", positions=" + positions +
                 ", shiftSalary=" + shiftSalary +
+                ", balance=" + balance +
                 ", salary=" + salary +
+                ", shiftAmount=" + shiftAmount +
                 ", bonus=" + bonus +
                 ", activated=" + activated +
                 ", enabled=" + enabled +
-				", shiftAmount" + shiftAmount +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        UserDTO user = (UserDTO) o;
-
-        if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
-        if (email != null ? !email.equals(user.email) : user.email != null) return false;
-        return phone != null ? phone.equals(user.phone) : user.phone == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = firstName != null ? firstName.hashCode() : 0;
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (phone != null ? phone.hashCode() : 0);
-        return result;
     }
 }

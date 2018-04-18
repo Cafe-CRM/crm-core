@@ -55,19 +55,19 @@ jQuery(document).ready( function() {
                 totalSum[0] += +item.querySelector('.commonCheck').innerHTML;
             }
             if(item.querySelector('.cashPayment')) {
-                totalSumWithCard[1] += +item.querySelector('.cashPayment').innerHTML;
+                totalSumWithCard[1] += +(item.querySelector('.cashPayment').innerHTML).replace(",", "");
             }
             if(item.querySelector('.clubCardPayment')) {
-                totalSumWithCard[2] += +item.querySelector('.clubCardPayment').innerHTML;
+                totalSumWithCard[2] += +(item.querySelector('.clubCardPayment').innerHTML).replace(",", "");
             }
             if(item.querySelector('.menuOtherCost')) {
-                totalSumWithCard[3] += +item.querySelector('.menuOtherCost').innerHTML;
+                totalSumWithCard[3] += +(item.querySelector('.menuOtherCost').innerHTML).replace(",", "");
             }
             if(item.querySelector('.menuDirtyCost')) {
-                totalSumWithCard[4] += +item.querySelector('.menuDirtyCost').innerHTML;
+                totalSumWithCard[4] += +(item.querySelector('.menuDirtyCost').innerHTML).replace(",", "");
             }
             if(item.querySelector('.timeCost')) {
-                totalSumWithCard[5] += +item.querySelector('.timeCost').innerHTML;
+                totalSumWithCard[5] += +(item.querySelector('.timeCost').innerHTML).replace(",", "");
             }
         });
         document.getElementById("commonCheckSum").innerHTML += " " + Math.round(totalSumWithCard[0] * 100) / 100.00;
@@ -81,17 +81,18 @@ jQuery(document).ready( function() {
         Array.from(document.getElementById("clients").rows).forEach(
             function(item) {
                 if(item.querySelector('.commonCheck')) {
-                    totalSum[0] += +item.querySelector('.commonCheck').innerHTML;
+                    totalSum[0] += +(item.querySelector('.commonCheck').innerHTML).replace(",", "");
                 }
                 if(item.querySelector('.menuOtherCost')) {
-                    totalSum[1] += +item.querySelector('.menuOtherCost').innerHTML;
+                    totalSum[1] += +(item.querySelector('.menuOtherCost').innerHTML).replace(",", "");
                 }
                 if(item.querySelector('.menuDirtyCost')) {
-                    totalSum[2] += +item.querySelector('.menuDirtyCost').innerHTML;
+                    totalSum[2] += +(item.querySelector('.menuDirtyCost').innerHTML).replace(",", "");
                 }
                 if(item.querySelector('.timeCost')) {
-                    totalSum[3] += +item.querySelector('.timeCost').innerHTML;
+                    totalSum[3] += +(item.querySelector('.timeCost').innerHTML).replace(",", "");
                 }
+                //alert(totalSum[0]);
             });
         document.getElementById("commonCheckSum").innerHTML += " " + Math.round(totalSum[0] * 100) / 100.00;
         document.getElementById("menuOtherSum").innerHTML += " " + Math.round(totalSum[1] * 100) / 100.00;

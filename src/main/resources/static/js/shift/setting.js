@@ -7,6 +7,45 @@ jQuery(document).ready( function() {
     }
     var lMargin = (tableWidth / 11) / 2;
     elem.css('margin-left', '+=' + lMargin);
+
+
+    $('#paySalariesTab').click(function () {
+        $.ajax({
+            type: "POST",
+            url: "/boss/user/get-all",
+
+            success: function (data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    var count = i + 1;
+                    var name = data[i].firstName + " " + data[i].lastName;
+                    var balance = data[i].balance;
+                    var bonus = data[i].bonus;
+
+                    $('#salaryUsersTable').append(
+                        '<tr>' +
+                        '<td><p align="center">' + count + '</p></td>' +
+                        '<td><p align="center">' + name + '</p></td>' +
+                        '<td><p align="center">' + balance + '</p></td>' +
+                        '<td><p align="center">' + bonus + '</p></td>' +
+                        '<td style="text-align: center;">' +
+                        '<input name="clientsId" form="formCheckedWorkers" class="checkWorkerSalary" style="width: 20px;height: 20px;margin-top: 5px" id="' + data[i].id + '" value="' +  data[i].id + '" type="checkbox"/>' +
+                        '</td>' +
+                        '</tr>'
+
+
+
+                    );
+                }
+            },
+            error: function (error) {
+                var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                $('#salaryErrorMessage').html(errorMessage).show();
+            }
+        });
+    });
+
+
 });
 
 function getOtherProductsAndDisplay(iter) {
@@ -68,7 +107,7 @@ function ajaxModal() {
                 for (var i = 0; i < data.length; i++) {
                     var id = data[i].id;
                     var name = data[i].firstName + " " + data[i].lastName;
-                    var salary = data[i].salary;
+                    var salary = data[i].balance;
                     totalSalary += salary;
 
                     $('#salaryWorkerTable').find('> tbody').append(
@@ -101,8 +140,40 @@ function giveSalary() {
         data: $('#formCheckedWorkers').serialize(),
 
         success: function (data) {
-            $('#salaryConfirmModal').modal('hide');
-            location.reload();
+            var successMessage = '<h4 style="color:green;" align="center"> Зарплаты начисленны! </h4>';
+            $('#salaryErrorMessage').html(successMessage).show();
+
+            window.setTimeout(function () {
+                $('#salaryUsersTable').html('');
+
+                $('#checkAllWorker').prop("checked", false);
+
+                for (var i = 0; i < data.length; i++) {
+                    var count = i + 1;
+                    var name = data[i].firstName + " " + data[i].lastName;
+                    var balance = data[i].balance;
+                    var bonus = data[i].bonus;
+
+                    $('#salaryUsersTable').append(
+                        '<tr>' +
+                        '<td><p align="center">' + count + '</p></td>' +
+                        '<td><p align="center">' + name + '</p></td>' +
+                        '<td><p align="center">' + balance + '</p></td>' +
+                        '<td><p align="center">' + bonus + '</p></td>' +
+                        '<td style="text-align: center;">' +
+                        '<input name="clientsId" form="formCheckedWorkers" class="checkWorkerSalary" style="width: 20px;height: 20px;margin-top: 5px" id="' + data[i].id + '" value="' +  data[i].id + '" type="checkbox"/>' +
+                        '</td>' +
+                        '</tr>'
+
+
+
+                    );
+
+                }
+                $('#salaryConfirmModal').modal('hide');
+
+            }, 1000);
+
         },
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';

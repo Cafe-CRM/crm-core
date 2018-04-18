@@ -25,7 +25,7 @@ public class Debt extends BaseEntity {
 
 	private boolean visible = true;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shift_id", nullable = false)
 	private Shift shift;
 

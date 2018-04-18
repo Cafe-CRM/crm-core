@@ -96,52 +96,84 @@ public class CostServiceImpl implements CostService {
 	}
 
 	@Override
-	public List<Cost> findByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
+	public List<Cost> findOtherCostByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
+		return costRepository.findByCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyIdAndCategoryIsSalaryCostFalse(categoryName, from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Cost> findAllCostByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
 		return costRepository.findByCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyId(categoryName, from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Cost> findByNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
+	public List<Cost> findOtherCostByNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
+		return costRepository.findByNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyIdAndCategoryIsSalaryCostFalse(categoryName, from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Cost> findAllCostByNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
 		return costRepository.findByNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyId(categoryName, from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Cost> findByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to) {
+	public List<Cost> findOtherCostByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to) {
+		return costRepository.findByNameIgnoreCaseAndCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyIdAndCategoryIsSalaryCostFalse(name, categoryName, from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Cost> findAllCostByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to) {
 		return costRepository.findByNameIgnoreCaseAndCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyId(name, categoryName, from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Cost> findByDateBetween(LocalDate from, LocalDate to) {
+	public List<Cost> findOtherCostByDateBetween(LocalDate from, LocalDate to) {
+		return costRepository.findByVisibleIsTrueAndDateBetweenAndCompanyIdAndCategoryIsSalaryCostFalse(from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Cost> findAllCostByDateBetween(LocalDate from, LocalDate to) {
 		return costRepository.findByVisibleIsTrueAndDateBetweenAndCompanyId(from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public Set<Cost> findByNameStartingWith(String startName) {
-		return costRepository.findByNameStartingWithAndCompanyId(startName, companyIdCache.getCompanyId());
+	public Set<Cost> findOtherCostByNameStartingWith(String startName) {
+		return costRepository.findByNameStartingWithAndCompanyIdAndCategoryIsSalaryCostFalse(startName, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Cost> findByDateAndVisibleTrue(LocalDate date) {
-		return costRepository.findByDateAndVisibleTrueAndCompanyId(date, companyIdCache.getCompanyId());
+	public List<Cost> findOtherCostByDateAndVisibleTrue(LocalDate date) {
+		return costRepository.findByDateAndVisibleTrueAndCompanyIdAndCategoryIsSalaryCostFalse(date, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Cost> findByDateAndCategoryNameAndVisibleTrue(LocalDate date, String name) {
-		return costRepository.findByDateAndCategoryNameAndVisibleTrueAndCompanyId(date, name, companyIdCache.getCompanyId());
+	public List<Cost> findOtherCostByDateAndCategoryNameAndVisibleTrue(LocalDate date, String name) {
+		return costRepository.findByDateAndCategoryNameAndVisibleTrueAndCompanyIdAndCategoryIsSalaryCostFalse(date, name, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Cost> findByShiftIdAndCategoryNameNot(Long shiftId, String name) {
-		return costRepository.findByShiftIdAndCategoryNameNotAndVisibleIsTrue(shiftId, name);
+	public List<Cost> findOtherCostByShiftIdAndCategoryNameNot(Long shiftId, String name) {
+		return costRepository.findByShiftIdAndCategoryNameNotAndVisibleIsTrueAndCategoryIsSalaryCostFalse(shiftId, name);
 	}
 
 	@Override
-	public List<Cost> findByShiftId(Long shiftId) {
-		return costRepository.findByShiftIdAndVisibleIsTrue(shiftId);
+	public List<Cost> findOtherCostByShiftId(Long shiftId) {
+		return costRepository.findByShiftIdAndVisibleIsTrueAndCategoryIsSalaryCostFalse(shiftId);
 	}
 
 	@Override
-	public List<Cost> findByCategoryName(String name) {
-		return costRepository.findByCategoryNameAndVisibleIsTrueAndCompanyId(name, companyIdCache.getCompanyId());
+	public List<Cost> findOtherCostByCategoryName(String name) {
+		return costRepository.findByCategoryNameAndVisibleIsTrueAndCompanyIdAndCategoryIsSalaryCostFalse(name, companyIdCache.getCompanyId());
 	}
+
+	@Override
+	public List<Cost> findSalaryCostAtShift(Long shiftId) {
+		return costRepository.findByShiftIdAndCategoryIsSalaryCostTrue(shiftId);
+	}
+
+	@Override
+	public List<Cost> findSalaryCostByDateBetween(LocalDate from, LocalDate to) {
+		return costRepository.findByDateBetweenAndCategoryIsSalaryCostTrue(from, to);
+	}
+
+
 }

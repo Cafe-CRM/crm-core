@@ -6,16 +6,14 @@ import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.client.LayerProduct;
 import com.cafe.crm.models.cost.Cost;
-import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.models.note.NoteRecord;
 import com.cafe.crm.models.property.Property;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.shift.UserSalaryDetail;
 import com.cafe.crm.models.template.Template;
-import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
+import com.cafe.crm.services.interfaces.cost.CostService;
 import com.cafe.crm.services.interfaces.email.EmailService;
-import com.cafe.crm.services.interfaces.layerproduct.LayerProductService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.salary.UserSalaryDetailService;
@@ -93,11 +91,13 @@ public class VkServiceImpl implements VkService {
 	private final PropertyService propertyService;
 	private final ConfirmTokenService tokenService;
 	private final UserSalaryDetailService userSalaryDetailService;
+	private final CostService costService;
 
 	@Autowired
 	public VkServiceImpl(TemplateService templateService, RestTemplate restTemplate, EmailService emailService,
 						 UserService userService, PropertyService propertyService,  ProductService productService,
-						 UserSalaryDetailService userSalaryDetailService, ConfirmTokenService tokenService) {
+						 UserSalaryDetailService userSalaryDetailService, ConfirmTokenService tokenService,
+						 CostService costService) {
 		this.templateService = templateService;
 		this.restTemplate = restTemplate;
 		this.emailService = emailService;
@@ -106,6 +106,7 @@ public class VkServiceImpl implements VkService {
 		this.propertyService = propertyService;
 		this.tokenService = tokenService;
 		this.userSalaryDetailService = userSalaryDetailService;
+		this.costService = costService;
 	}
 
 	@Override
@@ -170,7 +171,7 @@ public class VkServiceImpl implements VkService {
 		StringBuilder salaryCosts = new StringBuilder();
 		StringBuilder otherCosts = new StringBuilder();
 		List<Client> clients = shift.getClients().stream().filter(c -> !c.isDeleteState()).collect(Collectors.toList());
-		double totalCosts = formatCostsAndGetOtherCosts(shift.getCosts(), otherCosts) + formatCostsAndGetSalariesCost(shift, salaryCosts);
+		double totalCosts = formatCostsAndGetOtherCosts(shift, otherCosts) + formatCostsAndGetSalariesCost(shift, salaryCosts);
 		double shortage = shift.getProfit() - totalCosts - shift.getCashBox() - shift.getBankCashBox();
 
 		params[0] = shortage <= 0d ? "" : "НЕДОСТАЧА!";
@@ -292,16 +293,19 @@ public class VkServiceImpl implements VkService {
 	private double formatCostsAndGetSalariesCost(Shift shift, StringBuilder salaries) {
 		DecimalFormat df = new DecimalFormat("#.##");
 		double salaryCost = 0d;
-		for (User user : shift.getUsers()) {
-			UserSalaryDetail userOnShiftSalary = userSalaryDetailService.findFirstByUserIdAndShiftId(user.getId(), shift.getId());
+
+		List<UserSalaryDetail> salaryDetails = userSalaryDetailService.findPaidDetailsByShiftId(shift.getId());
+
+		for (UserSalaryDetail detail : salaryDetails) {
 			salaries
-				.append(user.getFirstName())
-				.append(" ")
-				.append(user.getLastName())
-				.append(" - ").append(df.format(userOnShiftSalary.getSalary()))
-				.append(System.getProperty("line.separator"));
-			salaryCost += userOnShiftSalary.getSalary();
+					.append(detail.getUser().getFirstName())
+					.append(" ")
+					.append(detail.getUser().getLastName())
+					.append(" - ").append(df.format(detail.getSalary()))
+					.append(System.getProperty("line.separator"));
+			salaryCost += detail.getSalary();
 		}
+
 		if (salaries.length() > 0) {
 			salaries.deleteCharAt(salaries.length() - 1);
 		} else {
@@ -310,7 +314,9 @@ public class VkServiceImpl implements VkService {
 		return salaryCost;
 	}
 
-	private double formatCostsAndGetOtherCosts(Set<Cost> costs, StringBuilder otherCosts) {
+	private double formatCostsAndGetOtherCosts(Shift shift, StringBuilder otherCosts) {
+		List<Cost> costs = costService.findOtherCostByShiftId(shift.getId());
+
 		DecimalFormat df = new DecimalFormat("#.##");
 		double otherCost = 0d;
 		boolean needGiveNameToOtherCosts = true;

@@ -10,7 +10,9 @@ public interface UserSalaryDetailService {
 	void save(UserSalaryDetail userSalaryDetail);
 	void save(List<UserSalaryDetail> userSalaryDetails);
 	List<UserSalaryDetail> findByShiftId(Long shiftId);
+	List<UserSalaryDetail> findPaidDetailsByShiftId(Long shiftId);
 	UserSalaryDetail findFirstByUserIdAndShiftId(Long userId, Long shiftId);
+	UserSalaryDetail findFirstUnpaidByUserIdAndShiftId(Long userId, Long shiftId);
 	List<UserSalaryDetail> findByUserIdAndShiftIdBetween(Long userId, Long from, Long to);
 	List<UserSalaryDetail> findByUserIdAndShiftDateBetween(Long userId, LocalDate from, LocalDate to);
 	void deleteByUserIdAndShiftId(Long userId, Long shiftId);

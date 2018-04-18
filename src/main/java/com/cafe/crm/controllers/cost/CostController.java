@@ -44,11 +44,13 @@ public class CostController {
 		this.checklistService = checklistService;
 	}
 
+
+	//toDo контроллер расходов
 	@RequestMapping(method = RequestMethod.GET)
 	public String showCostsPage(Model model) {
 		LocalDate today = timeManager.getDate();
 		LocalDate lastShiftDate = shiftService.getLastShiftDate();
-		List<Cost> costs = costService.findByDateBetween(lastShiftDate, today);
+		List<Cost> costs = costService.findAllCostByDateBetween(lastShiftDate, today);
 		List<CostCategory> costCategories = costCategoryService.findAll();
 		Double totalPrice = getTotalPrice(costs);
 
@@ -58,7 +60,7 @@ public class CostController {
 		model.addAttribute("costName", null);
 		model.addAttribute("totalPrice", totalPrice);
 		model.addAttribute("formCost", new Cost());
-		model.addAttribute("today", today);
+		model.addAttribute("today", lastShiftDate);
 		model.addAttribute("fromDate", lastShiftDate);
 		model.addAttribute("toDate", null);
 		model.addAttribute("closeChecklist", checklistService.getAllForCloseShift());
@@ -73,6 +75,7 @@ public class CostController {
 											  @RequestParam(name = "categoryName") String categoryName,
 											  Model model) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		LocalDate lastShiftDate = shiftService.getLastShiftDate();
 
 		List<Cost> costs = getCosts(costName, categoryName, fromDate, toDate, formatter);
 		List<CostCategory> costCategories = costCategoryService.findAll();
@@ -89,6 +92,7 @@ public class CostController {
 		model.addAttribute("formCost", new Cost());
 		model.addAttribute("fromDate", from);
 		model.addAttribute("toDate", to);
+		model.addAttribute("today", lastShiftDate);
 
 		return "costs/costs";
 	}
@@ -112,13 +116,13 @@ public class CostController {
 				? today.plusYears(100) : LocalDate.parse(toDate, formatter);
 
 		if (isBlank(costName) && isBlank(categoryName)) {
-			return costService.findByDateBetween(from, to);
+			return costService.findAllCostByDateBetween(from, to);
 		} else if (isBlank(costName)) {
-			return costService.findByCategoryNameAndDateBetween(categoryName, from, to);
+			return costService.findAllCostByCategoryNameAndDateBetween(categoryName, from, to);
 		} else if (isBlank(categoryName)) {
-			return costService.findByNameAndDateBetween(costName, from, to);
+			return costService.findAllCostByNameAndDateBetween(costName, from, to);
 		}
-		return costService.findByNameAndCategoryNameAndDateBetween(costName, categoryName, from, to);
+		return costService.findAllCostByNameAndCategoryNameAndDateBetween(costName, categoryName, from, to);
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -177,7 +181,7 @@ public class CostController {
 	@RequestMapping(value = "/search/cost", method = RequestMethod.GET)
 	@ResponseBody
 	public String[] getCostStartWith(@RequestParam(name = "name") String startName) {
-		Set<Cost> costs = costService.findByNameStartingWith(startName);
+		Set<Cost> costs = costService.findOtherCostByNameStartingWith(startName);
 
 		return costs.stream().map(Cost::getName).toArray(String[]::new);
 	}

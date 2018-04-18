@@ -52,13 +52,13 @@ site:
 user:
   default-password: hookahpacman
 
-balance-info:
+salary-info:
   mail:
     deduction:
-      view: db:balance-info-deduction
+      view: db:salary-info-deduction
       subject: Изменение баланса карты!
     refill:
-      view: db:balance-info-refill
+      view: db:salary-info-refill
       subject: Измение баланса карты!
 
 closeShiftEmailShortage:

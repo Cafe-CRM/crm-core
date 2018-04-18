@@ -1,13 +1,11 @@
 package com.cafe.crm.dto;
 
 
-import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.cost.Cost;
 import com.cafe.crm.models.shift.UserSalaryDetail;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class DetailStatisticView {
@@ -24,7 +22,9 @@ public class DetailStatisticView {
 
 	private List<UserDTO> usersOnShift;
 
-	private Set<UserSalaryDetail> userSalaryDetail;
+	private Set<UserSalaryDetail> paidDetails;
+
+	private Set<UserSalaryDetail> balanceDetails;
 
 	private Set<CalculateDTO> allCalculate;
 
@@ -41,7 +41,7 @@ public class DetailStatisticView {
 	private double receiptsSum;
 
 	public DetailStatisticView(LocalDate shiftDate, double cashBox, double alteredCashAmount, double allPrice, int clientsNumber,
-							   List<UserDTO> usersOnShift, Set<UserSalaryDetail> userSalaryDetail,
+							   List<UserDTO> usersOnShift, Set<UserSalaryDetail> paidDetails, Set<UserSalaryDetail> balanceDetails,
 							   Set<CalculateDTO> allCalculate, double allSalaryCost, double allOtherCost,
 							   List<Cost> otherCost, double repaidDebts, double givenDebts, double receiptsSum) {
 		this.shiftDate = shiftDate;
@@ -50,7 +50,8 @@ public class DetailStatisticView {
 		this.allPrice = allPrice;
 		this.clientsNumber = clientsNumber;
 		this.usersOnShift = usersOnShift;
-		this.userSalaryDetail = userSalaryDetail;
+		this.paidDetails = paidDetails;
+		this.balanceDetails = balanceDetails;
 		this.allCalculate = allCalculate;
 		this.allSalaryCost = allSalaryCost;
 		this.allOtherCost = allOtherCost;
@@ -108,12 +109,12 @@ public class DetailStatisticView {
 		this.usersOnShift = usersOnShift;
 	}
 
-	public Set<UserSalaryDetail> getUserSalaryDetail() {
-		return userSalaryDetail;
+	public Set<UserSalaryDetail> getPaidDetails() {
+		return paidDetails;
 	}
 
-	public void setUserSalaryDetail(Set<UserSalaryDetail> userSalaryDetail) {
-		this.userSalaryDetail = userSalaryDetail;
+	public void setPaidDetails(Set<UserSalaryDetail> paidDetails) {
+		this.paidDetails = paidDetails;
 	}
 
 	public Set<CalculateDTO> getAllCalculate() {
@@ -170,5 +171,13 @@ public class DetailStatisticView {
 
 	public void setReceiptsSum(double receiptsSum) {
 		this.receiptsSum = receiptsSum;
+	}
+
+	public Set<UserSalaryDetail> getBalanceDetails() {
+		return balanceDetails;
+	}
+
+	public void setBalanceDetails(Set<UserSalaryDetail> balanceDetails) {
+		this.balanceDetails = balanceDetails;
 	}
 }

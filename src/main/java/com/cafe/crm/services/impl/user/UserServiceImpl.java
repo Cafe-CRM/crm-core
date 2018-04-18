@@ -4,19 +4,13 @@ package com.cafe.crm.services.impl.user;
 import com.cafe.crm.dto.ExtraUserData;
 import com.cafe.crm.exceptions.user.UserDataException;
 import com.cafe.crm.models.company.Company;
-import com.cafe.crm.models.cost.Cost;
-import com.cafe.crm.models.cost.CostCategory;
-import com.cafe.crm.models.shift.UserSalaryDetail;
 import com.cafe.crm.models.user.Position;
 import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.repositories.user.UserRepository;
 import com.cafe.crm.services.interfaces.company.CompanyService;
-import com.cafe.crm.services.interfaces.cost.CostCategoryService;
-import com.cafe.crm.services.interfaces.cost.CostService;
 import com.cafe.crm.services.interfaces.position.PositionService;
 import com.cafe.crm.services.interfaces.role.RoleService;
-import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +24,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -304,7 +297,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void resetSalaryData(List<User> users) {
 		for (User user : users) {
-			user.setSalary(0);
+			user.setBalance(0);
 			userRepository.save(user);
 		}
 	}

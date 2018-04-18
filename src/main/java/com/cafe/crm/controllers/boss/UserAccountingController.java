@@ -3,12 +3,14 @@ package com.cafe.crm.controllers.boss;
 import com.cafe.crm.dto.ExtraUserData;
 import com.cafe.crm.exceptions.user.PositionDataException;
 import com.cafe.crm.exceptions.user.UserDataException;
+import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.Position;
 import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
 import com.cafe.crm.services.interfaces.position.PositionService;
 import com.cafe.crm.services.interfaces.role.RoleService;
+import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,14 +30,16 @@ public class UserAccountingController {
 	private final UserService userService;
 	private final PositionService positionService;
 	private final RoleService roleService;
+	private final ShiftService shiftService;
 	private final ShiftCalculationService shiftCalculationService;
 
 	@Autowired
 	public UserAccountingController(UserService userService, PositionService positionService, RoleService roleService,
-									ShiftCalculationService shiftCalculationService) {
+									ShiftService shiftService, ShiftCalculationService shiftCalculationService) {
 		this.userService = userService;
 		this.positionService = positionService;
 		this.roleService = roleService;
+		this.shiftService = shiftService;
 		this.shiftCalculationService = shiftCalculationService;
 	}
 
@@ -106,6 +110,16 @@ public class UserAccountingController {
 		return "redirect:/boss/user/accounting";
 	}
 
+	@RequestMapping(value = {"/boss/user/get-all"}, method = RequestMethod.POST)
+	@ResponseBody
+	public List<User> getAllUsers() {
+		List<User> users = userService.findAll();
+		if (users == null) {
+			throw new UserDataException("В системе нет ни одного пользователя!");
+		}
+		return users;
+	}
+
 	@RequestMapping(value = {"/boss/user/get-salary-clients"}, method = RequestMethod.POST)
 	@ResponseBody
 	public List<User> outputClients(@RequestParam(name = "clientsId", required = false) long[] clientsId) {
@@ -126,7 +140,7 @@ public class UserAccountingController {
 		if (clientsId == null || clientsId.length == 0) {
 			throw new UserDataException("Выберите работников для выдачи зарплаты!");
 		}
-
+		List<User> allUsers = getAllUsers();
 		List<User> salaryUsers = userService.findByIdIn(clientsId);
 
 		if (salaryUsers == null) {
@@ -134,9 +148,8 @@ public class UserAccountingController {
 		}
 
 		shiftCalculationService.paySalary(salaryUsers);
-		userService.resetSalaryData(salaryUsers);
 
-		return null;
+		return allUsers;
 	}
 
 	@ExceptionHandler(value = UserDataException.class)

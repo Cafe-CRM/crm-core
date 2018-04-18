@@ -14,6 +14,8 @@ public class UserSalaryDetail {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
+	private int balance;
+
 	private int salary;
 
 	private int shiftSalary;
@@ -22,28 +24,25 @@ public class UserSalaryDetail {
 
 	private int bonus;
 
+	private boolean isPaidDetail;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shift_id", nullable = false)
 	private Shift shift;
 
-	public UserSalaryDetail(User user, int salary, int shiftSalary, int shiftAmount, int bonus, Shift shift) {
+	public UserSalaryDetail(User user, int balance, int salary, int shiftSalary, int shiftAmount,
+							int bonus, Shift shift, boolean isPaidDetail) {
 		this.user = user;
+		this.balance = balance;
 		this.salary = salary;
 		this.shiftAmount = shiftAmount;
 		this.bonus = bonus;
 		this.shiftSalary = shiftSalary;
 		this.shift = shift;
+		this.isPaidDetail = isPaidDetail;
 	}
 
 	public UserSalaryDetail() {
-	}
-
-	public Shift getShift() {
-		return shift;
-	}
-
-	public void setShift(Shift shift) {
-		this.shift = shift;
 	}
 
 	public Long getId() {
@@ -62,12 +61,20 @@ public class UserSalaryDetail {
 		this.user = user;
 	}
 
+	public int getBalance() {
+		return balance;
+	}
+
+	public void setBalance(int balance) {
+		this.balance = balance;
+	}
+
 	public int getSalary() {
 		return salary;
 	}
 
 	public void setSalary(int salary) {
-		this.salary = shiftSalary;
+		this.salary = salary;
 	}
 
 	public int getShiftSalary() {
@@ -78,6 +85,14 @@ public class UserSalaryDetail {
 		this.shiftSalary = shiftSalary;
 	}
 
+	public int getShiftAmount() {
+		return shiftAmount;
+	}
+
+	public void setShiftAmount(int shiftAmount) {
+		this.shiftAmount = shiftAmount;
+	}
+
 	public int getBonus() {
 		return bonus;
 	}
@@ -86,12 +101,20 @@ public class UserSalaryDetail {
 		this.bonus = bonus;
 	}
 
-	public int getShiftAmount() {
-		return shiftAmount;
+	public boolean isPaidDetail() {
+		return isPaidDetail;
 	}
 
-	public void setShiftAmount(int shiftAmount) {
-		this.shiftAmount = shiftAmount;
+	public void setPaidDetail(boolean paidDetail) {
+		isPaidDetail = paidDetail;
+	}
+
+	public Shift getShift() {
+		return shift;
+	}
+
+	public void setShift(Shift shift) {
+		this.shift = shift;
 	}
 
 	@Override
@@ -101,18 +124,28 @@ public class UserSalaryDetail {
 
 		UserSalaryDetail detail = (UserSalaryDetail) o;
 
-		if (user != null ? !user.equals(detail.user) : detail.user != null) return false;
+		if (balance != detail.balance) return false;
 		if (salary != detail.salary) return false;
-		if (bonus != detail.bonus) return false;
+		if (shiftSalary != detail.shiftSalary) return false;
 		if (shiftAmount != detail.shiftAmount) return false;
-		return shift != null ? !shift.equals(detail.shift) : detail.shift != null;
+		if (bonus != detail.bonus) return false;
+		if (isPaidDetail != detail.isPaidDetail) return false;
+		if (!id.equals(detail.id)) return false;
+		if (!user.equals(detail.user)) return false;
+		return shift.equals(detail.shift);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = user != null ? user.hashCode() : 0;
-		result = 31 * result + (shift != null ? shift.hashCode() : 0);
-		result = 31 * result + (salary + bonus + shiftAmount);
+		int result = id.hashCode();
+		result = 31 * result + user.hashCode();
+		result = 31 * result + balance;
+		result = 31 * result + salary;
+		result = 31 * result + shiftSalary;
+		result = 31 * result + shiftAmount;
+		result = 31 * result + bonus;
+		result = 31 * result + (isPaidDetail ? 1 : 0);
+		result = 31 * result + shift.hashCode();
 		return result;
 	}
 }
