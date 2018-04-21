@@ -3,6 +3,7 @@ package com.cafe.crm.controllers.boss.settings;
 import com.cafe.crm.configs.property.MailCustomSettings;
 import com.cafe.crm.models.mail.MailSettings;
 import com.cafe.crm.services.interfaces.mail.MailSettingsService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,8 @@ public class MailSettingsController {
 
 	private final MailSettingsService mailSettingsService;
 	private final MailCustomSettings customSettings;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(MailSettingsController.class);
 
 	@Value("${mail.default-smtp}")
 	private String defaultSmtp;
@@ -50,8 +53,11 @@ public class MailSettingsController {
 
 		if (settingsInDB == null) {
 			MailSettings newSettings = new MailSettings(settingsName, email, password, defaultSmtp);
-
 			mailSettingsService.save(newSettings);
+
+			logger.info("Созданы настройки почты для email : " + email
+					+ " c названием : " + settingsName);
+
 			JavaMailSenderImpl senderImpl = customSettings.getCustomSettings();
 			senderImpl.setUsername(email);
 			senderImpl.setPassword(password);
@@ -72,14 +78,21 @@ public class MailSettingsController {
 		} else {
 			senderImpl.setUsername(settings.getEmail());
 			senderImpl.setPassword(settings.getPassword());
+
+			logger.info("Настройки почты для email: " + settings.getEmail()
+					+ " c названием : " + settings.getNameSettings() + " успешно применены!");
+
 			return ResponseEntity.ok("Настройки успешно применены!");
 		}
 	}
 
 	@RequestMapping(value = "/del-settings", method = RequestMethod.POST)
 	public String delExistingSettings(@RequestParam(name = "settingsId") Long id) {
-
+		MailSettings existingSetting = mailSettingsService.get(id);
 		mailSettingsService.delete(id);
+
+		logger.info("Удалены настройки почты для email : " + existingSetting.getEmail()
+				+ " c названием : " + existingSetting.getNameSettings());
 
 		return "redirect:/boss/settings/mail-setting";
 	}

@@ -1,5 +1,6 @@
 package com.cafe.crm.controllers.boss;
 
+import com.cafe.crm.dto.CategoryDTO;
 import com.cafe.crm.dto.WrapperOfEditProduct;
 import com.cafe.crm.exceptions.category.CategoryServiceException;
 import com.cafe.crm.exceptions.cost.category.CostCategoryDataException;
@@ -16,6 +17,7 @@ import com.cafe.crm.services.interfaces.menu.MenuService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.position.PositionService;
 import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,6 +44,8 @@ public class MenuController {
 	private final ProductService productService;
 	private final IngredientsService ingredientsService;
 	private final PositionService positionService;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(MenuController.class);
 
 	@Autowired
 	public MenuController(CategoriesService categoriesService, ProductService productService, IngredientsService ingredientsService, MenuService menuService, PositionService positionService) {
@@ -76,8 +80,11 @@ public class MenuController {
 	@RequestMapping(value = {"/deleteProduct"}, method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> deleteProduct(@RequestParam(value = "del", required = false) Long id) throws IOException {
-
+		Product product = productService.findOne(id);
 		productService.delete(id);
+
+		logger.info("Удалён продукт с именем: \"" + product.getName() + "\" и id: " + id);
+
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -89,11 +96,22 @@ public class MenuController {
 		Boolean isDirty = Boolean.valueOf(dirtyProfit);
 		Boolean isAccountability = Boolean.valueOf(accountability);
 		Category category = categoriesService.getOne(id);
+		CategoryDTO dto = new CategoryDTO(category);
+
 		if (category != null) {
 			category.setName(name);
 			category.setDirtyProfit(isDirty);
 			category.setAccountability(isAccountability);
+
 			categoriesService.saveAndFlush(category);
+
+			logger.info("Изменена категория с id: " + category.getId() +
+					"\n Название: " + dto.getName() + " -> " + category.getName() +
+					"\n Добавлять в отчёт: " + dto.isAccountability() + " -> " + category.isAccountability() +
+					"\n Учитывать в прибыль грязными: " + dto.isDirtyProfit() + " -> " + category.isDirtyProfit() +
+					"\n Плавающая цена: " + dto.isFloatingPrice() + " -> " + category.isFloatingPrice()
+
+			);
 		}
 		return "redirect:/boss/menu/";
 	}
@@ -119,7 +137,7 @@ public class MenuController {
 		Category category = categoriesService.getOne(wrapper.getId());
 		Map<Ingredients, Double> recipe;
 		double recipeCost;
-//		check if product has ingredients for recipe
+
 		if (!wrapper.getNames().isEmpty()) {
 			recipe = ingredientsService.createRecipe(wrapper);
 			recipeCost = ingredientsService.getRecipeCost(recipe);
@@ -127,6 +145,7 @@ public class MenuController {
 			recipe = null;
 			recipeCost = 0;
 		}
+
 		Map<Position, Integer> staffPercent = productService.createStaffPercent(wrapper);
 		if (category != null) {
 			Product product = new Product();
@@ -141,9 +160,12 @@ public class MenuController {
 			product.setDescription(wrapper.getDescription());
 			product.setRecipe(recipe);
 			product.setStaffPercent(staffPercent);
-			productService.saveAndFlush(product);
+			Product savedProduct = productService.saveAndFlush(product);
 			category.getProducts().add(product);
 			categoriesService.saveAndFlush(category);
+
+			logger.info("В категорию " + category.getName() + " добавлен продукт с названием: \"" + product.getName() +
+					"\" и id: " + savedProduct.getId());
 
 			wrapper.setProductId(product.getId());
 			wrapper.setSelfCost(wrapper.getSelfCost() + recipeCost);
@@ -159,7 +181,10 @@ public class MenuController {
 		}
 		List<Product> listProducts = new ArrayList<>();
 		category.setProducts(listProducts);
-		categoriesService.saveAndFlush(category);
+		Category savedCat = categoriesService.saveAndFlush(category);
+
+		logger.info("Добавлена категория с названием: \"" + category.getName() + "\" и id: " + savedCat.getId());
+
 		return "redirect:/boss/menu";
 	}
 
@@ -168,6 +193,7 @@ public class MenuController {
 		Category category = categoriesService.getOne(id);
 		if (category != null) {
 			categoriesService.delete(id);
+			logger.info("Удалена категория с названием: \"" + category.getName() + "\" и id: " + id);
 		}
 		return "redirect:/boss/menu";
 	}
@@ -177,6 +203,8 @@ public class MenuController {
 	public WrapperOfEditProduct updProd(@RequestBody WrapperOfEditProduct wrapper) {
 
 		Product product = productService.findOne(wrapper.getId());
+		WrapperOfEditProduct existProduct = new WrapperOfEditProduct(product);
+
 		if (product != null) {
 			product.setName(wrapper.getName());
 			product.setCost(wrapper.getCost());
@@ -184,6 +212,14 @@ public class MenuController {
 			product.setDescription(wrapper.getDescription());
 
 			productService.saveAndFlush(product);
+
+			logger.info("Изменена категория с id: " + existProduct.getId() +
+					"\n Название: " + existProduct.getName() + " -> " + product.getName() +
+					"\n Цена: " + existProduct.getCost() + " -> " + product.getCost() +
+					"\n Себестоимость: " + existProduct.getSelfCost() + " -> " + product.getSelfCost() +
+					"\n Описание: " + existProduct.getDescription() + " -> " + product.getDescription()
+
+			);
 		}
 
 		return wrapper;
@@ -221,6 +257,23 @@ public class MenuController {
 			product.setSelfCost(ingredientsService.getRecipeCost(recipe));
 			product.setRecipe(recipe);
 			productService.saveAndFlush(product);
+
+			StringBuilder editRecipeLog = new StringBuilder("Изменён рецепт продукта с id: ")
+					.append(product.getId())
+					.append(" и названием: \"")
+					.append(product.getName())
+					.append("\"\nНовый рецепт:");
+
+			for (Map.Entry<Ingredients, Double> entry : recipe.entrySet()) {
+				editRecipeLog
+						.append("\n")
+						.append(entry.getKey().getName())
+						.append(" - ")
+						.append(entry.getValue())
+						.append(entry.getKey().getDimension());
+			}
+
+			logger.info(editRecipeLog.toString());
 		}
 		return new ResponseEntity<>(1L, HttpStatus.OK);
 	}
@@ -234,6 +287,23 @@ public class MenuController {
 		if (product != null) {
 			product.setStaffPercent(staffPercent);
 			productService.saveAndFlush(product);
+
+			StringBuilder editPercentLog = new StringBuilder("Изменёны проценты сотрудникам у продукта с id: ")
+					.append(product.getId())
+					.append(" и названием: \"")
+					.append(product.getName())
+					.append("\"\n");
+
+			for (Map.Entry<Position, Integer> entry : staffPercent.entrySet()) {
+				editPercentLog.append(entry.getKey().getName())
+						.append(" - ")
+						.append(entry.getValue())
+						.append("%")
+						.append("\n");
+			}
+
+			logger.info(editPercentLog.toString());
+
 		}
 		return new ResponseEntity<>(1L, HttpStatus.OK);
 	}
@@ -246,6 +316,8 @@ public class MenuController {
 			product.setSelfCost(product.getSelfCost() - recipeCost);
 			product.getRecipe().clear();
 			productService.saveAndFlush(product);
+
+			logger.info("Удалён рецепт у продукта с названием: \"" + product.getName() + "\" и id: " + product.getId());
 		}
 		String referrer = request.getHeader("Referer");
 		return "redirect:" + referrer;
@@ -257,6 +329,9 @@ public class MenuController {
 		if (product != null) {
 			product.getStaffPercent().clear();
 			productService.saveAndFlush(product);
+
+			logger.info("Удалены проценты сотрудникам у продукта с названием: " + product.getName() + " и id: "
+					+ product.getId());
 		}
 		String referrer = request.getHeader("Referer");
 		return "redirect:" + referrer;

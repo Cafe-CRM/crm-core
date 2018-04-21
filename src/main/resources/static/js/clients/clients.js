@@ -850,12 +850,8 @@ function openNewCalc() {
     var description = $('#description').val();
 
     if (description === "") {
-        //alert("set descr!");
-        //$('#calcDescError').modal('show');
         $('#calcModalErrorMessage').html('<h4 style="color:red;" align="center">Описание стола не может быть пустым!</h4>')
     } else if (boardId === "") {
-        //alert("chose calc");
-        //$('#calcDescError').modal('show');
         $('#calcModalErrorMessage').html('<h4 style="color:red;" align="center">Выберите стол!</h4>')
     } else {
         sendNewCalc(boardId, number, description);

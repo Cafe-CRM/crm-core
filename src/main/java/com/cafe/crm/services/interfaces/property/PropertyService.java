@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface PropertyService {
 
-	void save(Property property);
+	Property getOne(Long id);
+
+	Property save(Property property);
 
 	List<Property> findAll();
 

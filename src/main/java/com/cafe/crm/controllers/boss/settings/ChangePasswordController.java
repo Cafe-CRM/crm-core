@@ -2,10 +2,10 @@ package com.cafe.crm.controllers.boss.settings;
 
 
 import com.cafe.crm.services.interfaces.user.UserService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,6 +18,8 @@ import java.security.Principal;
 public class ChangePasswordController {
 
 	private final UserService userService;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(ChangePasswordController.class);
 
 	@Autowired
 	public ChangePasswordController(UserService userService) {
@@ -38,6 +40,9 @@ public class ChangePasswordController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 		}
 		String username = principal.getName();
+
+		logger.info("Изменение пароля сотрудника с email: \"" + username + "\"");
+
 		userService.changePassword(username, oldPassword, newPassword, repeatedPassword);
 		return ResponseEntity.ok("Пароль успешно изменен!");
 	}

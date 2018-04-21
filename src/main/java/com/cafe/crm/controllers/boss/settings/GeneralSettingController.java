@@ -20,38 +20,11 @@ import java.util.List;
 @RequestMapping("/boss/settings/general-setting")
 public class GeneralSettingController {
 
-	private final PropertyService propertyService;
 	private final TimeManager timeManager;
 
 	@Autowired
 	public GeneralSettingController(TimeManager timeManager, PropertyService propertyService) {
 		this.timeManager = timeManager;
-		this.propertyService = propertyService;
-	}
-
-	@ModelAttribute(value = "wrapper")
-	public PropertyWrapper addClass() {
-		PropertyWrapper propertyWrapper = new PropertyWrapper();
-		propertyWrapper.setProperties(propertyService.findAll());
-		return propertyWrapper;
-	}
-
-	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView showGeneralSettingPage() {
-		ModelAndView modelAndView = new ModelAndView("settingPages/generalSettingPage");
-		modelAndView.addObject("properties", propertyService.findAll());
-		return modelAndView;
-	}
-
-	@RequestMapping(value = "/edit", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<?> editProperty(@Valid Property property, BindingResult bindingResult, HttpServletRequest request) {
-		if (bindingResult.hasErrors()) {
-			String fieldError = bindingResult.getFieldError().getDefaultMessage();
-			return ResponseEntity.badRequest().body(fieldError);
-		}
-		propertyService.save(property);
-		return ResponseEntity.ok("");
 	}
 
 	@PostMapping("/get-server-time-date")

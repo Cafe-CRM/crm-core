@@ -1,6 +1,8 @@
 package com.cafe.crm.dto;
 
 
+import com.cafe.crm.models.menu.Product;
+
 public class WrapperOfEditProduct {  // wrapper for menuController
 
 	private Long id;
@@ -11,6 +13,14 @@ public class WrapperOfEditProduct {  // wrapper for menuController
 
 
 	public WrapperOfEditProduct() {
+	}
+
+	public WrapperOfEditProduct(Product product) {
+		this.id = product.getId();
+		this.name = product.getName();
+		this.description = product.getDescription();
+		this.cost = product.getCost();
+		this.selfCost = product.getSelfCost();
 	}
 
 	public Long getId() {

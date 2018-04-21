@@ -114,7 +114,6 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		Set<Calculate> allCalculate = new HashSet<>();
 		Map<Client, ClientDetails> clientsOnDetails = new HashMap<>();
 		List<Cost> otherCost = new ArrayList<>();
-		List<Cost> salaryCost = new ArrayList<>();
 		List<Debt> givenDebts = new ArrayList<>();
 		List<Debt> repaidDebt = new ArrayList<>();
 		List<Receipt> receiptAmount = new ArrayList<>();
@@ -122,23 +121,20 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 			return new TotalStatisticView(profit, alteredCashAmount, totalShiftSalary, otherCostsPrice, profitRecalculate,
 					lossRecalculate, users, clientsOnDetails, otherCost, givenDebts, repaidDebt);
 		}
-		salaryCost = costService.findSalaryCostByDateBetween(from, to);
+		List<Cost> salaryCost = costService.findSalaryCostByDateBetween(from, to);
 		otherCost = costService.findOtherCostByDateBetween(from, to);
 
 		for (Shift shift : shifts) {
 			allCalculate.addAll(shift.getCalculates());
-			//otherCost.addAll(costService.findOtherCostByShiftId(shift.getId()));
-			//salaryCost.addAll(costService.findSalaryCostAtShift(shift.getId()));
 			givenDebts.addAll(shift.getGivenDebts());
 			repaidDebt.addAll(shift.getRepaidDebts());
 			receiptAmount.addAll(receiptService.findByShiftId(shift.getId()));
 			alteredCashAmount += shift.getAlteredCashAmount();
 		}
+
 		clientsOnDetails = getClientsOnDetails(allCalculate);
 		givenDebts.removeAll(repaidDebt);
-		/*for (UserDTO user : users) {
-			totalShiftSalary += user.getSalary();
-		}*/
+
 		for (Cost cost : otherCost) {
 			otherCostsPrice += cost.getPrice() * cost.getQuantity();
 		}
@@ -568,6 +564,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 	@Override
 	public void paySalary(List<User> salaryUsers) {
+		//todo сервис выдачи зп
 		double totalSalary = 0;
 		Shift lastShift = shiftService.getLast();
 		List<UserSalaryDetail> userSalaryDetails = new ArrayList<>();
@@ -586,7 +583,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		}
 
 		CostCategory salaryCategory = costCategoryService.getSalaryCategory();
-		LocalDate lastDate = shiftService.getLastShiftDate();;
+		LocalDate lastDate = shiftService.getLastShiftDate();
 		Cost cost = new Cost(salaryCategory.getName(), totalSalary, 1.0, salaryCategory, lastDate);
 
 		userSalaryDetailService.save(userSalaryDetails);

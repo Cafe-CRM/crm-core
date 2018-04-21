@@ -2,6 +2,7 @@ package com.cafe.crm.controllers.boss.settings;
 
 import com.cafe.crm.models.note.Note;
 import com.cafe.crm.services.interfaces.note.NoteService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,8 @@ import java.util.List;
 public class NoteController {
 
 	private final NoteService noteService;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(NoteController.class);
 
 	@Autowired
 	public NoteController(NoteService noteService) {
@@ -40,13 +43,20 @@ public class NoteController {
 			return ResponseEntity.badRequest().body(fieldError);
 		}
 		noteService.save(note);
+
+		logger.info("Добавлена заметка \"" + note.getName() + "\"");
+
 		return ResponseEntity.ok("");
 	}
 
 	@RequestMapping(path = "/boss/settings/note/delete", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> deleteNote(@RequestParam("id") Long id) {
+		Note note = noteService.getOne(id);
 		noteService.delete(id);
+
+		logger.info("Удалена заметка \"" + note.getName() + "\"");
+
 		return ResponseEntity.ok("");
 	}
 
@@ -54,7 +64,13 @@ public class NoteController {
 	@ResponseBody
 	public ResponseEntity<?> changeStatusNote(@RequestParam("id") Long id,
 											  @RequestParam("enable") String enable) {
-		noteService.changeStatus(id, !Boolean.valueOf(enable));
+		boolean status = !Boolean.valueOf(enable);
+		String state = status ? "enabled" : "disabled";
+		Note note = noteService.changeStatus(id, status);
+
+		logger.info("Изменён статус заметки с названием: \"" + note.getName() +
+				"\" изменён на " + state);
+
 		return ResponseEntity.ok("");
 	}
 }

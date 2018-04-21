@@ -5,6 +5,7 @@ import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.property.Property;
+import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.debt.DebtService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
@@ -120,7 +121,10 @@ public class DebtController {
 
 	@RequestMapping(value = "/addDebt", method = RequestMethod.POST)
 	public ResponseEntity<?> saveGoods(@ModelAttribute @Valid Debt debt) {
-		debt.setShift(shiftService.getLast());
+		Shift lastShift = shiftService.getLast();
+
+		debt.setShift(lastShift);
+		lastShift.addGivenDebtToList(debt);
 
 		debtService.save(debt);
 

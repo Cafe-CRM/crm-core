@@ -4,6 +4,7 @@ import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.services.interfaces.board.BoardService;
 import com.cafe.crm.services.interfaces.calculate.CalculateService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,8 @@ public class BoardController {
 	private final BoardService boardService;
 	private final CalculateService calculateService;
 
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(BoardController.class);
+
 	@Autowired
 	public BoardController(BoardService boardService, CalculateService calculateService) {
 		this.boardService = boardService;
@@ -36,8 +39,11 @@ public class BoardController {
 
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
 	public String newBoard(Board board, HttpServletRequest request) {
-		boardService.save(board);
+		Board savedBoard = boardService.save(board);
 		String referrer = request.getHeader("Referer");
+
+		logger.info("Открытие стола " + board.getName() + " с id: " + savedBoard.getId());
+
 		return "redirect:" + referrer;
 	}
 
@@ -60,6 +66,9 @@ public class BoardController {
 			board.setIsOpen(false);
 			boardService.save(board);
 		}
+
+		logger.info("Удаление стола " + board.getName() + " с id: " + id);
+
 		return "redirect:" + referrer;
 	}
 

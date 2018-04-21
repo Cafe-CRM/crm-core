@@ -2,6 +2,7 @@ package com.cafe.crm.controllers.boss.settings;
 
 import com.cafe.crm.configs.filters.CardFilter;
 import com.cafe.crm.controllers.GlobalControllerAdvice;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,8 @@ public class CardSettingsController {
 
 	private final CardFilter cardFilter;
 	private final GlobalControllerAdvice globalControllerAdvice;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CardSettingsController.class);
 
 	@Autowired
 	public CardSettingsController(GlobalControllerAdvice globalControllerAdvice, CardFilter cardFilter) {
@@ -28,6 +31,9 @@ public class CardSettingsController {
 	public String changeCardEnableStatus() {
 		String oldCardStatus = globalControllerAdvice.isCardEnable();
 		String newCardStatus = getReverseStatus(oldCardStatus);
+
+		logger.info("Изменение статуса карт с  \"" + oldCardStatus + "\" на \"" + newCardStatus + "\"");
+
 		globalControllerAdvice.setCardEnable(newCardStatus);
 		cardFilter.setEnable(!Boolean.valueOf(newCardStatus));
 

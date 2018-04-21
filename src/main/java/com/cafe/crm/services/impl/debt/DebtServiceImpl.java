@@ -49,6 +49,11 @@ public class DebtServiceImpl implements DebtService {
 		}
 	}
 
+	@Override
+	public void saveAll(Set<Debt> debts) {
+		repository.save(debts);
+	}
+
 
 	@Override
 	public void delete(Debt debt) {

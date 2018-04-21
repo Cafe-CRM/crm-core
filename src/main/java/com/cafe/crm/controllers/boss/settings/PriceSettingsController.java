@@ -3,6 +3,7 @@ package com.cafe.crm.controllers.boss.settings;
 import com.cafe.crm.configs.property.PriceNameProperties;
 import com.cafe.crm.models.property.Property;
 import com.cafe.crm.services.interfaces.property.PropertyService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,8 @@ public class PriceSettingsController {
 
 	private final PropertyService propertyService;
 	private final PriceNameProperties priceNameProperties;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(PriceSettingsController.class);
 
 	@Autowired
 	public PriceSettingsController(PropertyService propertyService, PriceNameProperties priceNameProperties) {
@@ -43,7 +46,12 @@ public class PriceSettingsController {
 			String fieldError = bindingResult.getFieldError().getDefaultMessage();
 			return ResponseEntity.badRequest().body(fieldError);
 		}
-		propertyService.save(property);
+		String value = propertyService.getOne(property.getId()).getValue();
+		Property savedProp = propertyService.save(property);
+
+		logger.info("Настройка цены с id: " + savedProp.getId() + " и названием: \"" + savedProp.getName() +
+					"\" была изменена. Цена: " + value + " -> " + savedProp.getValue());
+
 		return ResponseEntity.ok("");
 	}
 }

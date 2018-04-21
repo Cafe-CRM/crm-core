@@ -14,6 +14,8 @@ import java.util.Set;
 @Table(name = "category")
 public class Category extends BaseEntity {
 
+	//toDo долго удаляются каскадные продукты и менюзи
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;

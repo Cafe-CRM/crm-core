@@ -95,15 +95,42 @@
                     </form>
                 </td>
                 <td>
-                    <form action="/boss/menu/ingredients/delete" th:method="POST">
-                        <input th:type="hidden" name="id" th:value="${ingr.id}"/>
-                        <button th:type="submit">Удалить</button>
-                    </form>
+                    <button th:onclick="'deleteIngredient(\'' + ${ingr.id} + '\');'">Удалить</button>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
+
+    <div id="deleteIngredientConfirmModal" class="modal fade">
+        <div class="modal-dialog" role="document" style="width: 400px; margin: 100px auto;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Удалить ингредиент из следующих продуктов:</h4>
+                    <div id="deleteIngredientErrorMessage"></div>
+                </div>
+                <div class="modal-body">
+                    <table id="deleteIngredientTable" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Название</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirmDelete" type="button" class="btn btn-danger">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <div th:replace="fragments/bossChangePassword :: BossChangePassword"></div>
 <div th:replace="media/advertisingDispatch :: advertising"></div>

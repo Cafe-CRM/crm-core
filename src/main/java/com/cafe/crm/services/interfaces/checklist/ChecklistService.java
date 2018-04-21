@@ -9,11 +9,11 @@ public interface ChecklistService {
 
 	Checklist find(Long id);
 
-	void saveChecklistOnCloseShift(String text);
+	Checklist saveChecklistOnCloseShift(String text);
 
-	void saveChecklistOnOpenShift(String text);
+	Checklist saveChecklistOnOpenShift(String text);
 
-	void update(Checklist checklist);
+	Checklist update(Checklist checklist);
 
 	void delete(Long id);
 
