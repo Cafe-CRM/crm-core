@@ -1,6 +1,8 @@
 package com.cafe.crm.controllers.boss;
 
 import com.cafe.crm.dto.ExtraUserData;
+import com.cafe.crm.dto.PositionDTO;
+import com.cafe.crm.dto.RoleDTO;
 import com.cafe.crm.dto.UserLoggingDTO;
 import com.cafe.crm.exceptions.user.PositionDataException;
 import com.cafe.crm.exceptions.user.UserDataException;
@@ -89,29 +91,14 @@ public class UserAccountingController {
 	@ResponseBody
 	public ResponseEntity<?> editUser(@ModelAttribute @Valid User user, BindingResult bindingResult,
 									  ExtraUserData extraUserData) throws IllegalAccessException {
-		//toDo dodelat
 		if (bindingResult.hasErrors()) {
 			String fieldError = bindingResult.getFieldError().getDefaultMessage();
 			throw new UserDataException("Не удалось изменить данные пользователя!\n" + fieldError);
 		}
 
-		//UserLoggingDTO existedUser = transformer.transform(user, UserLoggingDTO.class);
-		User existedUser = userService.findById(user.getId());
-		String existedRoles = existedUser.getRoles().stream()
-				.map(Role::getName)
-				.collect(Collectors.joining( ", " ));
-		String existedPositions = existedUser.getPositions().stream()
-				.map(Position::getName)
-				.collect(Collectors.joining( ", " ));
+		UserLoggingDTO existedUser = userService.transformUserToLogDTO(userService.findById(user.getId()));
 
 		userService.update(user, extraUserData);
-
-		String updatedRoles = user.getRoles().stream()
-				.map(Role::getName)
-				.collect(Collectors.joining( ", " ));
-		String updatedPositions = user.getPositions().stream()
-				.map(Position::getName)
-				.collect(Collectors.joining( ", " ));
 
 		logger.info("Пользователь с id: " + user.getId() + " был изменён." +
 				"\n Имя: " + existedUser.getFirstName() + " -> " + user.getFirstName() +
@@ -119,8 +106,8 @@ public class UserAccountingController {
 				"\n Телефон: " + existedUser.getPhone() + " -> " + user.getPhone() +
 				"\n email: " + existedUser.getEmail() + " -> " + user.getEmail() +
 				"\n Зарплата за смену: " + existedUser.getShiftSalary() + " -> " + user.getShiftSalary() +
-				"\n Должность: " + existedPositions + " -> " + updatedPositions +
-				"\n Роль: " + existedRoles + " -> " + updatedRoles);
+				"\n Должность: " + existedUser.getPositions() + " -> " + user.getPositions() +
+				"\n Роль: " + existedUser.getRoles() + " -> " + user.getRoles());
 
 		return ResponseEntity.ok("Пользователь успешно обновлен!");
 	}
@@ -150,7 +137,7 @@ public class UserAccountingController {
 	@RequestMapping(value = {"/boss/user/position/edit"}, method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> editPosition(Position position) throws IOException {
-		Position existedPosition = positionService.findById(position.getId());
+		PositionDTO existedPosition = transformer.transform(positionService.findById(position.getId()));
 		positionService.update(position);
 
 		logger.info("Должность с id: " + existedPosition.getId() + " была изменена." +
@@ -197,7 +184,6 @@ public class UserAccountingController {
 	@RequestMapping(value = {"/boss/user/pay-salaries"}, method = RequestMethod.POST)
 	@ResponseBody
 	public List<User> paySalary(@RequestParam(name = "clientsId", required = false) long[] usersIds) {
-		//todo контроллер выдачи зп
 
 		if (usersIds == null || usersIds.length == 0) {
 			throw new UserDataException("Выберите работников для выдачи зарплаты!");

@@ -6,6 +6,7 @@ import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
 import com.yc.easytransformer.annotations.Transform;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,9 +25,9 @@ public class UserLoggingDTO {
 
 	private int shiftSalary;
 
-	private Set<Role> roles;
+	private List<RoleDTO> roles = new ArrayList<>();
 
-	private List<PositionDTO> positions;
+	private List<PositionDTO> positions = new ArrayList<>();
 
 	public Long getId() {
 		return id;
@@ -76,11 +77,11 @@ public class UserLoggingDTO {
 		this.shiftSalary = shiftSalary;
 	}
 
-	public Set<Role> getRoles() {
+	public List<RoleDTO> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(List<RoleDTO> roles) {
 		this.roles = roles;
 	}
 
@@ -90,5 +91,13 @@ public class UserLoggingDTO {
 
 	public void setPositions(List<PositionDTO> positions) {
 		this.positions = positions;
+	}
+
+	public void addRole(RoleDTO role) {
+		this.roles.add(role);
+	}
+
+	public void addPosition(PositionDTO position) {
+		this.positions.add(position);
 	}
 }
