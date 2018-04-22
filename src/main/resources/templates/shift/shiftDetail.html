@@ -240,18 +240,21 @@
                 <tr>
                     <th> Дата</th>
                     <th> Имя работника</th>
-                    <th> Зарплата</th>
+                    <th> Окладная часть</th>
+                    <th> Бонусная часть</th>
                 </tr>
                 </thead>
                 <tbody th:each="listOfSalaryCosts : ${detailStatisticView.paidDetails}">
                 <tr>
                     <td th:text="${listOfSalaryCosts.shift.shiftDate}"></td>
                     <td th:text="${listOfSalaryCosts.user.firstName}"></td>
-                    <td th:text="${listOfSalaryCosts.salary}"></td>
+                    <td th:text="${listOfSalaryCosts.paidSalary}"></td>
+                    <td th:text="${listOfSalaryCosts.paidBonus}"></td>
                 </tr>
                 </tbody>
                 <tfoot>
                 <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -351,8 +354,8 @@
                     <th> Email</th>
                     <th> Номер телефона</th>
                     <th> Оклад</th>
-                    <th> Баланс</th>
-                    <th> Бонус</th>
+                    <th> Окладная часть</th>
+                    <th> Бонусная часть</th>
                 </tr>
                 </thead>
                 <tbody th:each="user : ${detailStatisticView.usersOnShift}">
@@ -363,8 +366,8 @@
                     <td th:text="${user.email}"></td>
                     <td th:text="${user.phone}"></td>
                     <td th:text="${user.shiftSalary}"></td>
-                    <td th:text="${user.balance}"></td>
-                    <td th:text="${user.bonus}"></td>
+                    <td th:text="${user.salaryBalance}"></td>
+                    <td th:text="${user.bonusBalance}"></td>
                 </tr>
                 </tbody>
                 <tfoot>

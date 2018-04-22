@@ -15,8 +15,8 @@
             <th> Номер телефона</th>
             <th> Оклад за смену</th>
             <th> Количество смен</th>
-            <th> Зарплата</th>
-            <th> Бонус</th>
+            <th> Зарплатная часть</th>
+            <th> Бонусная часть</th>
             <th></th>
             <th></th>
         </tr>
@@ -29,8 +29,8 @@
             <td th:text="${user.phone}"></td>
             <td th:text="${user.shiftSalary}"></td>
             <td th:text="${user.shifts.size()}"></td>
-            <td th:text="${user.salary}"></td>
-            <td th:text="${user.bonus}"></td>
+            <td th:text="${user.totalSalary}"></td>
+            <td th:text="${user.totalBonus}"></td>
             <td class="col-lg-2">
                 <div th:replace="userAccounting/fragments/modal/modalEditUserForUsersByPositionPanel :: editUser"
                      th:remove="tag"></div>

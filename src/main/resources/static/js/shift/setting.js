@@ -15,19 +15,20 @@ jQuery(document).ready( function() {
             url: "/boss/user/get-all",
 
             success: function (data) {
+                $('#salaryUsersTable').html('');
 
                 for (var i = 0; i < data.length; i++) {
                     var count = i + 1;
                     var name = data[i].firstName + " " + data[i].lastName;
-                    var balance = data[i].balance;
-                    var bonus = data[i].bonus;
+                    var salaryBalance = data[i].salaryBalance;
+                    var bonusBalance = data[i].bonusBalance;
 
                     $('#salaryUsersTable').append(
                         '<tr>' +
                         '<td><p align="center">' + count + '</p></td>' +
                         '<td><p align="center">' + name + '</p></td>' +
-                        '<td><p align="center">' + balance + '</p></td>' +
-                        '<td><p align="center">' + bonus + '</p></td>' +
+                        '<td><p align="center">' + salaryBalance + '</p></td>' +
+                        '<td><p align="center">' + bonusBalance + '</p></td>' +
                         '<td style="text-align: center;">' +
                         '<input name="clientsId" form="formCheckedWorkers" class="checkWorkerSalary" style="width: 20px;height: 20px;margin-top: 5px" id="' + data[i].id + '" value="' +  data[i].id + '" type="checkbox"/>' +
                         '</td>' +
@@ -107,7 +108,9 @@ function ajaxModal() {
                 for (var i = 0; i < data.length; i++) {
                     var id = data[i].id;
                     var name = data[i].firstName + " " + data[i].lastName;
-                    var salary = data[i].balance;
+                    var salaryBalance = data[i].salaryBalance;
+                    var bonusBalance = data[i].bonusBalance;
+                    var salary = salaryBalance + bonusBalance;
                     totalSalary += salary;
 
                     $('#salaryWorkerTable').find('> tbody').append(
@@ -151,15 +154,15 @@ function giveSalary() {
                 for (var i = 0; i < data.length; i++) {
                     var count = i + 1;
                     var name = data[i].firstName + " " + data[i].lastName;
-                    var balance = data[i].balance;
-                    var bonus = data[i].bonus;
+                    var salaryBalance = data[i].salaryBalance;
+                    var bonusBalance = data[i].bonusBalance;
 
                     $('#salaryUsersTable').append(
                         '<tr>' +
                         '<td><p align="center">' + count + '</p></td>' +
                         '<td><p align="center">' + name + '</p></td>' +
-                        '<td><p align="center">' + balance + '</p></td>' +
-                        '<td><p align="center">' + bonus + '</p></td>' +
+                        '<td><p align="center">' + salaryBalance + '</p></td>' +
+                        '<td><p align="center">' + bonusBalance + '</p></td>' +
                         '<td style="text-align: center;">' +
                         '<input name="clientsId" form="formCheckedWorkers" class="checkWorkerSalary" style="width: 20px;height: 20px;margin-top: 5px" id="' + data[i].id + '" value="' +  data[i].id + '" type="checkbox"/>' +
                         '</td>' +

@@ -301,9 +301,9 @@ public class VkServiceImpl implements VkService {
 					.append(detail.getUser().getFirstName())
 					.append(" ")
 					.append(detail.getUser().getLastName())
-					.append(" - ").append(df.format(detail.getSalary()))
+					.append(" - ").append(df.format(detail.getPaidSalary() + detail.getPaidBonus()))
 					.append(System.getProperty("line.separator"));
-			salaryCost += detail.getSalary();
+			salaryCost += detail.getPaidSalary() + detail.getPaidBonus();
 		}
 
 		if (salaries.length() > 0) {

@@ -204,6 +204,10 @@ public class Shift extends BaseEntity {
 		this.givenDebts.add(debt);
 	}
 
+	public void addSalaryDetail(UserSalaryDetail detail) {
+		this.userSalaryDetail.add(detail);
+	}
+
 	public Set<Cost> getCosts() {
 		return costs;
 	}

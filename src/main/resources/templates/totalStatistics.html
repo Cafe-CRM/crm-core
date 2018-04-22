@@ -10,7 +10,7 @@
 <!--/.navbar -->
 
 
-<div class="col-md-7 col-sm-offset-3">
+<div class="col-md-8 col-sm-offset-2">
         <div class="row" style="margin-top: 5%">
             <h1 style="color: #5bc0de;">
                 Статистика за период с: <span th:text="${from} + ' по ' + ${to}"></span></h1>
@@ -184,8 +184,8 @@
                         <tr>
                             <th> ФИО</th>
                             <th> Должность</th>
-                            <th> Баланс</th>
-                            <th> Бонус</th>
+                            <th> Окладная часть</th>
+                            <th> Бонусная часть</th>
                             <th> Оклад за смену</th>
                             <th> Количество смен</th>
                         </tr>
@@ -194,8 +194,8 @@
                         <tr th:each="user : ${totalStat.users}">
                             <td th:text="${user.firstName + ' '+ user.lastName}"></td>
                             <td th:text="${user.positions}"></td>
-                            <td th:text="${user.balance}"></td>
-                            <td th:text="${user.bonus}"></td>
+                            <td th:text="${user.salaryBalance}"></td>
+                            <td th:text="${user.bonusBalance}"></td>
                             <td th:text="${user.shiftSalary}"></td>
                             <td th:text="${user.shiftAmount}"></td>
                         </tr>

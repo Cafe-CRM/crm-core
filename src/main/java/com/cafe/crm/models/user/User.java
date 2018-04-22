@@ -73,20 +73,23 @@ public class User extends BaseEntity {
 
 	@Min(value = 0, message = "Поле \"salary\" должно быть цифрой большей 0!")
 	@Max(value = Integer.MAX_VALUE, message = "Поле \"salary\" должно быть цифрой меньшей 2147483647!")
-	private int balance;
+	private int totalSalary;
 
 	@Min(value = 0, message = "Поле \"salary\" должно быть цифрой большей 0!")
 	@Max(value = Integer.MAX_VALUE, message = "Поле \"salary\" должно быть цифрой меньшей 2147483647!")
-	private int salary;
+	private int totalBonus;
 
 	@Max(value = Integer.MAX_VALUE, message = "Поле \"bonus\" должно быть цифрой меньшей 2147483647!")
-	private int bonus;
+	private int salaryBalance;
+
+	@Max(value = Integer.MAX_VALUE, message = "Поле \"bonus\" должно быть цифрой меньшей 2147483647!")
+	private int bonusBalance;
 
 	private boolean activated = true;
 
 	private boolean enabled = true;
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
 	@NotTransform
 	private List<UserSalaryDetail> userSalaryDetail;
 
@@ -178,28 +181,36 @@ public class User extends BaseEntity {
 		this.shiftSalary = shiftSalary;
 	}
 
-	public int getBalance() {
-		return balance;
+	public int getTotalSalary() {
+		return totalSalary;
 	}
 
-	public void setBalance(int balance) {
-		this.balance = balance;
+	public void setTotalSalary(int totalSalary) {
+		this.totalSalary = totalSalary;
 	}
 
-	public int getSalary() {
-		return salary;
+	public int getTotalBonus() {
+		return totalBonus;
 	}
 
-	public void setSalary(int salary) {
-		this.salary = salary;
+	public void setTotalBonus(int totalBonus) {
+		this.totalBonus = totalBonus;
 	}
 
-	public int getBonus() {
-		return bonus;
+	public int getSalaryBalance() {
+		return salaryBalance;
 	}
 
-	public void setBonus(int bonus) {
-		this.bonus = bonus;
+	public void setSalaryBalance(int salaryBalance) {
+		this.salaryBalance = salaryBalance;
+	}
+
+	public int getBonusBalance() {
+		return bonusBalance;
+	}
+
+	public void setBonusBalance(int bonusBalance) {
+		this.bonusBalance = bonusBalance;
 	}
 
 	public boolean isEnabled() {
@@ -216,6 +227,10 @@ public class User extends BaseEntity {
 
 	public void setUserSalaryDetail(List<UserSalaryDetail> userSalaryDetail) {
 		this.userSalaryDetail = userSalaryDetail;
+	}
+
+	public void addSalaryDetail(UserSalaryDetail detail) {
+		this.userSalaryDetail.add(detail);
 	}
 
 	@Override

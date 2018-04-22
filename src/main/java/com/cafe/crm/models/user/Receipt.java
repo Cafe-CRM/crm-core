@@ -23,7 +23,6 @@ public class Receipt {
     private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    //@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shift_id", nullable = false)
     private Shift shift;
 

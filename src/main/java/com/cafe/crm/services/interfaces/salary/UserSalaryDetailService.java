@@ -11,6 +11,7 @@ public interface UserSalaryDetailService {
 	void save(List<UserSalaryDetail> userSalaryDetails);
 	List<UserSalaryDetail> findByShiftId(Long shiftId);
 	List<UserSalaryDetail> findPaidDetailsByShiftId(Long shiftId);
+	UserSalaryDetail findPaidDetailsByUserIdAndShiftId(Long shiftId, Long userId);
 	UserSalaryDetail findFirstByUserIdAndShiftId(Long userId, Long shiftId);
 	UserSalaryDetail findFirstUnpaidByUserIdAndShiftId(Long userId, Long shiftId);
 	List<UserSalaryDetail> findByUserIdAndShiftIdBetween(Long userId, Long from, Long to);

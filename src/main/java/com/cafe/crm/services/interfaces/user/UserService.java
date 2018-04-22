@@ -6,11 +6,14 @@ import com.cafe.crm.models.user.Position;
 import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public interface UserService {
 	void save(User user);
+
+	void save(Collection<User> users);
 
 	void save(User user, String positionsIds, String rolesIds, String isDefaultPassword);
 
@@ -55,7 +58,5 @@ public interface UserService {
 	Map<Role, List<User>> findAndSortUserByRoleWithSupervisor();
 
 	List<User> findByRoleIdAndOrderByLastName(Long roleId);
-
-	void resetSalaryData(List<User> users);
 
 }

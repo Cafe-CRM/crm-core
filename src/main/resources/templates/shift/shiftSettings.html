@@ -514,24 +514,15 @@
                                 <tr>
                                     <th><p th:align="center">#</p></th>
                                     <th><p th:align="center">Имя</p></th>
-                                    <th><p th:align="center">Зарплата</p></th>
-                                    <th><p th:align="center">Бонус</p></th>
+                                    <th><p th:align="center">Окладная часть</p></th>
+                                    <th><p th:align="center">Бонусная часть</p></th>
                                     <th style="text-align: center;">
                                         <input onchange="checkWorkers()" style="width: 20px;height: 20px;margin-top: 5px"
                                                id="checkAllWorker" type="checkbox"/>
                                     </th>
                                 </tr>
                                 <tbody id="salaryUsersTable" class="searchable">
-                                    <!--<tr th:each="user,iter:${usersOnShift}">
-                                        <td><p th:align="center" th:text="${iter.count}"></p></td>
-                                        <td><p th:align="center" th:text="${user.firstName + ' ' + user.lastName}"></p></td>
-                                        <td><p th:align="center" th:text="${user.balance}"></p></td>
-                                        <td><p th:align="center" th:text="${user.bonus}"></p></td>
-                                        <td style="text-align: center;">
-                                            <input name="clientsId" form="formCheckedWorkers" class="checkWorkerSalary" style="width: 20px;height: 20px;margin-top: 5px"
-                                                   th:id="${user.id}" th:value="${user.id}" type="checkbox"/>
-                                        </td>
-                                    </tr>-->
+
                                 </tbody>
                                 <tfoot>
                                     <tr>

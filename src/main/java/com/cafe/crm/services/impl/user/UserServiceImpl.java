@@ -24,10 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
@@ -86,6 +83,14 @@ public class UserServiceImpl implements UserService {
 	public void save(User user) {
 		setCompany(user);
 		userRepository.saveAndFlush(user);
+	}
+
+	@Override
+	public void save(Collection<User> users) {
+		for (User user : users) {
+			setCompany(user);
+		}
+		userRepository.save(users);
 	}
 
 	@Override
@@ -294,14 +299,6 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	@Override
-	public void resetSalaryData(List<User> users) {
-		for (User user : users) {
-			user.setBalance(0);
-			userRepository.save(user);
-		}
-	}
-
 	public boolean isValidPassword(String email, String oldPassword) {
 		User userInDataBase = findByUsername(email);
 		if (isBlank(oldPassword)) {
@@ -412,8 +409,10 @@ public class UserServiceImpl implements UserService {
 		User userInDatabase = userRepository.findOne(user.getId());
 		if (userInDatabase != null) {
 			user.setShifts(userInDatabase.getShifts());
-			user.setSalary(userInDatabase.getSalary());
-			user.setBonus(userInDatabase.getBonus());
+			user.setTotalSalary(userInDatabase.getTotalSalary());
+			user.setTotalBonus(userInDatabase.getTotalBonus());
+			user.setSalaryBalance(userInDatabase.getSalaryBalance());
+			user.setBonusBalance(userInDatabase.getBonusBalance());
 			user.setEnabled(userInDatabase.isEnabled());
 			user.setActivated(userInDatabase.isActivated());
 		}

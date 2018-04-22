@@ -168,8 +168,8 @@ public class ShiftServiceImpl implements ShiftService {
 		List<UserSalaryDetail> userSalaryDetails = new ArrayList<>();
 		for (Map.Entry<Long, Integer> entry : mapOfUsersIdsAndBonuses.entrySet()) {
 			User user = userService.findById(entry.getKey());
-			user.setBalance(user.getBalance() + user.getShiftSalary());
-			user.setBonus(user.getBonus() + entry.getValue());
+			user.setSalaryBalance(user.getSalaryBalance() + user.getShiftSalary());
+			user.setBonusBalance(user.getBonusBalance() + entry.getValue());
 			userService.save(user);
 		}
 
@@ -179,7 +179,7 @@ public class ShiftServiceImpl implements ShiftService {
 			int amountOfPositionsPercent = user.getPositions().stream().filter(Position::isPositionUsePercentOfSales).mapToInt(Position::getPercentageOfSales).sum();
 			int percent = (int) (allPrice * amountOfPositionsPercent) / 100;
 
-			user.setBalance(user.getBalance() + bonus + percent);
+			user.setSalaryBalance(user.getSalaryBalance() + percent);
 			UserSalaryDetail salaryDetail = shiftCalculationService.getUserSalaryDetail(user, percent, bonus, shift);
 			if (salaryDetailList == null) {
 				salaryDetailList = new ArrayList<>();

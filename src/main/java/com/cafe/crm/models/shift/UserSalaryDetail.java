@@ -10,19 +10,25 @@ public class UserSalaryDetail {
 	@GeneratedValue
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	private int balance;
+	private int totalSalary;
 
-	private int salary;
+	private int totalBonus;
 
 	private int shiftSalary;
 
 	private int shiftAmount;
 
-	private int bonus;
+	private int salaryBalance;
+
+	private int bonusBalance;
+
+	private int paidSalary = 0;
+
+	private int paidBonus = 0;
 
 	private boolean isPaidDetail;
 
@@ -30,14 +36,30 @@ public class UserSalaryDetail {
 	@JoinColumn(name = "shift_id", nullable = false)
 	private Shift shift;
 
-	public UserSalaryDetail(User user, int balance, int salary, int shiftSalary, int shiftAmount,
-							int bonus, Shift shift, boolean isPaidDetail) {
+	public UserSalaryDetail(User user, int totalSalary, int totalBonus, int salaryBalance, int bonusBalance,
+							int shiftSalary, int shiftAmount, Shift shift, boolean isPaidDetail) {
 		this.user = user;
-		this.balance = balance;
-		this.salary = salary;
+		this.totalSalary = totalSalary;
+		this.totalBonus = totalBonus;
 		this.shiftAmount = shiftAmount;
-		this.bonus = bonus;
+		this.salaryBalance = salaryBalance;
+		this.bonusBalance = bonusBalance;
 		this.shiftSalary = shiftSalary;
+		this.shift = shift;
+		this.isPaidDetail = isPaidDetail;
+	}
+
+	public UserSalaryDetail(User user, int totalSalary, int totalBonus, int salaryBalance, int bonusBalance,
+							int shiftSalary, int shiftAmount, int paidSalary, int paidBonus, Shift shift, boolean isPaidDetail) {
+		this.user = user;
+		this.totalSalary = totalSalary;
+		this.totalBonus = totalBonus;
+		this.shiftAmount = shiftAmount;
+		this.salaryBalance = salaryBalance;
+		this.bonusBalance = bonusBalance;
+		this.shiftSalary = shiftSalary;
+		this.paidSalary = paidSalary;
+		this.paidBonus = paidBonus;
 		this.shift = shift;
 		this.isPaidDetail = isPaidDetail;
 	}
@@ -61,20 +83,20 @@ public class UserSalaryDetail {
 		this.user = user;
 	}
 
-	public int getBalance() {
-		return balance;
+	public int getTotalSalary() {
+		return totalSalary;
 	}
 
-	public void setBalance(int balance) {
-		this.balance = balance;
+	public void setTotalSalary(int totalSalary) {
+		this.totalSalary = totalSalary;
 	}
 
-	public int getSalary() {
-		return salary;
+	public int getTotalBonus() {
+		return totalBonus;
 	}
 
-	public void setSalary(int salary) {
-		this.salary = salary;
+	public void setTotalBonus(int totalBonus) {
+		this.totalBonus = totalBonus;
 	}
 
 	public int getShiftSalary() {
@@ -93,12 +115,36 @@ public class UserSalaryDetail {
 		this.shiftAmount = shiftAmount;
 	}
 
-	public int getBonus() {
-		return bonus;
+	public int getSalaryBalance() {
+		return salaryBalance;
 	}
 
-	public void setBonus(int bonus) {
-		this.bonus = bonus;
+	public void setSalaryBalance(int salaryBalance) {
+		this.salaryBalance = salaryBalance;
+	}
+
+	public int getBonusBalance() {
+		return bonusBalance;
+	}
+
+	public void setBonusBalance(int bonusBalance) {
+		this.bonusBalance = bonusBalance;
+	}
+
+	public int getPaidSalary() {
+		return paidSalary;
+	}
+
+	public void setPaidSalary(int paidSalary) {
+		this.paidSalary = paidSalary;
+	}
+
+	public int getPaidBonus() {
+		return paidBonus;
+	}
+
+	public void setPaidBonus(int paidBonus) {
+		this.paidBonus = paidBonus;
 	}
 
 	public boolean isPaidDetail() {
@@ -124,12 +170,6 @@ public class UserSalaryDetail {
 
 		UserSalaryDetail detail = (UserSalaryDetail) o;
 
-		if (balance != detail.balance) return false;
-		if (salary != detail.salary) return false;
-		if (shiftSalary != detail.shiftSalary) return false;
-		if (shiftAmount != detail.shiftAmount) return false;
-		if (bonus != detail.bonus) return false;
-		if (isPaidDetail != detail.isPaidDetail) return false;
 		if (!id.equals(detail.id)) return false;
 		if (!user.equals(detail.user)) return false;
 		return shift.equals(detail.shift);
@@ -139,12 +179,6 @@ public class UserSalaryDetail {
 	public int hashCode() {
 		int result = id.hashCode();
 		result = 31 * result + user.hashCode();
-		result = 31 * result + balance;
-		result = 31 * result + salary;
-		result = 31 * result + shiftSalary;
-		result = 31 * result + shiftAmount;
-		result = 31 * result + bonus;
-		result = 31 * result + (isPaidDetail ? 1 : 0);
 		result = 31 * result + shift.hashCode();
 		return result;
 	}
