@@ -586,14 +586,13 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 			user.addSalaryDetail(paidDetail);
 		}
 
-		userService.save(salaryUsers);
-
 		CostCategory salaryCategory = costCategoryService.getSalaryCategory();
 		LocalDate lastDate = shiftService.getLastShiftDate();
 		Cost cost = new Cost(salaryCategory.getName(), totalCost, 1.0, salaryCategory, lastDate);
 
 		userSalaryDetailService.save(userSalaryDetails);
 		costService.save(cost);
+		userService.save(salaryUsers);
 
 	}
 

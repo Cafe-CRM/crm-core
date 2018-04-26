@@ -41,7 +41,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 	public CostCategory save(CostCategory costCategory) {
 		setCompany(costCategory);
 		checkForUniqueName(costCategory);
-		return checkSalaryStateAndSave(costCategory);
+		return costCategoryRepository.save(costCategory);
 	}
 
 	@Override
@@ -49,12 +49,11 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 		CostCategory editedCategory = costCategoryRepository.findOne(costCategory.getId());
 		if (editedCategory != null) {
 			editedCategory.setName(costCategory.getName());
-			setCompany(costCategory);
 		} else {
 			throw new CostCategoryDataException("Вы пытаетесь обновить несуществующую категорию!");
 		}
 
-		checkSalaryStateAndSave(costCategory);
+		costCategoryRepository.save(editedCategory);
 	}
 
 

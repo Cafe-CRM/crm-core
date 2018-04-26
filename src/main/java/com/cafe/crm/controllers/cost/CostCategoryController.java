@@ -53,7 +53,6 @@ public class CostCategoryController {
 		if (bindingResult.hasErrors()) {
 			return ResponseEntity.badRequest().body("Не удалось обновить категорию");
 		}
-		checkAsSalary(category.getId());
 		categoryService.update(category);
 		return ResponseEntity.ok("Категория успешно обновлена!");
 	}

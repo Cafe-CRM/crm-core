@@ -89,6 +89,8 @@ public class User extends BaseEntity {
 
 	private boolean enabled = true;
 
+	private int shiftAmount;
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
 	@NotTransform
 	private List<UserSalaryDetail> userSalaryDetail;
@@ -231,6 +233,14 @@ public class User extends BaseEntity {
 
 	public void addSalaryDetail(UserSalaryDetail detail) {
 		this.userSalaryDetail.add(detail);
+	}
+
+	public int getShiftAmount() {
+		return shiftAmount;
+	}
+
+	public void setShiftAmount(int shiftAmount) {
+		this.shiftAmount = shiftAmount;
 	}
 
 	@Override

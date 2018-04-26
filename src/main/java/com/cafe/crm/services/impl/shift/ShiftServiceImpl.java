@@ -178,6 +178,8 @@ public class ShiftServiceImpl implements ShiftService {
 			int bonus = mapOfUsersIdsAndBonuses.get(user.getId());
 			int amountOfPositionsPercent = user.getPositions().stream().filter(Position::isPositionUsePercentOfSales).mapToInt(Position::getPercentageOfSales).sum();
 			int percent = (int) (allPrice * amountOfPositionsPercent) / 100;
+			int shiftAmount = user.getShiftAmount() + 1;
+			user.setShiftAmount(shiftAmount);
 
 			user.setSalaryBalance(user.getSalaryBalance() + percent);
 			UserSalaryDetail salaryDetail = shiftCalculationService.getUserSalaryDetail(user, percent, bonus, shift);
@@ -187,7 +189,6 @@ public class ShiftServiceImpl implements ShiftService {
 			salaryDetailList.add(salaryDetail);
 			userSalaryDetails.add(salaryDetail);
 			user.setUserSalaryDetail(salaryDetailList);
-			userService.save(user);
 		}
 		List<NoteRecord> noteRecords = saveAndGetNoteRecords(mapOfNoteNameAndValue, shift);
 		shift.setBankCashBox(bankCashBox);
@@ -198,6 +199,7 @@ public class ShiftServiceImpl implements ShiftService {
 		shift.setOpen(false);
 		shiftRepository.saveAndFlush(shift);
 		userSalaryDetailService.save(userSalaryDetails);
+		userService.save(usersOnShift);
 		return shift;
 	}
 
