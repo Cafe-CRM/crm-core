@@ -204,7 +204,7 @@ public class UserAccountingController {
 					.append(" ")
 					.append(user.getLastName())
 					.append(" - ")
-					.append(user.getSalary());
+					.append(user.getBonusBalance() + user.getSalaryBalance());
 		}
 
 		logger.info(salaryUsersInfo.toString());

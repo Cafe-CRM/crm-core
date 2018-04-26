@@ -438,6 +438,7 @@ public class UserServiceImpl implements UserService {
 			user.setBonusBalance(userInDatabase.getBonusBalance());
 			user.setEnabled(userInDatabase.isEnabled());
 			user.setActivated(userInDatabase.isActivated());
+			user.setShiftAmount(userInDatabase.getShiftAmount());
 		}
 	}
 }
