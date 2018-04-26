@@ -2,6 +2,7 @@ package com.cafe.crm.services.impl.menu;
 
 import com.cafe.crm.dto.WrapperOfProduct;
 import com.cafe.crm.models.company.Company;
+import com.cafe.crm.models.menu.Ingredients;
 import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.models.user.Position;
 import com.cafe.crm.repositories.menu.ProductRepository;
@@ -41,6 +42,11 @@ public class ProductServiceImpl implements ProductService {
 		return productRepository.findByDeletedIsFalseAndCompanyId(companyIdCache.getCompanyId());
 	}
 
+	@Override
+	public List<Product> saveAll(List<Product> products) {
+		return productRepository.save(products);
+	}
+
 	private void setCompany(Product product){
 		Long companyId = companyIdCache.getCompanyId();
 		Company company = companyService.findOne(companyId);
@@ -48,9 +54,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void saveAndFlush(Product product) {
+	public Product saveAndFlush(Product product) {
 		setCompany(product);
-		productRepository.saveAndFlush(product);
+		return productRepository.saveAndFlush(product);
 	}
 
 	@Override
@@ -65,7 +71,16 @@ public class ProductServiceImpl implements ProductService {
 			product.setDeleted(true);
 			saveAndFlush(product);
 		}
-		//productRepository.delete(id);
+	}
+
+	@Override
+	public void deleteIngredientFromProducts(List<Product> products, Ingredients ingredients) {
+		for (Product product : products) {
+			Map<Ingredients, Double> receiptMap = product.getRecipe();
+			receiptMap.remove(ingredients);
+			product.setRecipe(receiptMap);
+		}
+		saveAll(products);
 	}
 
 	@Override
@@ -101,6 +116,11 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<Product> findByIds(long[] ids) {
 		return productRepository.findByIdIn(ids);
+	}
+
+	@Override
+	public List<Product> findAllReceiptProducts(Ingredients ingredient) {
+		return productRepository.findAllReceiptProducts(ingredient);
 	}
 
 }

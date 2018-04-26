@@ -2,6 +2,7 @@ package com.cafe.crm.services.interfaces.user;
 
 
 import com.cafe.crm.dto.ExtraUserData;
+import com.cafe.crm.dto.UserLoggingDTO;
 import com.cafe.crm.models.user.Position;
 import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
@@ -58,5 +59,7 @@ public interface UserService {
 	Map<Role, List<User>> findAndSortUserByRoleWithSupervisor();
 
 	List<User> findByRoleIdAndOrderByLastName(Long roleId);
+
+	UserLoggingDTO transformUserToLogDTO(User user);
 
 }

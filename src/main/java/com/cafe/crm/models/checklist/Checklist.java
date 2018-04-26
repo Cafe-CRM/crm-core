@@ -63,7 +63,7 @@ public class Checklist extends BaseEntity {
 					", onOpenShiftText= " + onOpenShiftText;
 		} else {
 			return 	"id=" + id +
-					", onOpenShiftText= " + onCloseShiftText;
+					", onCloseShiftText= " + onCloseShiftText;
 		}
 
 	}

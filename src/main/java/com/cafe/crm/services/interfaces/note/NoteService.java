@@ -13,5 +13,7 @@ public interface NoteService {
 
 	void delete(Long id);
 
-	void changeStatus(Long id, boolean enable);
+	Note changeStatus(Long id, boolean enable);
+
+	Note getOne(Long id);
 }

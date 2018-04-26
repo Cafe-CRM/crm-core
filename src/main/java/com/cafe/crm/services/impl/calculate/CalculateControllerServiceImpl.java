@@ -60,7 +60,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	private final ProductService productService;
 	private final IngredientsService ingredientsService;
 	private final ConfirmTokenService confirmTokenService;
-	private final MenuCalculateControllerService menuCalculateControllerService;
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalculateControllerServiceImpl.class);
 
@@ -79,8 +78,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 										  PriceNameProperties priceNameProperties,
 										  ProductService productService,
 										  IngredientsService ingredientsService,
-										  ConfirmTokenService confirmTokenService,
-										  MenuCalculateControllerService menuCalculateControllerService) {
+										  ConfirmTokenService confirmTokenService) {
 		this.debtService = debtService;
 		this.calculatePriceService = calculatePriceService;
 		this.emailService = emailService;
@@ -96,7 +94,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		this.productService = productService;
 		this.ingredientsService = ingredientsService;
 		this.confirmTokenService = confirmTokenService;
-		this.menuCalculateControllerService = menuCalculateControllerService;
 	}
 
 	@Override
@@ -166,7 +163,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		calculate.setClient(list1);
 		shiftService.getLast().getClients().addAll(list);
 		calculateService.save(calculate);
-		//System.arraycopy();
 	}
 
 	@Override
@@ -286,7 +282,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		List<Client> listClient = clientService.findByIdIn(clientsId);
 
 		for (Client client : listClient) {
-
 			allPrice += client.getAllPrice();
 		}
 
@@ -414,6 +409,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		Shift lastShift = shiftService.getLast();
+		Calculate calculate = calculateService.getOne(calculateId);
 		double totalDebtAmount = 0.0D;
 
 		if (clients != null && !clients.isEmpty()) {
@@ -437,9 +433,12 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			debt.setDebtor(debtorName);
 			debt.setDebtAmount(totalDebtAmount);
 			debt.setShift(lastShift);
+			debt.setCalculate(calculate);
 			lastShift.addGivenDebtToList(debt);
-			findLeastOneOpenClientAndCloseCalculation(calculateId);
+			calculate.addGivenDebtToSet(debt);
 			debtService.save(debt);
+
+			findLeastOneOpenClientAndCloseCalculation(calculateId);
 		} else {
 			throw new DebtDataException("Не найдено ни одного клиента в базе!");
 		}
@@ -528,8 +527,10 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients = calculate.getClient();
+		Set<Debt> debts = calculate.getDebts();
 		Set<LayerProduct> products = new HashSet<>();
 		logger.info("Удаление стола с описанием: " + calculate.getDescription() + " и id: " + calculate.getId());
+
 		for (Client client : clients) {
 			if (client.isState() || !client.isDeleteState()) {
 				client.setState(false);
@@ -537,8 +538,14 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 				products.addAll(client.getLayerProducts());
 			}
 		}
+
+		for (Debt debt : debts) {
+			debt.setVisible(false);
+		}
+
 		checkIngredients(products);
 		clientService.saveAll(clients);
+		debtService.saveAll(debts);
 		calculate.setState(false);
 		calculateService.save(calculate);
 	}

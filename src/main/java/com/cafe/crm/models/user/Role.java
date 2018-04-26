@@ -1,11 +1,15 @@
 package com.cafe.crm.models.user;
 
+import com.cafe.crm.dto.RoleDTO;
+import com.cafe.crm.dto.UserDTO;
+import com.yc.easytransformer.annotations.Transform;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "roles")
+@Transform(RoleDTO.class)
 public class Role {
 	@Id
 	@GeneratedValue
@@ -55,9 +59,6 @@ public class Role {
 
 	@Override
 	public String toString() {
-		return "Role{" +
-				"id=" + id +
-				", name='" + name + '\'' +
-				'}';
+		return name;
 	}
 }

@@ -34,7 +34,41 @@
                     <button id="buttonCardEnable" type="button" class="btn btn-success center-block">Обновить</button>
                 </td>
             </tr>
-            <th:block  th:each="property: ${properties}">
+
+            <tr th:each="property: ${properties}" style="font-size: 20px">
+                <form th:id="'formProperty'+${property.id}">
+                    <input type="hidden" th:value="${property.id}" name="id"/>
+                    <input type="hidden" th:value="${property.name}" name="name"/>
+                    <td th:align="center" th:text="${property.name}"></td>
+
+
+                    <td th:align="center">
+                        <input style="width: 100px" type="number" required="" class="form-control form2" name="value"
+                               th:value="${property.value}" title="только цифры" min="0"/>
+                    </td>
+                    <td>
+
+
+                        <div th:align="center" th:if="${property.enable} != null">
+                                <input type="checkbox" data-toggle="toggle" data-on="Вкл" data-off="Выкл"
+                                       th:attrappend="checked=${property.enable} ? checked " th:value="true"
+                                       name="enable"/>
+                                <input type='hidden' value='false' name='enable'/>
+                            </div>
+                            <div th:align="center" th:text="${property.enable == null} ? '-------'" th:unless="${property.enable} != null">
+                                <input type="hidden" th:value="null"/>
+                            </div>
+
+
+                    </td>
+                    <td th:align="center" >
+                        <button type="button" th:attr="data-id=${property.id}" class="btn btn-success center-block buttonPropertyRefresh">Обновить</button>
+                    </td>
+                </form>
+
+            </tr>
+
+            <!--<th:block  th:each="property: ${properties}">
                 <tr style="font-size: 20px">
                     <form th:id="'formProperty'+${property.id}">
                         <input type="hidden" th:value="${property.id}" name="id"/>
@@ -47,22 +81,18 @@
                                    th:value="${property.value}" title="только цифры" min="0"/>
                         </td>
                         <td>
-                            <div th:align="center" th:if="${property.enable} != null">
-                                <input type="checkbox" data-toggle="toggle" data-on="Вкл" data-off="Выкл"
-                                       th:attrappend="checked=${property.enable} ? checked " th:value="true"
-                                       name="enable"/>
-                                <input type='hidden' value='false' name='enable'/>
-                            </div>
-                            <div th:align="center" th:text="${property.enable == null} ? '-------'" th:unless="${property.enable} != null">
-                                <input type="hidden" th:value="null"/>
-                            </div>
+
+
+
+
+
                         </td>
                         <td th:align="center" >
                             <button type="button" th:attr="data-id=${property.id}" class="btn btn-success center-block buttonPropertyRefresh">Обновить</button>
                         </td>
                     </form>
                 </tr>
-            </th:block>
+            </th:block>-->
 
             </tbody>
         </table>

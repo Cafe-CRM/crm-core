@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface PositionService {
 
-	void save(Position position);
+	Position save(Position position);
 
 	List<Position> findAll();
 

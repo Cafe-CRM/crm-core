@@ -9,6 +9,8 @@ import com.cafe.crm.models.cost.Cost;
 import com.cafe.crm.models.note.NoteRecord;
 import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.models.user.User;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.time.LocalDate;

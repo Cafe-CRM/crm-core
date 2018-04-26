@@ -6,11 +6,15 @@ import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.card.Card;
 import com.yc.easytransformer.annotations.NotTransform;
 import com.yc.easytransformer.annotations.Transform;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "calculation")
@@ -44,7 +48,15 @@ public class Calculate extends BaseEntity {
 	@Column(name = "profit_recalculation")
 	private double profitRecalculation;
 
+	//@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER)
+	private Set<Debt> debts = new HashSet<>();
+
 	public Calculate() {
+	}
+
+	public void addGivenDebtToSet(Debt debt) {
+		this.debts.add(debt);
 	}
 
 	public boolean isPause() {
@@ -117,6 +129,14 @@ public class Calculate extends BaseEntity {
 
 	public void setProfitRecalculation(double profitRecalculation) {
 		this.profitRecalculation = profitRecalculation;
+	}
+
+	public Set<Debt> getDebts() {
+		return debts;
+	}
+
+	public void setDebts(Set<Debt> debts) {
+		this.debts = debts;
 	}
 
 	@Override

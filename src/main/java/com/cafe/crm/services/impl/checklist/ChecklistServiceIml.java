@@ -38,30 +38,34 @@ public class ChecklistServiceIml implements ChecklistService{
 	}
 
 	@Override
-	public void saveChecklistOnCloseShift(String text) {
+	public Checklist saveChecklistOnCloseShift(String text) {
 		Checklist checklist = new Checklist();
 		checklist.setOnCloseShiftText(text);
 		setCompany(checklist);
-		checklistRepository.save(checklist);
+		return checklistRepository.save(checklist);
 	}
 
 	@Override
-	public void saveChecklistOnOpenShift(String text) {
+	public Checklist saveChecklistOnOpenShift(String text) {
 		Checklist checklist = new Checklist();
 		checklist.setOnOpenShiftText(text);
 		setCompany(checklist);
-		checklistRepository.save(checklist);
+		return checklistRepository.save(checklist);
 	}
 
 	@Override
-	public void update(Checklist checklist) {
+	public Checklist update(Checklist checklist) {
 		Checklist checklistFromDB = checklistRepository.findOne(checklist.getId());
+		Checklist presentCheckList;
+
 		if (checklistFromDB != null) {
 			setCompany(checklist);
-			checklistRepository.save(checklist);
+			presentCheckList = checklistRepository.save(checklist);
 		} else {
 			throw new ChecklistDataException("Не найден указанный параметр");
 		}
+
+		return presentCheckList;
 	}
 
 	@Override

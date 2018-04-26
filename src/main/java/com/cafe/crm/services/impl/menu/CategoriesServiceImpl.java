@@ -45,9 +45,9 @@ public class CategoriesServiceImpl implements CategoriesService {
 	}
 
 	@Override
-	public void saveAndFlush(Category category) {
+	public Category saveAndFlush(Category category) {
 		setCompany(category);
-		categoryRepository.saveAndFlush(category);
+		return categoryRepository.saveAndFlush(category);
 	}
 
 	@Override

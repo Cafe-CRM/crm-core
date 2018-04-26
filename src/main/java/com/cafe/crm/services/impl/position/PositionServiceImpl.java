@@ -37,10 +37,10 @@ public class PositionServiceImpl implements PositionService {
 	}
 
 	@Override
-	public void save(Position position) {
+	public Position save(Position position) {
 		setCompany(position);
 		checkForUniqueName(position);
-		positionRepository.saveAndFlush(position);
+		return positionRepository.saveAndFlush(position);
 	}
 
 	@Override

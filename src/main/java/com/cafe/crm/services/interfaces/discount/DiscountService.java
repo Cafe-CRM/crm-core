@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DiscountService {
 
-	void save(Discount discount);
+	Discount save(Discount discount);
 
 	void delete(Discount discount);
 

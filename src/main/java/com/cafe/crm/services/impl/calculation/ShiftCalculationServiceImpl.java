@@ -121,6 +121,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		Set<Calculate> allCalculate = new HashSet<>();
 		Map<Client, ClientDetails> clientsOnDetails = new HashMap<>();
 		List<Cost> otherCost = new ArrayList<>();
+		List<Cost> salaryCost = new ArrayList<>();
 		List<Debt> givenDebts = new ArrayList<>();
 		List<Debt> repaidDebt = new ArrayList<>();
 		List<Receipt> receiptAmount = new ArrayList<>();
@@ -138,6 +139,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 			receiptAmount.addAll(receiptService.findByShiftId(shift.getId()));
 			alteredCashAmount += shift.getAlteredCashAmount();
 		}
+
 		clientsOnDetails = getClientsOnDetails(allCalculate);
 		givenDebts.removeAll(repaidDebt);
 

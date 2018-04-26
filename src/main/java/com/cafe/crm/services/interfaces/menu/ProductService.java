@@ -1,6 +1,7 @@
 package com.cafe.crm.services.interfaces.menu;
 
 import com.cafe.crm.dto.WrapperOfProduct;
+import com.cafe.crm.models.menu.Ingredients;
 import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.models.user.Position;
 
@@ -12,11 +13,15 @@ public interface ProductService {
 
 	List<Product> findAll();
 
-	void saveAndFlush(Product product);
+	List<Product> saveAll(List<Product> products);
+
+	Product saveAndFlush(Product product);
 
 	Product findOne(Long id);
 
 	void delete(Long id);
+
+	void deleteIngredientFromProducts(List<Product> products, Ingredients ingredients);
 
 	Product findByNameAndDescriptionAndCost(String name, String description, Double cost);
 
@@ -27,4 +32,6 @@ public interface ProductService {
 	Map<Position,Integer> createStaffPercent(WrapperOfProduct wrapper);
 
 	List<Product> findByIds(long[] ids);
+
+	List<Product> findAllReceiptProducts(Ingredients ingredient);
 }

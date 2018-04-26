@@ -53,12 +53,18 @@ public class NoteServiceImpl implements NoteService {
 	}
 
 	@Override
-	public void changeStatus(Long id, boolean enable) {
+	public Note changeStatus(Long id, boolean enable) {
 		Note note = noteRepository.findOne(id);
 		if (note != null) {
 			note.setEnable(enable);
 			noteRepository.save(note);
 		}
+		return note;
+	}
+
+	@Override
+	public Note getOne(Long id) {
+		return noteRepository.getOne(id);
 	}
 
 }

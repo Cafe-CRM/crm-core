@@ -5,6 +5,7 @@ import com.cafe.crm.models.property.Property;
 import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,8 @@ public class VkPropertiesSettingsController {
 
 	private final PropertyService propertyService;
 	private final VkProperties generalVkProperties;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(VkPropertiesSettingsController.class);
 
 	@Value("${property.name.vk}")
 	private String vkPropertyName;
@@ -47,6 +50,8 @@ public class VkPropertiesSettingsController {
 		property.setValue(vkPropertyValueAsString);
 		propertyService.save(property);
 		VkProperties.copy(newVkProperties, generalVkProperties);
+
+		logger.info("В настройках vk произошли изменения!");
 
 		return "redirect:" + request.getHeader("Referer");
 	}

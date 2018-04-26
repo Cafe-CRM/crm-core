@@ -1,7 +1,11 @@
 package com.cafe.crm.models.client;
 
 import com.cafe.crm.models.BaseEntity;
+import com.cafe.crm.models.menu.Category;
 import com.cafe.crm.models.shift.Shift;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -25,9 +29,13 @@ public class Debt extends BaseEntity {
 
 	private boolean visible = true;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shift_id", nullable = false)
 	private Shift shift;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "calculate_id")
+	private Calculate calculate;
 
 	public Debt() {
 	}
@@ -80,6 +88,14 @@ public class Debt extends BaseEntity {
 
 	public void setShift(Shift shift) {
 		this.shift = shift;
+	}
+
+	public Calculate getCalculate() {
+		return calculate;
+	}
+
+	public void setCalculate(Calculate calculate) {
+		this.calculate = calculate;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import com.cafe.crm.exceptions.services.NullInputsIngredientsServiceException;
 import com.cafe.crm.models.company.Company;
 import com.cafe.crm.models.menu.Ingredients;
 import com.cafe.crm.dto.WrapperOfProduct;
+import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.repositories.menu.IngredientsRepository;
 import com.cafe.crm.services.interfaces.company.CompanyService;
 import com.cafe.crm.services.interfaces.menu.IngredientsService;
@@ -25,7 +26,8 @@ public class IngredientsServiceImpl implements IngredientsService {
 	private final CompanyIdCache companyIdCache;
 
 	@Autowired
-	public IngredientsServiceImpl(IngredientsRepository ingredientsRepository, CompanyService companyService, CompanyIdCache companyIdCache) {
+	public IngredientsServiceImpl(IngredientsRepository ingredientsRepository, CompanyService companyService,
+								  CompanyIdCache companyIdCache) {
 		this.ingredientsRepository = ingredientsRepository;
 		this.companyService = companyService;
 		this.companyIdCache = companyIdCache;

@@ -2,6 +2,9 @@ package com.cafe.crm.services.impl.user;
 
 
 import com.cafe.crm.dto.ExtraUserData;
+import com.cafe.crm.dto.PositionDTO;
+import com.cafe.crm.dto.RoleDTO;
+import com.cafe.crm.dto.UserLoggingDTO;
 import com.cafe.crm.exceptions.user.UserDataException;
 import com.cafe.crm.models.company.Company;
 import com.cafe.crm.models.user.Position;
@@ -13,6 +16,7 @@ import com.cafe.crm.services.interfaces.position.PositionService;
 import com.cafe.crm.services.interfaces.role.RoleService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.utils.CompanyIdCache;
+import com.yc.easytransformer.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -40,6 +44,7 @@ public class UserServiceImpl implements UserService {
 	private final CompanyService companyService;
 	private CompanyIdCache companyIdCache;
 	private final CacheManager cacheManager;
+	private final Transformer transformer;
 
 
 	@Autowired
@@ -50,11 +55,12 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, CompanyService companyService,
-						   CacheManager cacheManager) {
+						   CacheManager cacheManager, Transformer transformer) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.companyService = companyService;
 		this.cacheManager = cacheManager;
+		this.transformer = transformer;
 
 	}
 
@@ -297,6 +303,23 @@ public class UserServiceImpl implements UserService {
 				sessionRegistry.getAllSessions(principal, false).forEach(SessionInformation::expireNow);
 			}
 		}
+	}
+
+	@Override
+	public UserLoggingDTO transformUserToLogDTO(User user) {
+		UserLoggingDTO dto = transformer.transform(user, UserLoggingDTO.class);
+
+		for (Position position : user.getPositions()) {
+			PositionDTO positionDTO = transformer.transform(position, PositionDTO.class);
+			dto.addPosition(positionDTO);
+		}
+
+		for (Role role : user.getRoles()) {
+			RoleDTO roleDTO = transformer.transform(role, RoleDTO.class);
+			dto.addRole(roleDTO);
+		}
+
+		return dto;
 	}
 
 	public boolean isValidPassword(String email, String oldPassword) {

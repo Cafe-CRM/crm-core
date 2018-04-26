@@ -11,7 +11,7 @@ public interface CategoriesService {
 
 	Category getOne(Long id);
 
-	void saveAndFlush(Category category);
+	Category saveAndFlush(Category category);
 
 	void delete(Long id);
 

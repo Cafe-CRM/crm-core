@@ -36,9 +36,14 @@ public class PropertyServiceImpl implements PropertyService {
 	}
 
 	@Override
-	public void save(Property property) {
+	public Property getOne(Long id) {
+		return propertyRepository.getOne(id);
+	}
+
+	@Override
+	public Property save(Property property) {
 		setCompanyId(property);
-		propertyRepository.saveAndFlush(property);
+		return propertyRepository.saveAndFlush(property);
 	}
 
 	@Override

@@ -6,10 +6,13 @@ import com.cafe.crm.models.shift.Shift;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 public interface DebtService {
 
 	void save(Debt debt);
+
+	void saveAll(Set<Debt> debts);
 
 	void delete(Debt debt);
 
