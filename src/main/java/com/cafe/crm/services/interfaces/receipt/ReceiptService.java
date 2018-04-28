@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ReceiptService {
 
-    void save(Receipt receipt);
+    Receipt save(Receipt receipt);
 
     void delete(Receipt receipt);
 

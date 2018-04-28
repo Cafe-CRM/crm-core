@@ -31,10 +31,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -94,6 +91,8 @@ public class ShiftController {
                              @RequestParam(name = "bankCashBox", required = false) Double bankCashBox,
                              Authentication authentication) {
         Shift lastShift = shiftService.getLast();
+        List<User> users = null;
+        Shift newShift;
         if (lastShift != null && lastShift.isOpen()) {
             return "redirect:/manager";
         }
@@ -103,10 +102,33 @@ public class ShiftController {
         }
         if (usersIdsOnShift == null) {
             User user = userService.findByEmail(authentication.getName());
-            shiftService.createNewShift(cashBox, bankCashBox, user.getId());
+            newShift = shiftService.createNewShift(cashBox, bankCashBox, user.getId());
         } else {
-            shiftService.createNewShift(cashBox, bankCashBox, usersIdsOnShift);
+            users = userService.findByIdIn(usersIdsOnShift);
+            newShift = shiftService.createNewShift(cashBox, bankCashBox, usersIdsOnShift);
         }
+
+        StringBuilder shiftOpenInfo = new StringBuilder("Смена с id: " + newShift.getId() +
+                " открыта " + newShift.getShiftDate() + "\n");
+
+        if (users != null) {
+            shiftOpenInfo.append("Сотрудники на смене: \n");
+
+            for (User user : users) {
+                shiftOpenInfo.append(user.getFirstName())
+                        .append(" ")
+                        .append(user.getLastName())
+                        .append("\n");
+            }
+        }
+
+        shiftOpenInfo.append("Наличными: ")
+                .append(newShift.getCashBox())
+                .append("\n")
+                .append("На карте: ")
+                .append(newShift.getBankCashBox());
+
+        logger.info(shiftOpenInfo.toString());
 
         return "redirect:/manager";
     }
@@ -130,14 +152,18 @@ public class ShiftController {
 
     @RequestMapping(value = "/shift/deleteUser", method = RequestMethod.POST)
     public String deleteUserFromShift(@RequestParam(name = "userId") Long userId) {
-        shiftService.deleteUserFromShift(userId);
+        User user = shiftService.deleteUserFromShift(userId);
+
+        logger.info("Сотрудник с именем: " + user.getFirstName() + " " + user.getLastName() + " удалён со смены");
 
         return "redirect:/manager/shift/settings";
     }
 
     @RequestMapping(value = "/shift/addUser", method = RequestMethod.POST)
     public String addUserToShift(@RequestParam(name = "userId") Long userId) {
-        shiftService.addUserToShift(userId);
+        User user = shiftService.addUserToShift(userId);
+
+        logger.info("Сотрудник с именем: " + user.getFirstName() + " " + user.getLastName() + " добавлен на смену");
 
         return "redirect:/manager/shift/settings";
     }
@@ -174,7 +200,10 @@ public class ShiftController {
             List<User> users = userService.findByRoleName(EMAIL_RECIPIENT_ROLE_IN_CASE_SHORTAGE);
             emailService.sendCloseShiftInfoFromText(totalCashBox, cashBox, bankCashBox, payWithCard, allPrice, users, shortage);
         }
-        closeShiftAndSendDailyReport(shiftCloseDTO, allPrice, cashBox, bankCashBox);
+
+        String message = closeShiftAndSendDailyReport(shiftCloseDTO, allPrice, cashBox, bankCashBox);
+
+        logger.info(message);
 
         return "redirect:/login";
     }
@@ -204,9 +233,9 @@ public class ShiftController {
         return percentBonus == null ? 0 : percentBonus;
     }
 
-    private void closeShiftAndSendDailyReport(ShiftCloseDTO shiftCloseDTO, Double allPrice, Double cashBox, Double bankCashBox) {
+    private String closeShiftAndSendDailyReport(ShiftCloseDTO shiftCloseDTO, Double allPrice, Double cashBox, Double bankCashBox) {
         Shift shift = shiftService.closeShift(shiftCloseDTO.getMapOfUsersIdsAndBonuses(), allPrice, cashBox, bankCashBox, shiftCloseDTO.getComment(), shiftCloseDTO.getMapOfNoteNameAndValue());
-        vkService.sendDailyReportToConference(shift);
+        return vkService.sendDailyReportToConference(shift);
     }
 
 
@@ -215,11 +244,15 @@ public class ShiftController {
     public List<Object> recalculation(@RequestParam(name = "usersBonuses") Integer usersBonuses) {
         Shift lastShift = shiftService.getLast();
         ShiftView shiftView = shiftCalculationService.createShiftView(lastShift);
+
         int salaryWorkerOnShift = shiftView.getUsersTotalShiftSalary() + usersBonuses;
         Double totalCashBox = shiftView.getTotalCashBox() - usersBonuses;
         List<Object> result = new ArrayList<>();
         result.add(salaryWorkerOnShift);
         result.add(totalCashBox);
+
+        logger.info("Сумма бонусов на закрытии смены составляет: " + usersBonuses);
+
         return result;
     }
 
@@ -227,10 +260,23 @@ public class ShiftController {
     @RequestMapping(value = "/shift/edit/transferCashToBankCashBox", method = RequestMethod.POST)
     public List<Object> transferToBankCashBox(@RequestParam(name = "transferBankCashBox") Double transferBankCashBox) {
         Shift lastShift = shiftService.getLast();
+
+        double prevCashBox = lastShift.getCashBox();
+        double prevBankCashBox = lastShift.getBankCashBox();
+
         if (transferBankCashBox > lastShift.getCashBox()) {
             throw new TransferException("Сумма превышает допустимое значение средств в кассе!");
         } else {
 			shiftCalculationService.transferFromBankToCashBox(transferBankCashBox);
+
+            double nextCashBox = lastShift.getCashBox();
+            double nextBankCashBox = lastShift.getBankCashBox();
+
+            logger.info("Перевод на карту в размере: " + transferBankCashBox +
+                    "\nИзменение в кассе:" +
+                    "\nНаличные: " + prevCashBox + " -> " + nextCashBox +
+                    "\nНа карте: " + prevBankCashBox + " -> " + nextBankCashBox);
+
             List<Object> shiftRecalculationType = new ArrayList<>();
             shiftRecalculationType.add(lastShift.getCashBox());
             shiftRecalculationType.add(lastShift.getBankCashBox());
@@ -242,10 +288,23 @@ public class ShiftController {
     @RequestMapping(value = "/shift/edit/transferCashToCashBox", method = RequestMethod.POST)
     public List<Object> transferToCashBox(@RequestParam(name = "transferCashBox") Double transferCashBox) {
         Shift lastShift = shiftService.getLast();
+
+        double prevCashBox = lastShift.getCashBox();
+        double prevBankCashBox = lastShift.getBankCashBox();
+
         if (transferCashBox > lastShift.getBankCashBox()) {
             throw new TransferException("Сумма превышает допустимое значение средств  на карте!");
         } else {
 			shiftCalculationService.transferFromCashBoxToBank(transferCashBox);
+
+            double nextCashBox = lastShift.getCashBox();
+            double nextBankCashBox = lastShift.getBankCashBox();
+
+            logger.info("Снятие с карты в размере: " + transferCashBox +
+                    "\nИзменение в кассе:" +
+                    "\nНаличные: " + prevCashBox + " -> " + nextCashBox +
+                    "\nНа карте: " + prevBankCashBox + " -> " + nextBankCashBox);
+
             List<Object> shiftRecalculationType = new ArrayList<>();
             shiftRecalculationType.add(lastShift.getCashBox());
             shiftRecalculationType.add(lastShift.getBankCashBox());
@@ -309,11 +368,11 @@ public class ShiftController {
 		return "Открытие смены с изменением кассы. Смена id" + shiftId +
 				". Изменение кэшбокса: " +
 				prevCash +
-				" > " +
+				" -> " +
 				editCash +
 				". Изменение суммы на банковской карте: " +
 				prevBankCash +
-				" > " +
+				" -> " +
 				editBankCash;
 	}
 }

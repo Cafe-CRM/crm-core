@@ -45,7 +45,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 	}
 
 	@Override
-	public void update(CostCategory costCategory) {
+	public CostCategory update(CostCategory costCategory) {
 		CostCategory editedCategory = costCategoryRepository.findOne(costCategory.getId());
 		if (editedCategory != null) {
 			editedCategory.setName(costCategory.getName());
@@ -53,7 +53,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 			throw new CostCategoryDataException("Вы пытаетесь обновить несуществующую категорию!");
 		}
 
-		costCategoryRepository.save(editedCategory);
+		return costCategoryRepository.save(editedCategory);
 	}
 
 

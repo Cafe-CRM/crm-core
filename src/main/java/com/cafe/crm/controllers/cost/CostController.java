@@ -8,6 +8,7 @@ import com.cafe.crm.services.interfaces.cost.CostCategoryService;
 import com.cafe.crm.services.interfaces.cost.CostService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.utils.TimeManager;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -35,8 +36,11 @@ public class CostController {
 	private final ShiftService shiftService;
 	private final ChecklistService checklistService;
 
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CostController.class);
+
 	@Autowired
-	public CostController(CostService costService, CostCategoryService costCategoryService, TimeManager timeManager, ShiftService shiftService, ChecklistService checklistService) {
+	public CostController(CostService costService, CostCategoryService costCategoryService, TimeManager timeManager,
+						  ShiftService shiftService, ChecklistService checklistService) {
 		this.costService = costService;
 		this.costCategoryService = costCategoryService;
 		this.timeManager = timeManager;
@@ -132,7 +136,13 @@ public class CostController {
 			String fieldError = result.getFieldError().getDefaultMessage();
 			return ResponseEntity.badRequest().body("Не удалось добавить товар!\n" + fieldError);
 		}
-		costService.save(cost);
+		Cost savedCost = costService.save(cost);
+
+		logger.info("Расход с названием: \"" + savedCost.getName() + "\" и id: " + savedCost.getId() +
+				" был добавлен на смену с id: " + savedCost.getShift().getId() +
+				"\n Категория: " + savedCost.getCategory().getName() +
+				"\n Цена расхода: " + savedCost.getPrice() +
+				"\n Количество: " + savedCost.getQuantity());
 
 		return ResponseEntity.ok("Товар успешно добавлен!");
 	}
@@ -143,6 +153,16 @@ public class CostController {
 		if (result.hasErrors()) {
 			return ResponseEntity.badRequest().body("Не удалось изменить товар!");
 		}
+		Cost existedCost = costService.getOne(cost.getId());
+
+		logger.info("Расход с названием: \"" + existedCost.getName() + "\" и id: " + existedCost.getId() +
+				" добавленный на смене с id: " + existedCost.getCategory().getName() + "был изменён:" +
+				"\nКатегория: " + existedCost.getCategory().getName() + " -> " + cost.getCategory().getName() +
+				"\nНазвание: " + existedCost.getName() + " -> " + cost.getName() +
+				"\nЦена: " + existedCost.getPrice() + " -> " + cost.getPrice() +
+				"\nКоличество: " + existedCost.getQuantity() + " -> " + cost.getQuantity() +
+				"\nДата: " + existedCost.getDate() + " -> " + cost.getDate());
+
 		costService.update(cost);
 
 		return ResponseEntity.ok("Товар успешно изменен!");
@@ -151,7 +171,11 @@ public class CostController {
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> delete(@RequestParam(name = "costId") Long id) {
+		Cost existedCost = costService.getOne(id);
 		costService.delete(id);
+
+		logger.info("Расход с названием: \"" + existedCost.getName() + "\" и id: " + existedCost.getId() +
+				" добавленный " + existedCost.getDate() + "был удалён");
 
 		return ResponseEntity.ok("Расход успешно удален!");
 	}
@@ -160,12 +184,26 @@ public class CostController {
 	@ResponseBody
 	public ResponseEntity<?> deleteAll(@RequestParam(name = "ids") String ids) {
 		String[] strIds = ids.replace("[", "").replace("]", "").replace("\"", "").split(",");
+		List<Cost> deletedCost;
 		try {
 			long[] longIds = Arrays.stream(strIds).mapToLong(Long::parseLong).toArray();
-			costService.offVisibleStatus(longIds);
+			deletedCost = costService.offVisibleStatus(longIds);
 		} catch (NumberFormatException ex) {
 			return ResponseEntity.badRequest().body("Не удалось удалить товары!");
 		}
+
+		StringBuilder deletedCostInfo = new StringBuilder("На смене с датой: " + timeManager.getDate() +
+				" были удалены все расходы:\n");
+
+		for (Cost cost : deletedCost) {
+			deletedCostInfo.append("id: ")
+					.append(cost.getId())
+					.append(", название: \"")
+					.append(cost.getName())
+					.append("\"\n");
+		}
+
+		logger.info(deletedCostInfo.toString());
 
 		return ResponseEntity.ok("Товары успешно удалены!");
 	}

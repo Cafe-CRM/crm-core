@@ -27,7 +27,7 @@
         </td>
 
         <td sec:authorize="hasAuthority('BOSS') or hasAuthority('MANAGER')">
-            <button type="button" class="btn btn-danger deleteButton" data-toggle="modal" th:href="'#debtDelete' +${debts.id}"><span class="glyphicon glyphicon-trash"></span></button>
+            <button onclick="'sendToken()'" type="button" class="btn btn-danger deleteButton" data-toggle="modal" th:href="'#debtDelete' +${debts.id}"><span class="glyphicon glyphicon-trash"></span></button>
         </td>
 
         <div th:id="'debtDelete'+${debts.id}" class="modal fade" role="dialog" th:fragment="modalDelete">

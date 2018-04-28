@@ -129,22 +129,24 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public void deleteUserFromShift(Long userId) {
+    public User deleteUserFromShift(Long userId) {
         Shift shift = shiftRepository.getLastAndCompanyId(companyIdCache.getCompanyId());
         User user = userService.findById(userId);
         shift.getUsers().remove(user);
         user.getShifts().remove(shift);
         userSalaryDetailService.deleteByUserIdAndShiftId(userId, shift.getId());
         shiftRepository.saveAndFlush(shift);
+        return user;
     }
 
     @Override
-    public void addUserToShift(Long userId) {
+    public User addUserToShift(Long userId) {
         Shift shift = shiftRepository.getLastAndCompanyId(companyIdCache.getCompanyId());
         User user = userService.findById(userId);
         shift.getUsers().add(user);
         user.getShifts().add(shift);
         shiftRepository.saveAndFlush(shift);
+        return user;
     }
 
     @Transactional(readOnly = true)

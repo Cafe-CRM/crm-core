@@ -195,8 +195,6 @@ public class UserAccountingController {
 			throw new UserDataException("Выбраны несуществующие работники!");
 		}
 
-		shiftCalculationService.paySalary(salaryUsers);
-
 		StringBuilder salaryUsersInfo = new StringBuilder("Зарплаты выданы: \n");
 
 		for (User user : salaryUsers) {
@@ -204,10 +202,13 @@ public class UserAccountingController {
 					.append(" ")
 					.append(user.getLastName())
 					.append(" - ")
-					.append(user.getBonusBalance() + user.getSalaryBalance());
+					.append(user.getBonusBalance() + user.getSalaryBalance())
+					.append("\n");
 		}
 
 		logger.info(salaryUsersInfo.toString());
+
+		shiftCalculationService.paySalary(salaryUsers);
 
 		return allUsers;
 	}

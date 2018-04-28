@@ -40,10 +40,10 @@ public class DebtServiceImpl implements DebtService {
 	}
 
 	@Override
-	public void save(Debt debt) {
+	public Debt save(Debt debt) {
 		if (debt.getDebtAmount() > 0) {
 			setCompany(debt);
-			repository.save(debt);
+			return repository.save(debt);
 		} else {
 			throw new DebtDataException("Введена недопустимая сумма долга");
 		}
@@ -92,7 +92,7 @@ public class DebtServiceImpl implements DebtService {
 	}
 
 	@Override
-	public void repayDebt(Long id) {
+	public Debt repayDebt(Long id) {
 		Shift lastShift = shiftService.getLast();
 		Debt debt = repository.findOne(id);
 		lastShift.addRepaidDebtToList(debt);
@@ -102,5 +102,6 @@ public class DebtServiceImpl implements DebtService {
 		}
 		shiftService.saveAndFlush(lastShift);
 		offVisibleStatus(debt);
+		return debt;
 	}
 }

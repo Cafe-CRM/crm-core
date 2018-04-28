@@ -9,15 +9,17 @@ import java.util.Set;
 
 public interface CostService {
 
-	void save(Cost cost);
+	Cost save(Cost cost);
+
+	Cost getOne(Long costId);
 
 	void update(Cost cost);
 
 	void delete(Long id);
 
-	void offVisibleStatus(Long id);
+	Cost offVisibleStatus(Long id);
 
-	void offVisibleStatus(long[] ids);
+	List<Cost> offVisibleStatus(long[] ids);
 
 	List<Cost> findOtherCostByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to);
 

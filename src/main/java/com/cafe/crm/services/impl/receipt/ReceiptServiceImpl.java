@@ -25,11 +25,11 @@ public class ReceiptServiceImpl implements ReceiptService {
     }
 
     @Override
-    public void save(Receipt receipt) {
+    public Receipt save(Receipt receipt) {
 
         if (receipt.getReceiptAmount() > 0) {
             receipt.setShift(shiftService.getLast());
-            receiptRepository.save(receipt);
+            return receiptRepository.save(receipt);
         } else {
             throw new ReceiptDataException("Введена недопустимая сумма поступлений");
         }

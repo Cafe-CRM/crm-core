@@ -36,17 +36,17 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public void save(Client client) {
+	public Client save(Client client) {
 		setCompanyId(client);
-		clientRepository.saveAndFlush(client);
+		return clientRepository.saveAndFlush(client);
 	}
 
 	@Override
-	public void saveAll(List<Client> clients) {
+	public List<Client> saveAll(List<Client> clients) {
 		for (Client client: clients){
 			setCompanyId(client);
 		}
-		clientRepository.save(clients);
+		return clientRepository.save(clients);
 	}
 
 	@Override

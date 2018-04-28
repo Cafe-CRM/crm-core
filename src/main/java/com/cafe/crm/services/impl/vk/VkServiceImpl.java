@@ -110,17 +110,16 @@ public class VkServiceImpl implements VkService {
 	}
 
 	@Override
-	public void sendDailyReportToConference(Shift shift) {
+	public String sendDailyReportToConference(Shift shift) {
 		VkProperties vkProperties = getVkPropertiesFromDB();
 		if (vkProperties == null) {
 			throw new NullPointerException("Не удалось получить vk properties из базы");
 		}
 		Template messageTemplate = templateService.findByName(vkProperties.getMessageName());
 		if (messageTemplate == null) {
-			return;
+			throw new NullPointerException("Не удалось получить шаблон сообщения vk из базы");
 		}
 		String message = formatMessage(shift, new String(messageTemplate.getContent(), Charset.forName("UTF-8")));
-		System.out.println(message);
 		Map<String, String> variables = new HashMap<>();
 		variables.put("chat_id", vkProperties.getServiceChatId());
 		variables.put("message", message);
@@ -128,6 +127,8 @@ public class VkServiceImpl implements VkService {
 		variables.put("v", vkProperties.getApiVersion());
 		ResponseEntity<String> response = restTemplate.postForEntity(DAILY_REPORT_URL, null, String.class, variables);
 		checkForInvalidToken(response);
+
+		return message;
 	}
 
 	@Override

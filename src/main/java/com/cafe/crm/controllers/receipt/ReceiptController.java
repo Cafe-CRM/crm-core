@@ -110,7 +110,11 @@ public class ReceiptController {
 
 	@RequestMapping(value = "/addReceipt", method = RequestMethod.POST)
 	public ResponseEntity<?> saveReceipt(@ModelAttribute @Valid Receipt receipt) {
-		receiptService.save(receipt);
+		Receipt savedReceipt = receiptService.save(receipt);
+
+		logger.info("Добавление прихода с комментарием \"" + receipt.getReceiptComment() + "\" за " + receipt.getDate() +
+				" суммой " + receipt.getReceiptAmount());
+
 		return ResponseEntity.ok("Поступление успешно добавлено!");
 	}
 
@@ -129,7 +133,8 @@ public class ReceiptController {
 
 		if (receipt != null) {
 			receiptService.delete(receipt);
-			logger.info("Удаление прихода с комментарием " + receipt.getReceiptComment() + " за " + receipt.getDate() + " суммой " + receipt.getReceiptAmount());
+			logger.info("Удаление прихода с комментарием \"" + receipt.getReceiptComment() + "\" за " + receipt.getDate() +
+					" суммой " + receipt.getReceiptAmount());
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

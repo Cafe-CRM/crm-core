@@ -24,9 +24,9 @@ public interface ShiftService {
 
 	List<User> getUsersOnShift();
 
-	void deleteUserFromShift(Long userId);
+	User deleteUserFromShift(Long userId);
 
-	void addUserToShift(Long userId);
+	User addUserToShift(Long userId);
 
 	Shift getLast();
 

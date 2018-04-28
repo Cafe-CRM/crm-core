@@ -135,4 +135,55 @@
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </logger>
+
+    <!--manager.calculate-->
+    <logger name="com.cafe.crm.controllers.calculate.CalculateController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="com.cafe.crm.controllers.calculate.MenuCalculateController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!--manager.cost-->
+    <logger name="com.cafe.crm.controllers.cost.CostCategoryController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="com.cafe.crm.controllers.cost.CostController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!--manager.debt-->
+    <logger name="com.cafe.crm.controllers.debt.DebtController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!--manager.main-->
+    <logger name="com.cafe.crm.controllers.main.MainController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!--manager.receipt-->
+    <logger name="com.cafe.crm.controllers.receipt.ReceiptController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!--manager.rest-->
+    <logger name="com.cafe.crm.controllers.rest.TelegramBotController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!--manager.shift-->
+    <logger name="com.cafe.crm.controllers.shift.ShiftController" level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
 </configuration>

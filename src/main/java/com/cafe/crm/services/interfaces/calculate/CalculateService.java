@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CalculateService {
 
-	void save(Calculate calculate);
+	Calculate save(Calculate calculate);
 
 	void delete(Calculate calculate);
 

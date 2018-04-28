@@ -3,6 +3,7 @@ package com.cafe.crm.controllers.debt;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.exceptions.password.PasswordException;
+import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.property.Property;
 import com.cafe.crm.models.shift.Shift;
@@ -126,7 +127,20 @@ public class DebtController {
 		debt.setShift(lastShift);
 		lastShift.addGivenDebtToList(debt);
 
-		debtService.save(debt);
+		Debt savedDebt = debtService.save(debt);
+		Calculate calculate = savedDebt.getCalculate();
+		StringBuilder addDebtMessage = new StringBuilder("Долг с названием: \"" + savedDebt.getDebtor() + "\", суммой: "
+                + savedDebt.getDebtAmount() + " был добавлен " + savedDebt.getDate());
+
+		if (calculate != null) {
+		    addDebtMessage.append("\nСчёт долга: \n")
+                    .append("id: ")
+                    .append(calculate.getId())
+                    .append(", описание: ")
+                    .append(calculate.getDescription());
+        }
+
+        logger.info(addDebtMessage.toString());
 
 		return ResponseEntity.ok("Долг успешно добавлен!");
 	}
@@ -134,8 +148,11 @@ public class DebtController {
 	@RequestMapping(value = "/repay", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<?> repayDebts(@RequestParam(name = "debtId") Long id) {
+		Debt debt = debtService.repayDebt(id);
 
-		debtService.repayDebt(id);
+        logger.info("Долг \"" + debt.getDebtor() + "\" за " + debt.getDate() + " суммой: " + debt.getDebtAmount() +
+                " был возвращён");
+
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -154,7 +171,7 @@ public class DebtController {
 
 		if (debt != null) {
 			debtService.delete(debt);
-			logger.info("Удаление долга " + debt.getDebtor() + " за " + debt.getDate() + " суммой " + debt.getDebtAmount());
+			logger.info("Удаление долга \"" + debt.getDebtor() + "\" за " + debt.getDate() + " суммой: " + debt.getDebtAmount());
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

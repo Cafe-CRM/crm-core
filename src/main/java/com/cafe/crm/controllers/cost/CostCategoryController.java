@@ -4,6 +4,7 @@ import com.cafe.crm.exceptions.cost.category.CostCategoryDataException;
 import com.cafe.crm.models.cost.CostCategory;
 import com.cafe.crm.services.impl.company.configuration.step.CostCategoryStep;
 import com.cafe.crm.services.interfaces.cost.CostCategoryService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,8 +19,9 @@ import javax.validation.Valid;
 public class CostCategoryController {
 
 	private final CostCategoryService categoryService;
-
 	private final CostCategoryStep costCategoryStep;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CostCategoryController.class);
 
 	@Autowired
 	public CostCategoryController(CostCategoryService categoryService, CostCategoryStep costCategoryStep) {
@@ -43,7 +45,12 @@ public class CostCategoryController {
 			String fieldError = bindingResult.getFieldError().getDefaultMessage();
 			throw new CostCategoryDataException("Не удалось добавить товар " + fieldError);
 		}
-		categoryService.save(category);
+
+		CostCategory savedCategory = categoryService.save(category);
+
+		logger.info("В систему добавлена расходная категория с названием: \"" + savedCategory.getName() +
+				"\" и id: " + savedCategory.getId());
+
 		return ResponseEntity.ok("Категория успешно добавлена!");
 	}
 
@@ -53,14 +60,27 @@ public class CostCategoryController {
 		if (bindingResult.hasErrors()) {
 			return ResponseEntity.badRequest().body("Не удалось обновить категорию");
 		}
+
+		CostCategory costCategory = categoryService.find(category.getId());
+
+		logger.info("Расходная категория с id: " + costCategory.getId() + " была изменена:\n" +
+				"Название: " + costCategory.getName() + " -> " + category.getName() + "\n" +
+				"Зарплатная категория: " + costCategory.isSalaryCost() + " -> " + category.isSalaryCost());
+
 		categoryService.update(category);
+
 		return ResponseEntity.ok("Категория успешно обновлена!");
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public ResponseEntity<?> delete(@RequestParam(name = "id") Long id) {
 		checkAsSalary(id);
+		CostCategory costCategory = categoryService.find(id);
 		categoryService.delete(id);
+
+		logger.info("Категория с названием: " + costCategory.getName() + " и id: " + costCategory.getId() +
+				" была удалена из системы.");
+
 		return ResponseEntity.ok("Категория успешно удалена!");
 	}
 

@@ -1,5 +1,6 @@
 package com.cafe.crm.services.interfaces.calculate;
 
+import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 
 import java.util.List;
@@ -20,17 +21,17 @@ public interface CalculateControllerService {
 
 	List<Client> outputClients(long[] clientsId);
 
-	void closeClient(long[] clientsId, Long calculateId);
+	List<Client> closeClient(long[] clientsId, Long calculateId);
 
-	void closeClientList(List<Client> listClient, Long calculateId);
+	List<Client> closeClientList(List<Client> listClient, Long calculateId);
 
-	void closeNewSumClient(Double modifiedAmount, String password, long[] clientsId, Long calculateId);
+	List<Client> closeNewSumClient(Double modifiedAmount, String password, long[] clientsId, Long calculateId);
 
-	void closeAndRecalculate(Double modifiedAmount, String password, Long calculateId);
+	Calculate closeAndRecalculate(Double modifiedAmount, String password, Long calculateId);
 
 	void recalculate(Double modifiedAmount, String password, Long calculateId);
 
-	void closeClientDebt(String debtorName, long[] clientsId, Long calculateId, Double amountOfDebt);
+	List<Client> closeClientDebt(String debtorName, long[] clientsId, Long calculateId, Double amountOfDebt);
 
 	Long addCardOnClient(Long calculateId, Long clientId, Long cardId);
 
@@ -38,9 +39,9 @@ public interface CalculateControllerService {
 
 	void deleteCalculate(String password, Long calculateId);
 
-	void pauseClient(Long clientId);
+	Client pauseClient(Long clientId);
 
-	void unpauseClient(Long clientId);
+	Client unpauseClient(Long clientId);
 
 	String getClientsAndDesc();
 

@@ -32,9 +32,9 @@ public class CalculateServiceImpl implements CalculateService {
 	}
 
 	@Override
-	public void save(Calculate calculate) {
+	public Calculate save(Calculate calculate) {
 		setCompany(calculate);
-		calculateRepository.save(calculate);
+		return calculateRepository.save(calculate);
 	}
 
 	@Override

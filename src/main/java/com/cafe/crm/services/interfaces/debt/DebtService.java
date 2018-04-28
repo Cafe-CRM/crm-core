@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface DebtService {
 
-	void save(Debt debt);
+	Debt save(Debt debt);
 
 	void saveAll(Set<Debt> debts);
 
@@ -28,5 +28,5 @@ public interface DebtService {
 
 	List<Debt> findByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
 
-	void repayDebt(Long id);
+	Debt repayDebt(Long id);
 }

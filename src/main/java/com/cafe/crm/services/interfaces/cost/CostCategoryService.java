@@ -8,7 +8,7 @@ public interface CostCategoryService {
 
 	CostCategory save(CostCategory costCategory);
 
-	void update(CostCategory costCategory);
+	CostCategory update(CostCategory costCategory);
 
 	List<CostCategory> findAll();
 

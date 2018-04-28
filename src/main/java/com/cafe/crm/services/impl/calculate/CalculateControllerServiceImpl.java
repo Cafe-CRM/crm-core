@@ -217,7 +217,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	}
 
 	@Override
-	public void closeClient(long[] clientsId, Long calculateId) {
+	public List<Client> closeClient(long[] clientsId, Long calculateId) {
 
 		if (clientsId == null) {
 			throw new ClientDataException("Ошибка передачи клиентских ID");
@@ -232,11 +232,11 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 		sendBalanceInfoAfterDeduction(listClient, balanceBeforeDeduction);
 
-		closeClientList(listClient, calculateId);
+		return closeClientList(listClient, calculateId);
 	}
 
 	@Override
-	public void closeClientList(List<Client> listClient, Long calculateId) {
+	public List<Client> closeClientList(List<Client> listClient, Long calculateId) {
 		List<Card> listCard = new ArrayList<>();
 		for (Client client : listClient) {
 			if (client.isPause()) {
@@ -258,13 +258,15 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 
 		cardService.saveAll(listCard);
-		clientService.saveAll(listClient);
+		List<Client> clients = clientService.saveAll(listClient);
 
 		findLeastOneOpenClientAndCloseCalculation(calculateId);
+
+		return clients;
 	}
 
 	@Override
-	public void closeNewSumClient(Double modifiedAmount, String password, long[] clientsId, Long calculateId) {
+	public List<Client> closeNewSumClient(Double modifiedAmount, String password, long[] clientsId, Long calculateId) {
 		if (clientsId == null) {
 			throw new ClientDataException("Ошибка передачи клиентских ID");
 		}
@@ -289,18 +291,20 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			throw new ClientDataException("Нельзя указывать отрицательную сумму!");
 		} else if (modifiedAmount > allPrice){
 			double difference = modifiedAmount - allPrice;
-			calculate.setProfitRecalculation(difference);
+			double profitRecalculation = calculate.getProfitRecalculation();
+			calculate.setProfitRecalculation(difference + profitRecalculation);
 		} else {
 			double difference = allPrice - modifiedAmount;
-			calculate.setLossRecalculation(difference);
+			double lossRecalculation = calculate.getLossRecalculation();
+			calculate.setLossRecalculation(difference + lossRecalculation);
 		}
 
 		calculateService.save(calculate);
-		closeClient(clientsId, calculateId);
+		return closeClient(clientsId, calculateId);
 	}
 
 	@Override
-	public void closeAndRecalculate(Double modifiedAmount, String password, Long calculateId) {
+	public Calculate closeAndRecalculate(Double modifiedAmount, String password, Long calculateId) {
 		if (modifiedAmount == null || password.equals("")) {
 			throw new PasswordException("Поле суммы и пароля не могут быть пустыми!");
 		}
@@ -311,7 +315,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 		double allPrice = 0;
 		Calculate calculate = calculateService.getOne(calculateId);
-		List<Client> listClient = calculate.getClient();//.stream().filter(Client::isState).collect(Collectors.toList());
+		List<Client> listClient = calculate.getClient();
 
 		for (Client client : listClient) {
 			if (!client.isDeleteState()) {
@@ -335,9 +339,10 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			calculate.setLossRecalculation(lossRecalculation + difference);
 		}
 
-		calculateService.save(calculate);
+		Calculate savedCalculate = calculateService.save(calculate);
 		listClient = listClient.stream().filter(Client::isState).collect(Collectors.toList());
 		closeClientList(listClient, calculateId);
+		return savedCalculate;
 	}
 
 	@Override
@@ -402,7 +407,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	}
 
 	@Override
-	public void closeClientDebt(String debtorName, long[] clientsId, Long calculateId, Double paidAmount) {
+	public List<Client> closeClientDebt(String debtorName, long[] clientsId, Long calculateId, Double paidAmount) {
 		if (clientsId == null) {
 			throw new DebtDataException("Ошибка передачи Id клиентов!");
 		}
@@ -442,6 +447,8 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		} else {
 			throw new DebtDataException("Не найдено ни одного клиента в базе!");
 		}
+
+		return clients;
 	}
 
 	@Override
@@ -456,7 +463,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			products.addAll(client.getLayerProducts());
 			client.setDeleteState(true);
 			client.setState(false);
-			logger.info("Удаление клиента c описанием: " + client.getDescription() + " и id: " + client.getId());
 		}
 
 		checkIngredients(products);
@@ -607,7 +613,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	}
 
 	@Override
-	public void pauseClient(Long clientId) {
+	public Client pauseClient(Long clientId) {
 		Client client = clientService.getOne(clientId);
 		TimerOfPause timer = timerOfPauseService.findTimerOfPauseByIdOfClient(clientId);
 		if (timer == null) { // if this first pause on this calc
@@ -621,11 +627,11 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			client.setPause(true);
 		}
 		timerOfPauseService.save(timer);
-		clientService.save(client);
+		return clientService.save(client);
 	}
 
 	@Override
-	public void unpauseClient(Long clientId) {
+	public Client unpauseClient(Long clientId) {
 		Client client = clientService.getOne(clientId);
 		TimerOfPause timer = timerOfPauseService.findTimerOfPauseByIdOfClient(clientId);
 		Long timeOfPastPauses = timer.getWholeTimePause();
@@ -638,7 +644,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		client.setPause(false);
 
 		timerOfPauseService.save(timer);
-		clientService.save(client);
+		return clientService.save(client);
 	}
 
 	@Override

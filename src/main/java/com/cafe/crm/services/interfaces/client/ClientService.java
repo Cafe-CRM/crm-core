@@ -9,9 +9,9 @@ import java.util.Set;
 
 public interface ClientService {
 
-	void save(Client client);
+	Client save(Client client);
 
-	void saveAll(List<Client> clients);
+	List<Client> saveAll(List<Client> clients);
 
 	void delete(Client client);
 

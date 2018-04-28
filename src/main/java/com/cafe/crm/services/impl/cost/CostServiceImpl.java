@@ -48,7 +48,7 @@ public class CostServiceImpl implements CostService {
 	}
 
 	@Override
-	public void save(Cost cost) {
+	public Cost save(Cost cost) {
 		setCompanyId(cost);
 		String categoryName = cost.getCategory().getName().trim();
 		CostCategory categoryInDb = costCategoryService.find(categoryName);
@@ -64,7 +64,12 @@ public class CostServiceImpl implements CostService {
 				cost.setShift(shift);
 			}
 		}
-		costRepository.save(cost);
+		return costRepository.save(cost);
+	}
+
+	@Override
+	public Cost getOne(Long costId) {
+		return costRepository.getOne(costId);
 	}
 
 	@Override
@@ -82,17 +87,17 @@ public class CostServiceImpl implements CostService {
 	}
 
 	@Override
-	public void offVisibleStatus(Long id) {
+	public Cost offVisibleStatus(Long id) {
 		Cost cost = costRepository.getOne(id);
 		cost.setVisible(false);
-		costRepository.save(cost);
+		return costRepository.save(cost);
 	}
 
 	@Override
-	public void offVisibleStatus(long[] ids) {
+	public List<Cost> offVisibleStatus(long[] ids) {
 		List<Cost> costs = costRepository.findByIdIn(ids);
 		costs.forEach(goods -> goods.setVisible(false));
-		costRepository.save(costs);
+		return costRepository.save(costs);
 	}
 
 	@Override

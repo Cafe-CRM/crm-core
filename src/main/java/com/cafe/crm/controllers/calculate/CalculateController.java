@@ -3,6 +3,8 @@ package com.cafe.crm.controllers.calculate;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.exceptions.password.PasswordException;
+import com.cafe.crm.exceptions.transferDataException.TransferException;
+import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.discount.Discount;
@@ -20,6 +22,7 @@ import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
 import com.cafe.crm.utils.Target;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
@@ -37,6 +41,7 @@ import java.util.List;
 @RequestMapping("/manager")
 public class CalculateController {
 
+	private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 	private final ClientService clientService;
 	private final CalculateControllerService calculateControllerService;
 	private final CalculateService calculateService;
@@ -46,6 +51,8 @@ public class CalculateController {
 	private final CategoriesService categoriesService;
 	private final ChecklistService checklistService;
 	private final VkService vkService;
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalculateController.class);
 
 	@Autowired
 	public CalculateController(ProductService productService, ClientService clientService, CategoriesService categoriesService,
@@ -68,7 +75,7 @@ public class CalculateController {
 		ModelAndView modelAndView = new ModelAndView("client/clients");
 		modelAndView.addObject("listMenu", categoriesService.sortProductListAndGetAllCategories());
 		modelAndView.addObject("listProduct", productService.findAllOrderByRatingDesc());
-		modelAndView.addObject("listCalculate", calculateService.getAllOpen());
+		modelAndView.addObject("listCalculate", calculateService.getAllOpen());	//todo проблема здесь
 		modelAndView.addObject("listBoard", boardService.getAllOpen());
 		modelAndView.addObject("listDiscounts", discountService.getAllOpen());
 		modelAndView.addObject("stateClients", calculateControllerService.getClientsAndDesc());
@@ -79,15 +86,24 @@ public class CalculateController {
 
 	@RequestMapping(value = {"/pause"}, method = RequestMethod.POST)
 	public String pause(@RequestParam("clientId") Long clientId) {
-		calculateControllerService.pauseClient(clientId);
+		Calculate calculate = calculateService.findByClientId(clientId);
+		Client client = calculateControllerService.pauseClient(clientId);
+
+		logger.info("Клиент с описанием: \"" + client.getDescription() + "\" и id: " + client.getId() +
+				" был поставлен на паузу\n" +
+				"Счёт с id: " + calculate.getId() + " и описанием: \"" + calculate.getDescription() + "\"");
 
 		return "redirect:/manager";
 	}
 
 	@RequestMapping(value = {"/unpause"}, method = RequestMethod.POST)
 	public String unpause(@RequestParam("clientId") Long clientId) {
+		Calculate calculate = calculateService.findByClientId(clientId);
+		Client client = calculateControllerService.unpauseClient(clientId);
 
-		calculateControllerService.unpauseClient(clientId);
+		logger.info("Клиент с описанием: \"" + client.getDescription() + "\" и id: " + client.getId() +
+				" был снят с паузы" +
+				"Счёт с id: " + calculate.getId() + " и описанием: \"" + calculate.getDescription() + "\"");
 
 		return "redirect:/manager";
 	}
@@ -97,8 +113,17 @@ public class CalculateController {
 	public ResponseEntity<?> editClientTimeStart(@RequestParam("clientId") Long clientId,
 	                                             @RequestParam("hours") int hours,
 	                                             @RequestParam("minutes") int minutes) {
-		boolean successfully = clientService.updateClientTime(clientId, hours, minutes);
+		Calculate calculate = calculateService.findByClientId(clientId);
+		Client client = clientService.getOne(clientId);
+		String logHouts = (hours == 0) ? "00" : String.valueOf(hours);
+		String logMinutes = (minutes == 0) ? "00" : String.valueOf(minutes);
 
+		logger.info("Клиену с описанием: \"" + client.getDescription() + "\" и id: " + client.getId() +
+				" было изменено время посадки: \n" +
+				client.getTimeStart().format(formatter) + " -> " + logHouts + ":" + logMinutes +
+				"\nСчёт с id: " + calculate.getId() + " и описанием: \"" + calculate.getDescription() + "\"");
+
+		boolean successfully = clientService.updateClientTime(clientId, hours, minutes);
 		return successfully ? ResponseEntity.ok("ok") : ResponseEntity.badRequest().body("bad");
 	}
 
@@ -113,6 +138,9 @@ public class CalculateController {
 			throw new ClientDataException("Выберите стол");
 		}
 		calculateControllerService.createCalculate(id, number.longValue(), description);
+
+		logger.info("Счёт с описанием: \"" + description + "\" и id: " + id + " был добавлен на смену");
+
 		return ResponseEntity.ok("стол добавлен");
 	}
 
@@ -128,6 +156,13 @@ public class CalculateController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void refreshBoard(@RequestParam("boardId") Long idB,
 	                         @RequestParam("calculateId") Long idC) {
+		Calculate calculate = calculateService.getOne(idC);
+		Board prevBoard = calculate.getBoard();
+		Board nexBoard = boardService.getOne(idB);
+
+		logger.info("Счёту с описанием: \"" + calculate.getDescription() + "\" и id: " + idC +
+				" был изменён стол: " + prevBoard.getName() + " -> " + nexBoard.getName());
+
 		calculateControllerService.refreshBoard(idC, idB);
 	}
 
@@ -135,7 +170,12 @@ public class CalculateController {
 	public String addClient(@RequestParam("calculateId") Long id,
 	                        @RequestParam("number") Double number,
 	                        @RequestParam("description") String description) {
+		Calculate calculate = calculateService.getOne(id);
 		calculateControllerService.addClient(id, number.longValue(), description);
+
+		logger.info(number + " клиент(ов) с описанием \"" + description + "\" были добавлены на счёт с опсианием: \"" +
+				calculate.getDescription() + "\" и id: " + calculate.getId());
+
 		return "redirect:/manager";
 	}
 
@@ -146,15 +186,33 @@ public class CalculateController {
 	                                 @RequestParam(name = "payWithCard", required = false) Double payWithCard,
 	                                 @RequestParam("description") String description) {
 		Client client = clientService.getOne(clientId);
+		Discount discount = discountService.getOne(discountId);
+		Calculate calculate = calculateService.findByClientId(clientId);
+		Double oldPayWithCard = client.getPayWithCard();
+		Long oldDiscount = client.getDiscount();
+		String oldDescription = client.getDescription();
+		Double newPayWithCard = (payWithCard != null) ? payWithCard : client.getPayWithCard();
+		Long newDiscount = (discount != null) ? discount.getDiscount() : client.getDiscount();
+
+		if ((!oldPayWithCard.equals(newPayWithCard) || !oldDescription.equalsIgnoreCase(description))
+				|| !oldDiscount.equals(newDiscount)) {
+
+			logger.info("Клиент с описанием: \"" + client.getDescription() + "\" и id: " + client.getId() +
+					" был изменён: \n" +
+					"Оплата картой: " + oldPayWithCard + " -> " + newPayWithCard + "\n" +
+					"Скидка: " + oldDiscount + "% -> " + newDiscount + "%\n" +
+					"Описание: " + oldDescription + " -> " + description + "\n" +
+					"Счёт с id: " + calculate.getId() + " и описанием: \"" + calculate.getDescription() + "\"");
+		}
+
 		if (discountId == -1) {
 			client.setDiscount(0L);
 			client.setDiscountObj(null);
 		} else {
-			Discount discount = discountService.getOne(discountId);
-			client.setDiscount(discount.getDiscount());
+			client.setDiscount(newDiscount);
 			client.setDiscountObj(discount);
 		}
-		Double newPayWithCard = (payWithCard != null) ? payWithCard : client.getPayWithCard();
+
 		client.setPayWithCard(newPayWithCard);
 		client.setDescription(description);
 		clientService.save(client);
@@ -176,15 +234,38 @@ public class CalculateController {
 	@RequestMapping(value = {"/delete-clients"}, method = RequestMethod.POST)
 	public String deleteClients(@RequestParam(name = "clientsId", required = false) long[] clientsId,
 	                            @RequestParam("calculateId") Long calculateId) {
+
+		if (clientsId != null) {
+			List<Client> clients = clientService.findByIdIn(clientsId);
+			Calculate calculate = calculateService.getOne(calculateId);
+
+			StringBuilder deletedClientsInfo = new StringBuilder("Со счёта с описанием: \"" + calculate.getDescription() +
+					"\" и id: " + calculateId + " были удалены клиенты с id и описанием:\n");
+
+			for (Client client : clients) {
+				deletedClientsInfo.append(client.getId())
+						.append(" - ")
+						.append(client.getDescription())
+						.append("\n");
+			}
+
+			logger.info(deletedClientsInfo.toString());
+		}
+
 		calculateControllerService.deleteClients(clientsId, calculateId);
+
 		return "redirect:/manager";
 	}
 
 	@RequestMapping(value = {"/delete-calculate"}, method = RequestMethod.POST)
 	public ResponseEntity deleteCalculate(@RequestParam(name = "password") String password,
 										  @RequestParam("calculateId") Long calculateId) {
+		Calculate calculate = calculateService.getOne(calculateId);
 		calculateControllerService.deleteCalculate(password, calculateId);
-		return ResponseEntity.ok("Стол успешно удалён!");
+
+		logger.info("Удалён счёт с описанием: \"" + calculate.getDescription() + "\" и id: " + calculateId);
+
+		return ResponseEntity.ok("Счёт успешно удалён!");
 	}
 
 	@RequestMapping(value = {"/output-clients"}, method = RequestMethod.POST)
@@ -196,7 +277,28 @@ public class CalculateController {
 	@RequestMapping(value = {"/close-client"}, method = RequestMethod.POST)
 	public ResponseEntity closeClient(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
 	                                  @RequestParam("calculateId") Long calculateId) {
-		calculateControllerService.closeClient(clientsId, calculateId);
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = calculateControllerService.closeClient(clientsId, calculateId);
+
+		double allPrice = 0;
+		for (Client client : clients) {
+			allPrice += client.getAllPrice();
+		}
+
+		StringBuilder deletedClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
+				"\" и id: " + calculateId + " были рассчитаны клиенты с id и описанием:\n");
+
+		for (Client client : clients) {
+			deletedClientsInfo.append(client.getId())
+					.append(" - ")
+					.append(client.getDescription())
+					.append("\n");
+		}
+
+		deletedClientsInfo.append("Уплаченая сумма: ").append(allPrice);
+
+		logger.info(deletedClientsInfo.toString());
+
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
 
@@ -205,7 +307,29 @@ public class CalculateController {
 											@RequestParam(name = "password") String password,
 											@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
 											@RequestParam("calculateId") Long calculateId) {
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = clientService.findByIdIn(clientsId);
+
+		double currentPrice = 0;
+		for (Client client : clients) {
+			currentPrice += client.getAllPrice();
+		}
+
 		calculateControllerService.closeNewSumClient(modifiedAmount, password, clientsId, calculateId);
+
+		StringBuilder closeClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
+				" и id: " + calculateId + "\" были рассчитаны клиенты с изменением итоговой суммы " +
+				currentPrice + " -> " + modifiedAmount + ". id и описание клиентов: \n");
+
+		for (Client client : clients) {
+			closeClientsInfo.append(client.getId())
+					.append(" - ")
+					.append(client.getDescription())
+					.append("\n");
+		}
+
+		logger.info(closeClientsInfo.toString());
+
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
 
@@ -213,7 +337,20 @@ public class CalculateController {
 	public ResponseEntity closeAndRecalculate(@RequestParam(name = "newAmount") Double modifiedAmount,
 											@RequestParam(name = "password") String password,
 											@RequestParam("calculateId") Long calculateId) {
+		Calculate calculate = calculateService.getOne(calculateId);
+
+		double currentPrice = 0;
+		for (Client client : calculate.getClient()) {
+			currentPrice += client.getAllPrice();
+		}
+		currentPrice -= calculate.getLossRecalculation();
+		currentPrice += calculate.getProfitRecalculation();
+
 		calculateControllerService.closeAndRecalculate(modifiedAmount, password, calculateId);
+
+		logger.info("Счёт с описанием: \"" + calculate.getDescription() + "\" и id: " + calculateId +
+				" был закрыт с перерасчётом: " + currentPrice + " -> " + modifiedAmount);
+
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
 
@@ -221,7 +358,20 @@ public class CalculateController {
 	public ResponseEntity recalculate(@RequestParam(name = "newAmount") Double modifiedAmount,
 											  @RequestParam(name = "password") String password,
 											  @RequestParam("calculateId") Long calculateId) {
+		Calculate calculate = calculateService.getOne(calculateId);
+
+		double currentPrice = 0;
+		for (Client client : calculate.getClient()) {
+			currentPrice += client.getAllPrice();
+		}
+		currentPrice -= calculate.getLossRecalculation();
+		currentPrice += calculate.getProfitRecalculation();
+
 		calculateControllerService.recalculate(modifiedAmount, password, calculateId);
+
+		logger.info("Счёт с описанием: \"" + calculate.getDescription() + "\" и id: " + calculateId +
+				" перерасчитан: " + currentPrice + " -> " + modifiedAmount);
+
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
 
@@ -230,7 +380,38 @@ public class CalculateController {
 	                                      @RequestParam("calculateId") Long calculateId,
 	                                      @RequestParam("debtorName") String debtorName,
 	                                      @RequestParam(value = "paidAmount", required = false) Double paidAmount) {
-		calculateControllerService.closeClientDebt(debtorName, clientsId, calculateId, paidAmount);
+
+		if (paidAmount == null) {
+			throw new ClientDataException("Укажите уплаченную сумму!");
+		}
+
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = calculateControllerService.closeClientDebt(debtorName, clientsId, calculateId, paidAmount);
+
+        double allPrice = 0;
+        for (Client client : clients) {
+            allPrice += client.getAllPrice();
+        }
+        double debtAmount = allPrice - paidAmount;
+
+		StringBuilder closeClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
+				"\" и id: " + calculateId + " были рассчитаны в долг клиенты с id и описанием: \n");
+
+		for (Client client : clients) {
+			closeClientsInfo.append(client.getId())
+					.append(" - ")
+					.append(client.getDescription())
+					.append("\n");
+		}
+
+		closeClientsInfo.append("Имя должника: \"").append(debtorName)
+                .append("\". Уплаченная сумма: ")
+                .append(paidAmount)
+                .append(". Сумма долга: ")
+                .append(debtAmount);
+
+		logger.info(closeClientsInfo.toString());
+
 		return ResponseEntity.ok("Долг добавлен!");
 	}
 
@@ -250,7 +431,6 @@ public class CalculateController {
 
 	@ExceptionHandler(value = {DebtDataException.class, ClientDataException.class})
 	public ResponseEntity<?> handleUserUpdateException(RuntimeException ex) {
-
 		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 
