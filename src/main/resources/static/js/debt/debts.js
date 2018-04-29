@@ -94,14 +94,12 @@ function isBlank(str) {
     return str.length === 0 || str.trim() === ""
 }
 
-$(".deleteButton").click(function () {
-    sendToken();
-});
-
-function sendToken() {
+function sendToken(debtId) {
+    alert(debtId);
     $.ajax({
         type: "POST",
         url: "/manager/tableDebt/send-delete-debt-pass",
+        data: {debtId : debtId},
 
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';

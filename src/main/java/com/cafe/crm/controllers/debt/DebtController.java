@@ -178,8 +178,15 @@ public class DebtController {
 	}
 
 	@RequestMapping(value = "/send-delete-debt-pass", method = RequestMethod.POST)
-	public ResponseEntity sendDeleteDebtPass() {
-		String prefix = "Одноразовый пароль для подтверждения удаления долга: ";
+	public ResponseEntity sendDeleteDebtPass(@RequestParam(name = "debtId") Long debtId) {
+		Debt debt = debtService.get(debtId);
+
+		if (debt == null) {
+			throw new DebtDataException("Выбран несуществующий стол!");
+		}
+
+		String prefix = "Одноразовый пароль для подтверждения удаления долга \"" + debt.getDebtor() +
+				"\" суммой: " + debt.getDebtAmount() + " : ";
 		vkService.sendConfirmToken(prefix, Target.DELETE_DEBT);
 		return ResponseEntity.ok("Пароль послан");
 	}

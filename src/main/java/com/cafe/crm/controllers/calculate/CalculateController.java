@@ -416,15 +416,46 @@ public class CalculateController {
 	}
 
 	@RequestMapping(value = {"/send-modify-amount-pass"}, method = RequestMethod.POST)
-	public ResponseEntity sendModifyAmountPassword() {
-		String prefix = "Одноразовый пароль для подтверждения изменения итоговой суммы заказа: ";
+	public ResponseEntity sendModifyAmountPassword(@RequestParam(name = "calcId") Long calcId,
+												   @RequestParam(name = "newAmount") Long newAmount) {
+		Calculate calculate = calculateService.getOne(calcId);
+
+		if (calculate == null) {
+			throw new ClientDataException("Выбран несуществующий счёт!");
+		}
+
+		double currentPrice = 0;
+		for (Client client : calculate.getClient()) {
+			currentPrice += client.getAllPrice();
+		}
+		currentPrice -= calculate.getLossRecalculation();
+		currentPrice += calculate.getProfitRecalculation();
+
+		String prefix = "Одноразовый пароль для подтверждения изменения итоговой суммы заказа стола \"" +
+				calculate.getDescription() + "\" с " + currentPrice + " на " + newAmount + " : ";
+
 		vkService.sendConfirmToken(prefix, Target.RECALCULATE);
 		return ResponseEntity.ok("Пароль послан");
 	}
 
 	@RequestMapping(value = {"/send-calculate-delete-pass"}, method = RequestMethod.POST)
-	public ResponseEntity sendCalculateDeletePassword() {
-		String prefix = "Одноразовый пароль для подтверждения удаления стола: ";
+	public ResponseEntity sendCalculateDeletePassword(@RequestParam(name = "calcId") Long calcId) {
+		Calculate calculate = calculateService.getOne(calcId);
+
+		if (calculate == null) {
+			throw new ClientDataException("Выбран несуществующий счёт!");
+		}
+
+		double currentPrice = 0;
+		for (Client client : calculate.getClient()) {
+			currentPrice += client.getAllPrice();
+		}
+		currentPrice -= calculate.getLossRecalculation();
+		currentPrice += calculate.getProfitRecalculation();
+
+		String prefix = "Одноразовый пароль для подтверждения удаления стола \"" + calculate.getDescription() +
+				" с текущей общей суммой " + currentPrice + "р: ";
+
 		vkService.sendConfirmToken(prefix, Target.DELETE_CALC);
 		return ResponseEntity.ok("Пароль послан");
 	}

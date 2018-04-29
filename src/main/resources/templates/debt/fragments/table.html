@@ -27,7 +27,7 @@
         </td>
 
         <td sec:authorize="hasAuthority('BOSS') or hasAuthority('MANAGER')">
-            <button onclick="'sendToken()'" type="button" class="btn btn-danger deleteButton" data-toggle="modal" th:href="'#debtDelete' +${debts.id}"><span class="glyphicon glyphicon-trash"></span></button>
+            <button th:onclick="'sendToken(\'' + ${debts.id} + '\')'" type="button" class="btn btn-danger deleteButton" data-toggle="modal" th:href="'#debtDelete' +${debts.id}"><span class="glyphicon glyphicon-trash"></span></button>
         </td>
 
         <div th:id="'debtDelete'+${debts.id}" class="modal fade" role="dialog" th:fragment="modalDelete">
@@ -54,7 +54,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button"
-                                th:onclick="'sendToken()'"
+                                th:onclick="'sendToken(\'' + ${debts.id} + '\')'"
                                 style="font-size:16px;" class="btn btn-primary">Отправить код повторно
                         </button>
                         <button type="button"

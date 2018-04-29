@@ -175,7 +175,7 @@ public class CostController {
 		costService.delete(id);
 
 		logger.info("Расход с названием: \"" + existedCost.getName() + "\" и id: " + existedCost.getId() +
-				" добавленный " + existedCost.getDate() + "был удалён");
+				" добавленный " + existedCost.getDate() + " был удалён");
 
 		return ResponseEntity.ok("Расход успешно удален!");
 	}

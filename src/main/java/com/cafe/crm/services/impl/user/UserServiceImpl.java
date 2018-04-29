@@ -309,11 +309,6 @@ public class UserServiceImpl implements UserService {
 	public UserLoggingDTO transformUserToLogDTO(User user) {
 		UserLoggingDTO dto = transformer.transform(user, UserLoggingDTO.class);
 
-		for (Position position : user.getPositions()) {
-			PositionDTO positionDTO = transformer.transform(position, PositionDTO.class);
-			dto.addPosition(positionDTO);
-		}
-
 		for (Role role : user.getRoles()) {
 			RoleDTO roleDTO = transformer.transform(role, RoleDTO.class);
 			dto.addRole(roleDTO);

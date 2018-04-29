@@ -76,13 +76,13 @@ function showClose(jBlock, jButton, button) {
         button.innerHTML = 'Посмотреть заказ';
     }
 }
-$(".deleteButton").click(function () {
+/*$(".deleteButton").click(function () {
     sendDeleteDebtToken();
 });
 
 $(".closeAndRecalculate").click(function () {
     sendRecalculateToken();
-});
+});*/
 
 function checkWorkers() {
     if ($('#checkAllWorker').is(':checked')) {
@@ -185,10 +185,11 @@ function giveSalary() {
     });
 }
 
-function sendDeleteDebtToken() {
+function sendDeleteDebtToken(calcId) {
     $.ajax({
         type: "POST",
         url: "/manager/send-calculate-delete-pass",
+        data: {calcId : calcId},
 
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
@@ -197,11 +198,19 @@ function sendDeleteDebtToken() {
     });
 }
 
-function sendRecalculateToken() {
+function sendRecalculateToken(calcId) {
     $.ajax({
         type: "POST",
         url: "/manager/send-modify-amount-pass",
+        data: {calcId : calcId, newAmount : $('#newAmount' + calcId).val()},
 
+        success: function (data) {
+            $('#newAmount' + calcId).prop('disabled',true);
+            $('#sendCode' + calcId).html('Отправить код повторно');
+            $('#promptText' + calcId).html('В админ-конференцию был послан короткий код. \n Используйте его для подтверждения действия.');
+            $('#confirmPassword' + calcId).removeClass('hidden');
+            $('.confirmButton').removeClass('hidden');
+        },
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
             $('.newAmountError').html(errorMessage).show();
@@ -231,6 +240,8 @@ function deleteCalculate(calculateId) {
 }
 
 function closeClientWithNewAmount(calculateId) {
+
+
     var  formData = {
         newAmount : $('#newAmount' + calculateId).val(),
         password : $('#pass' + calculateId).val(),
