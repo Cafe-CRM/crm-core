@@ -532,8 +532,9 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);
+
 		List<Client> clients = calculate.getClient();
-		Set<Debt> debts = calculate.getDebts();
+		List<Debt> debts = debtService.findByCalculateId(calculateId);
 		Set<LayerProduct> products = new HashSet<>();
 		logger.info("Удаление стола с описанием: " + calculate.getDescription() + " и id: " + calculate.getId());
 

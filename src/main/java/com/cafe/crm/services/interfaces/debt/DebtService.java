@@ -12,7 +12,7 @@ public interface DebtService {
 
 	Debt save(Debt debt);
 
-	void saveAll(Set<Debt> debts);
+	void saveAll(List<Debt> debts);
 
 	void delete(Debt debt);
 
@@ -27,6 +27,8 @@ public interface DebtService {
 	void offVisibleStatus(Debt debt);
 
 	List<Debt> findByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
+
+	List<Debt> findByCalculateId(Long calculateId);
 
 	Debt repayDebt(Long id);
 }

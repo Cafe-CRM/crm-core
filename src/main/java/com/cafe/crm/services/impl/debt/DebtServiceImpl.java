@@ -50,7 +50,7 @@ public class DebtServiceImpl implements DebtService {
 	}
 
 	@Override
-	public void saveAll(Set<Debt> debts) {
+	public void saveAll(List<Debt> debts) {
 		repository.save(debts);
 	}
 
@@ -103,5 +103,10 @@ public class DebtServiceImpl implements DebtService {
 		shiftService.saveAndFlush(lastShift);
 		offVisibleStatus(debt);
 		return debt;
+	}
+
+	@Override
+	public List<Debt> findByCalculateId(Long calculateId) {
+		return repository.findByCalculateId(calculateId);
 	}
 }

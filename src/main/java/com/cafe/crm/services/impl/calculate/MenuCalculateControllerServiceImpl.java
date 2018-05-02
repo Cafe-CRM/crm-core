@@ -192,7 +192,7 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 
 	public void calculatePriceMenu(long calculateId) {
 		Calculate calculate = calculateService.getAllOpenOnCalculate(calculateId);
-		List<Client> clients = calculate.getClient();
+		List<Client> clients = calculate.getClient().stream().filter(c -> c.isState() && !c.isDeleteState()).collect(Collectors.toList());
 		for (Client client : clients) {
 			Map<Long, Double> prodOnPrice = new HashMap<>();
 			client.setPriceMenu(0D);

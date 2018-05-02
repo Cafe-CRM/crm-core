@@ -60,28 +60,6 @@ function checkCashInputData() {
     }
 }
 
-function recalculation() {
-    var usersBonuses = 0;
-    $('.userBonus').each(function() {
-        var bonus = $(this).val();
-        if ($.isNumeric(bonus)) {
-            usersBonuses += parseInt(bonus);
-        }
-    });
-    $.ajax({
-        type: "POST",
-        url: "/manager/shift/recalculation",
-        data: {usersBonuses: usersBonuses},
-        success: function (data) {
-            $('#usersTotalShiftSalary').val(data[0]);
-            $('#totalCashBox').val(data[1]);
-        },
-        error: function (error) {
-            console.log(error.responseText);
-        }
-    });
-}
-
 $(document).ready(function () {
     $('#checklistInputForm').submit(function (e) {
         e.preventDefault();

@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -415,24 +416,85 @@ public class CalculateController {
 		return ResponseEntity.ok("Долг добавлен!");
 	}
 
-	@RequestMapping(value = {"/send-modify-amount-pass"}, method = RequestMethod.POST)
-	public ResponseEntity sendModifyAmountPassword(@RequestParam(name = "calcId") Long calcId,
-												   @RequestParam(name = "newAmount") Long newAmount) {
+    @RequestMapping(value = {"/send-modify-amount-pass-from-settings"}, method = RequestMethod.POST)
+    public ResponseEntity sendModifyAmountPasswordSettings(@RequestParam(name = "calcId") Long calcId,
+                                                   @RequestParam(name = "newAmount") Long newAmount) {
 		Calculate calculate = calculateService.getOne(calcId);
 
 		if (calculate == null) {
 			throw new ClientDataException("Выбран несуществующий счёт!");
 		}
 
-		double currentPrice = 0;
-		for (Client client : calculate.getClient()) {
-			currentPrice += client.getAllPrice();
-		}
-		currentPrice -= calculate.getLossRecalculation();
-		currentPrice += calculate.getProfitRecalculation();
+		double allPrice = 0;
 
-		String prefix = "Одноразовый пароль для подтверждения изменения итоговой суммы заказа стола \"" +
-				calculate.getDescription() + "\" с " + currentPrice + " на " + newAmount + " : ";
+		List<Client> allClients = calculate.getClient();
+		for (Client client : allClients) {
+			allPrice += client.getAllPrice();
+		}
+
+		allPrice -= calculate.getLossRecalculation();
+		allPrice += calculate.getProfitRecalculation();
+
+		String prefix = "Одноразовый пароль для подтверждения изменения итоговой суммы заказа стола при закрытии \"" +
+				calculate.getDescription() + "\" с " + allPrice + " на " + newAmount + " : ";
+
+        vkService.sendConfirmToken(prefix, Target.RECALCULATE);
+        return ResponseEntity.ok("Пароль послан");
+    }
+
+	@RequestMapping(value = {"/send-modify-amount-pass"}, method = RequestMethod.POST)
+	public ResponseEntity sendModifyAmountPassword(@RequestParam(name = "calcId") Long calcId,
+												   @RequestParam(name = "newAmount") Long newAmount,
+												   @RequestParam(name = "clientsId[]", required = false) long[] clientsId) {
+		Calculate calculate = calculateService.getOne(calcId);
+
+		if (calculate == null) {
+			throw new ClientDataException("Выбран несуществующий счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите расчитываемых клиентов!");
+		}
+
+		List<Client> allClients = calculate.getClient();
+		long stateClientsAmount = allClients.stream().filter(Client::isState).count();
+		List<Client> selectedClients = clientService.findByIdIn(clientsId);
+		String prefix;
+
+		double allPrice = 0;
+		double selectedClientsPrice = 0;
+
+		if (selectedClients.size() == stateClientsAmount) {
+
+			for (Client client : allClients) {
+				allPrice += client.getAllPrice();
+			}
+
+			for (Client client : selectedClients) {
+				selectedClientsPrice += client.getAllPrice();
+			}
+
+			allPrice -= calculate.getLossRecalculation();
+			allPrice += calculate.getProfitRecalculation();
+
+			double difference = newAmount - selectedClientsPrice;
+			double newPrice = allPrice + difference;
+
+			prefix = "Одноразовый пароль для подтверждения изменения итоговой суммы заказа стола при закрытии \"" +
+					calculate.getDescription() + "\" с " + allPrice + " на " + newPrice + " : ";
+
+			vkService.sendConfirmToken(prefix, Target.RECALCULATE);
+			return ResponseEntity.ok("Пароль послан");
+
+		}
+
+		for (Client client : selectedClients) {
+			selectedClientsPrice += client.getAllPrice();
+		}
+
+		prefix = "Одноразовый пароль для подтверждения изменения итоговой суммы заказа клиентов с id: " +
+				Arrays.toString(clientsId) + " на столе \"" +
+				calculate.getDescription() + "\" с " + selectedClientsPrice + " на " + newAmount + " : ";
 
 		vkService.sendConfirmToken(prefix, Target.RECALCULATE);
 		return ResponseEntity.ok("Пароль послан");
@@ -454,7 +516,7 @@ public class CalculateController {
 		currentPrice += calculate.getProfitRecalculation();
 
 		String prefix = "Одноразовый пароль для подтверждения удаления стола \"" + calculate.getDescription() +
-				" с текущей общей суммой " + currentPrice + "р: ";
+				"\" с текущей общей суммой " + currentPrice + "р: ";
 
 		vkService.sendConfirmToken(prefix, Target.DELETE_CALC);
 		return ResponseEntity.ok("Пароль послан");

@@ -201,7 +201,7 @@ function sendDeleteDebtToken(calcId) {
 function sendRecalculateToken(calcId) {
     $.ajax({
         type: "POST",
-        url: "/manager/send-modify-amount-pass",
+        url: "/manager/send-modify-amount-pass-from-settings",
         data: {calcId : calcId, newAmount : $('#newAmount' + calcId).val()},
 
         success: function (data) {

@@ -15,4 +15,6 @@ public interface DebtRepository extends JpaRepository<Debt, Long> {
 	List<Debt> findByDebtorAndDateBetweenAndCompanyId(String debtor, LocalDate from, LocalDate to, Long companyId);
 
 	List<Debt> findByCompanyId(Long companyId);
+
+	List<Debt> findByCalculateId(Long calculateId);
 }

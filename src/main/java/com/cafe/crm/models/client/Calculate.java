@@ -48,8 +48,8 @@ public class Calculate extends BaseEntity {
 	@Column(name = "profit_recalculation")
 	private double profitRecalculation;
 
-	//@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@OneToMany(fetch = FetchType.EAGER)		//todo LAZY
+	@OneToMany(fetch = FetchType.LAZY)
+	//@OneToMany(fetch = FetchType.EAGER)		//todo LAZY
 	private Set<Debt> debts = new HashSet<>();
 
 	public Calculate() {

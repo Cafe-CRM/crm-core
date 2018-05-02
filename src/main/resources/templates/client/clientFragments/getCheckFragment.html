@@ -93,6 +93,49 @@
     </div>
 
     <div th:if="${bossFunctional}" th:id="'changePriceAmount' + ${calculate.id}" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="top: 120px; width: 550px;">
+            <div class="modal-content">
+                <div class="modal-header" style="padding-bottom: 0px;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <p class="newAmountError" style="display: none;" th:id="'newAmountError' + ${calculate.id}"></p>
+                    <h3 th:id="'promptText' + ${calculate.id}" style="font-size: 19px; font-weight: 600;">Введите новую сумму заказа и отправьте код подверждения.</h3>
+                </div>
+
+                <div class="modal-body" style="height: 110px;">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group" style="height: 30px;">
+                            <label th:for="'newAmount' + ${calculate.id}" class="col-md-4 control-label">Новая сумма</label>
+                            <div class="col-md-5">
+                                <input type="number" class="form-control" th:id="'newAmount' + ${calculate.id}"
+                                       name="newAmount" required="" placeholder="Новая сумма" value="0"/>
+                            </div>
+                        </div>
+                        <div th:id="'confirmPassword' + ${calculate.id}" class="form-group hidden">
+                            <label th:for="'pass' + ${calculate.id}" class="col-md-4 control-label">Код</label>
+                            <div class="col-md-5">
+                                <input class="form-control" th:id="'pass' + ${calculate.id}"
+                                       name="password" required="" type="password"/>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            th:id="'sendCode' + ${calculate.id}"
+                            th:onclick="'sendRecalculateToken(\'' + ${calculate.id} + '\')'"
+                            style="font-size:20px;" class="btn btn-primary">Отправить код
+                    </button>
+                    <button th:if="${calculate.state}" type="button"
+                            th:onclick="'closeClientWithNewAmount(\'' + ${calculate.id} + '\')'"
+                            style="font-size:20px;" class="btn btn-danger confirmButton hidden">Рассчитать
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--<div th:if="${bossFunctional}" th:id="'changePriceAmount' + ${calculate.id}" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -133,7 +176,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>-->
 
     <div th:id="'enterDebtorName' + ${calculate.id}" class="modal fade" role="dialog">
         <div class="modal-dialog">

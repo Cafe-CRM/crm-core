@@ -200,7 +200,6 @@
                                                 th:attr="data-target='#promptCloseCalc' + ${calculate.id}" type="button">
                                             Изменить сумму
                                         </button>
-                                        <!--th:onclick="'sendRecalculateToken(\'' + ${calculate.id} + '\')'"-->
                                         <button th:unless="${calculate.state}" data-toggle="modal" class="btn btn-primary" style="margin-top: 5px;"
                                                 th:attr="data-target='#changePriceAmount' + ${calculate.id}" type="button">
                                             Изменить сумму
@@ -211,7 +210,6 @@
                                             <div class="modal-content">
                                                 <div class="modal-body">
                                                     <h4>При перерасчёте суммы счёт будет закрыт. Продолжить?</h4>
-                                                    <!--th:onclick="'sendRecalculateToken(\'' + ${calculate.id} + '\')'"-->
                                                     <button data-dismiss="modal" data-toggle="modal" class="btn btn-danger"
                                                             th:attr="data-target='#changePriceAmount' + ${calculate.id}">
                                                         Закрыть и перерасчитать

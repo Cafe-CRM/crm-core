@@ -238,24 +238,6 @@ public class ShiftController {
         return vkService.sendDailyReportToConference(shift);
     }
 
-
-    @ResponseBody
-    @RequestMapping(value = "/shift/recalculation", method = RequestMethod.POST)
-    public List<Object> recalculation(@RequestParam(name = "usersBonuses") Integer usersBonuses) {
-        Shift lastShift = shiftService.getLast();
-        ShiftView shiftView = shiftCalculationService.createShiftView(lastShift);
-
-        int salaryWorkerOnShift = shiftView.getUsersTotalShiftSalary() + usersBonuses;
-        Double totalCashBox = shiftView.getTotalCashBox() - usersBonuses;
-        List<Object> result = new ArrayList<>();
-        result.add(salaryWorkerOnShift);
-        result.add(totalCashBox);
-
-        logger.info("Сумма бонусов на закрытии смены составляет: " + usersBonuses);
-
-        return result;
-    }
-
     @ResponseBody
     @RequestMapping(value = "/shift/edit/transferCashToBankCashBox", method = RequestMethod.POST)
     public List<Object> transferToBankCashBox(@RequestParam(name = "transferBankCashBox") Double transferBankCashBox) {

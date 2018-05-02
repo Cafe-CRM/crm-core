@@ -95,7 +95,6 @@ function isBlank(str) {
 }
 
 function sendToken(debtId) {
-    alert(debtId);
     $.ajax({
         type: "POST",
         url: "/manager/tableDebt/send-delete-debt-pass",
