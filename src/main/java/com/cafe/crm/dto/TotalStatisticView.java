@@ -19,13 +19,16 @@ public class TotalStatisticView {
 	private List<UserDTO> users;
 	private Map<Client, ClientDetails> clientsOnDetails;
 	private List<Cost> listOfOtherCosts;
-	private List<Debt> givenDebts;
-	private List<Debt> repaidDebt;
+	private List<Debt> givenOtherDebts;
+	private List<Debt> repaidOtherDebts;
+	private List<Debt> givenCashBoxDebts;
+	private List<Debt> repaidCashBoxDebts;
 
 	public TotalStatisticView(double profit, double alteredCashAmount, double salariesCosts, double otherCosts, double profitRecalculation,
 							  double lossRecalculation, List<UserDTO> users,
 							  Map<Client, ClientDetails> clientsOnDetails, List<Cost> listOfOtherCosts,
-							  List<Debt> givenDebts, List<Debt> repaidDebt) {
+							  List<Debt> givenOtherDebts, List<Debt> repaidOtherDebts,
+							  List<Debt> givenCashBoxDebts, List<Debt> repaidCashBoxDebts) {
 		this.profit = profit;
 		this.alteredCashAmount = alteredCashAmount;
 		this.salariesCosts = salariesCosts;
@@ -35,8 +38,10 @@ public class TotalStatisticView {
 		this.users = users;
 		this.clientsOnDetails = clientsOnDetails;
 		this.listOfOtherCosts = listOfOtherCosts;
-		this.givenDebts = givenDebts;
-		this.repaidDebt = repaidDebt;
+		this.givenOtherDebts = givenOtherDebts;
+		this.repaidOtherDebts = repaidOtherDebts;
+		this.givenCashBoxDebts = givenCashBoxDebts;
+		this.repaidCashBoxDebts = repaidCashBoxDebts;
 	}
 
 	public double getProfit() {
@@ -103,20 +108,36 @@ public class TotalStatisticView {
 		this.clientsOnDetails = clientsOnDetails;
 	}
 
-	public List<Debt> getGivenDebts() {
-		return givenDebts;
+	public List<Debt> getGivenOtherDebts() {
+		return givenOtherDebts;
 	}
 
-	public void setGivenDebts(List<Debt> givenDebts) {
-		this.givenDebts = givenDebts;
+	public void setGivenOtherDebts(List<Debt> givenOtherDebts) {
+		this.givenOtherDebts = givenOtherDebts;
 	}
 
-	public List<Debt> getRepaidDebt() {
-		return repaidDebt;
+	public List<Debt> getRepaidOtherDebts() {
+		return repaidOtherDebts;
 	}
 
-	public void setRepaidDebt(List<Debt> repaidDebt) {
-		this.repaidDebt = repaidDebt;
+	public void setRepaidOtherDebts(List<Debt> repaidOtherDebts) {
+		this.repaidOtherDebts = repaidOtherDebts;
+	}
+
+	public List<Debt> getGivenCashBoxDebts() {
+		return givenCashBoxDebts;
+	}
+
+	public void setGivenCashBoxDebts(List<Debt> givenCashBoxDebts) {
+		this.givenCashBoxDebts = givenCashBoxDebts;
+	}
+
+	public List<Debt> getRepaidCashBoxDebts() {
+		return repaidCashBoxDebts;
+	}
+
+	public void setRepaidCashBoxDebts(List<Debt> repaidCashBoxDebts) {
+		this.repaidCashBoxDebts = repaidCashBoxDebts;
 	}
 
 	public List<Cost> getListOfOtherCosts() {

@@ -1,5 +1,6 @@
 package com.cafe.crm.services.interfaces.shift;
 
+import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.dto.ShiftView;
 import com.cafe.crm.models.user.User;

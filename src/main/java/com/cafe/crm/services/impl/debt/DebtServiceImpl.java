@@ -81,6 +81,16 @@ public class DebtServiceImpl implements DebtService {
 	}
 
 	@Override
+	public List<Debt> findOtherDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to) {
+		return repository.findByVisibleIsTrueAndDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findCashBoxDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to) {
+		return repository.findByVisibleIsTrueAndDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
 	public void offVisibleStatus(Debt debt) {
 		debt.setVisible(false);
 		repository.save(debt);
@@ -89,6 +99,16 @@ public class DebtServiceImpl implements DebtService {
 	@Override
 	public List<Debt> findByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to) {
 		return repository.findByDebtorAndDateBetweenAndCompanyId(debtor, from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findOtherDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to) {
+		return repository.findByDebtorAndDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(debtor, from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findCashBoxDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to) {
+		return repository.findByDebtorAndDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(debtor, from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -108,5 +128,15 @@ public class DebtServiceImpl implements DebtService {
 	@Override
 	public List<Debt> findByCalculateId(Long calculateId) {
 		return repository.findByCalculateId(calculateId);
+	}
+
+	@Override
+	public Debt addDebtOnLastShift(Debt debt) {
+		Shift lastShift = shiftService.getLast();
+
+		debt.setShift(lastShift);
+		lastShift.addGivenDebtToList(debt);
+
+		return save(debt);
 	}
 }

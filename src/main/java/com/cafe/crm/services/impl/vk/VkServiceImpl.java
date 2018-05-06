@@ -172,8 +172,9 @@ public class VkServiceImpl implements VkService {
 		StringBuilder salaryCosts = new StringBuilder();
 		StringBuilder otherCosts = new StringBuilder();
 		List<Client> clients = shift.getClients().stream().filter(c -> !c.isDeleteState()).collect(Collectors.toList());
+		double cashBoxDebtAmount = shift.getGivenDebts().stream().filter(Debt::isCashBoxDebt).mapToDouble(Debt::getDebtAmount).sum();
 		double totalCosts = formatCostsAndGetOtherCosts(shift, otherCosts) + formatCostsAndGetSalariesCost(shift, salaryCosts);
-		double shortage = shift.getProfit() - totalCosts - shift.getCashBox() - shift.getBankCashBox();
+		double shortage = shift.getProfit() - cashBoxDebtAmount - totalCosts - shift.getCashBox() - shift.getBankCashBox();
 
 		params[0] = shortage <= 0d ? "" : "НЕДОСТАЧА!";
 		params[1] = getDayOfWeek(shift.getShiftDate());
@@ -275,16 +276,22 @@ public class VkServiceImpl implements VkService {
 		DecimalFormat df = new DecimalFormat("#.##");
 
 		double profit = shift.getProfit();
-		double debtAmount = 0D;
+		double otherDebtAmount = 0D;
+		double cashBoxDebtAmount = 0D;
 		Set<Debt> debts = shift.getGivenDebts();
 		if (debts.isEmpty()) {
 			return df.format(profit);
 		}
 		for (Debt debt : debts) {
-			debtAmount += debt.getDebtAmount();
+			if (debt.isCashBoxDebt()) {
+				otherDebtAmount += debt.getDebtAmount();
+			} else {
+				cashBoxDebtAmount += debt.getDebtAmount();
+			}
 		}
 
-		return df.format(profit) + "(Сумма долгов: " + df.format(debtAmount) + ")";
+		return df.format(profit) + "(Сумма прочих долгов: " + df.format(otherDebtAmount)
+				+ "; Долгов из кассы: " + df.format(cashBoxDebtAmount) +")";
 	}
 
 	private String getComment(String comment) {

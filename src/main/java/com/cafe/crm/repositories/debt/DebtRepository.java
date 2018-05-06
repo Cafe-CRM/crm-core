@@ -10,9 +10,17 @@ import java.util.List;
 
 public interface DebtRepository extends JpaRepository<Debt, Long> {
 
+	List<Debt> findByVisibleIsTrueAndDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(LocalDate from, LocalDate to, Long companyId);
+
+	List<Debt> findByVisibleIsTrueAndDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(LocalDate from, LocalDate to, Long companyId);
+
 	List<Debt> findByVisibleIsTrueAndDateBetweenAndCompanyId(LocalDate from, LocalDate to, Long companyId);
 
 	List<Debt> findByDebtorAndDateBetweenAndCompanyId(String debtor, LocalDate from, LocalDate to, Long companyId);
+
+	List<Debt> findByDebtorAndDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(String debtor, LocalDate from, LocalDate to, Long companyId);
+
+	List<Debt> findByDebtorAndDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(String debtor, LocalDate from, LocalDate to, Long companyId);
 
 	List<Debt> findByCompanyId(Long companyId);
 

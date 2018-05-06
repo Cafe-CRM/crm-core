@@ -26,26 +26,46 @@ function addRowBottom(profit, loss) {
 }
 
 jQuery(document).ready( function() {
-    var totalGivenDebt = 0;
-    var totalRepaidDebt = 0;
+    var totalGivenOtherDebt = 0;
+    var totalRepaidOtherDebt = 0;
 
-    Array.from(document.getElementById("givenPrice").rows).forEach(function (item) {
-        totalGivenDebt += +item.querySelector(".specificGivenPrice").innerHTML;
+    Array.from(document.getElementById("givenOtherPrice").rows).forEach(function (item) {
+        totalGivenOtherDebt += +item.querySelector(".specificGivenPrice").innerHTML;
     });
 
-    Array.from(document.getElementById("repaidPrice").rows).forEach(function (item) {
-        totalRepaidDebt += +item.querySelector(".specificRepaidPrice").innerHTML;
+    Array.from(document.getElementById("repaidOtherPrice").rows).forEach(function (item) {
+        totalRepaidOtherDebt += +item.querySelector(".specificRepaidPrice").innerHTML;
     });
 
-    if (totalGivenDebt === 0 && totalRepaidDebt !== 0) {
-        createAndInsertTotalDebtCell("repaidPrice", totalRepaidDebt);
-    } else if (totalGivenDebt !== 0 && totalRepaidDebt === 0) {
-        createAndInsertTotalDebtCell("givenPrice", totalGivenDebt);
-    } else if (totalGivenDebt !== 0 && totalRepaidDebt !== 0) {
-        createAndInsertTotalDebtCell("givenPrice", totalGivenDebt);
-        createAndInsertTotalDebtCell("repaidPrice", totalRepaidDebt);
+    if (totalGivenOtherDebt === 0 && totalRepaidOtherDebt !== 0) {
+        createAndInsertTotalDebtCell("repaidOtherPrice", totalRepaidOtherDebt);
+    } else if (totalGivenOtherDebt !== 0 && totalRepaidOtherDebt === 0) {
+        createAndInsertTotalDebtCell("givenOtherPrice", totalGivenOtherDebt);
+    } else if (totalGivenOtherDebt !== 0 && totalRepaidOtherDebt !== 0) {
+        createAndInsertTotalDebtCell("givenOtherPrice", totalGivenOtherDebt);
+        createAndInsertTotalDebtCell("repaidOtherPrice", totalRepaidOtherDebt);
     }
 
+
+    var totalGivenCashBoxDebt = 0;
+    var totalRepaidCashBoxDebt = 0;
+
+    Array.from(document.getElementById("givenCashBoxPrice").rows).forEach(function (item) {
+        totalGivenCashBoxDebt += +item.querySelector(".specificGivenPrice").innerHTML;
+    });
+
+    Array.from(document.getElementById("repaidCashBoxPrice").rows).forEach(function (item) {
+        totalRepaidCashBoxDebt += +item.querySelector(".specificRepaidPrice").innerHTML;
+    });
+
+    if (totalGivenCashBoxDebt === 0 && totalRepaidCashBoxDebt !== 0) {
+        createAndInsertTotalDebtCell("repaidCashBoxPrice", totalRepaidCashBoxDebt);
+    } else if (totalGivenCashBoxDebt !== 0 && totalRepaidCashBoxDebt === 0) {
+        createAndInsertTotalDebtCell("givenCashBoxPrice", totalGivenCashBoxDebt);
+    } else if (totalGivenCashBoxDebt !== 0 && totalRepaidCashBoxDebt !== 0) {
+        createAndInsertTotalDebtCell("givenCashBoxPrice", totalGivenCashBoxDebt);
+        createAndInsertTotalDebtCell("repaidCashBoxPrice", totalRepaidCashBoxDebt);
+    }
 
 
     if($("#clubCardPaymentSum").length) {
@@ -92,7 +112,6 @@ jQuery(document).ready( function() {
                 if(item.querySelector('.timeCost')) {
                     totalSum[3] += +(item.querySelector('.timeCost').innerHTML).replace(",", "");
                 }
-                //alert(totalSum[0]);
             });
         document.getElementById("commonCheckSum").innerHTML += " " + Math.round(totalSum[0] * 100) / 100.00;
         document.getElementById("menuOtherSum").innerHTML += " " + Math.round(totalSum[1] * 100) / 100.00;
@@ -109,7 +128,7 @@ function createAndInsertTotalDebtCell(tbodyId, totalDebt) {
     var cell = row.insertCell(0);
     cell.innerHTML = totalDebt;
     cell.rowSpan = rowsCount;
-    if (tbodyId === "repaidPrice") {
+    if (tbodyId === "repaidOtherPrice" || tbodyId === "repaidCashBoxPrice") {
         cell.style.background = "#CEFFD0";
     } else {
         cell.style.background = "#FFD7D7";

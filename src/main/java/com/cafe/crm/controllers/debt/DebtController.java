@@ -55,11 +55,31 @@ public class DebtController {
 		this.confirmTokenService = confirmTokenService;
 	}
 
-	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView showDebtPage() {
+	@RequestMapping(value = "/other-debt", method = RequestMethod.GET)
+	public ModelAndView showOtherDebts() {
 		LocalDate today = timeManager.getDate();
 		LocalDate lastShiftDate = shiftService.getLastShiftDate();
-		List<Debt> debtList = debtService.findByVisibleIsTrueAndDateBetween(lastShiftDate, today.plusYears(100));
+		List<Debt> debtList = debtService.findOtherDebtByVisibleIsTrueAndDateBetween(lastShiftDate, today.plusYears(100));
+
+		ModelAndView modelAndView = getDebtPage(debtList, today, lastShiftDate);
+		modelAndView.addObject("isCashBoxDebt", false);
+
+		return modelAndView;
+	}
+
+	@RequestMapping(value = "/cash-box-debt", method = RequestMethod.GET)
+	public ModelAndView showCashBoxDebts() {
+		LocalDate today = timeManager.getDate();
+		LocalDate lastShiftDate = shiftService.getLastShiftDate();
+		List<Debt> debtList = debtService.findCashBoxDebtByVisibleIsTrueAndDateBetween(lastShiftDate, today.plusYears(100));
+
+		ModelAndView modelAndView = getDebtPage(debtList, today, lastShiftDate);
+		modelAndView.addObject("isCashBoxDebt", true);
+
+		return modelAndView;
+	}
+
+	private ModelAndView getDebtPage(List<Debt> debtList, LocalDate today, LocalDate lastShiftDate) {
 		Double totalDebtAmount = getTotalPrice(debtList);
 
 		ModelAndView modelAndView = new ModelAndView("debt/debt");
@@ -75,12 +95,29 @@ public class DebtController {
 		return modelAndView;
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView updatePageAfterSearch(@RequestParam(name = "fromDate") String fromDate,
+	@RequestMapping(value = "/find-other-debt", method = RequestMethod.POST)
+	public ModelAndView updateOtherPageAfterSearch(@RequestParam(name = "fromDate") String fromDate,
 											  @RequestParam(name = "toDate") String toDate,
 											  @RequestParam(name = "debtorName") String debtorName) {
+		List<Debt> debtList = otherDebtFilter(debtorName, fromDate, toDate);
+
+
+		return getSearchDebtModel(fromDate, toDate, debtorName, debtList);
+	}
+
+	@RequestMapping(value = "/find-cash-box-debt", method = RequestMethod.POST)
+	public ModelAndView updateCashBoxPageAfterSearch(@RequestParam(name = "fromDate") String fromDate,
+											  @RequestParam(name = "toDate") String toDate,
+											  @RequestParam(name = "debtorName") String debtorName) {
+
+		List<Debt> debtList = cashBoxDebtFilter(debtorName, fromDate, toDate);
+
+
+		return getSearchDebtModel(fromDate, toDate, debtorName, debtList);
+	}
+
+	private ModelAndView getSearchDebtModel(String fromDate, String toDate, String debtorName, List<Debt> debtList) {
 		LocalDate today = timeManager.getDate();
-		List<Debt> debtList = filter(debtorName, fromDate, toDate);
 		Double totalDebtAmount = getTotalPrice(debtList);
 
 		LocalDate from = (fromDate == null || fromDate.isEmpty()) ? null : LocalDate.parse(fromDate, formatter);
@@ -98,7 +135,7 @@ public class DebtController {
 		return modelAndView;
 	}
 
-	private List<Debt> filter(String debtorName, String fromDate, String toDate) {
+	private List<Debt> otherDebtFilter(String debtorName, String fromDate, String toDate) {
 		debtorName = (debtorName == null) ? null : debtorName.trim();
 
 		LocalDate today = timeManager.getDate();
@@ -108,9 +145,26 @@ public class DebtController {
 				? today.plusYears(100) : LocalDate.parse(toDate, formatter);
 
 		if (debtorName == null || debtorName.isEmpty()) {
-			return debtService.findByVisibleIsTrueAndDateBetween(from, to);
+			return debtService.findOtherDebtByVisibleIsTrueAndDateBetween(from, to);
 		} else {
-			return debtService.findByDebtorAndDateBetween(debtorName, from, to);
+			return debtService.findOtherDebtByDebtorAndDateBetween(debtorName, from, to);
+		}
+
+	}
+
+	private List<Debt> cashBoxDebtFilter(String debtorName, String fromDate, String toDate) {
+		debtorName = (debtorName == null) ? null : debtorName.trim();
+
+		LocalDate today = timeManager.getDate();
+		LocalDate from = (fromDate == null || fromDate.isEmpty())
+				? today.minusYears(100) : LocalDate.parse(fromDate, formatter);
+		LocalDate to = (toDate == null || toDate.isEmpty())
+				? today.plusYears(100) : LocalDate.parse(toDate, formatter);
+
+		if (debtorName == null || debtorName.isEmpty()) {
+			return debtService.findCashBoxDebtByVisibleIsTrueAndDateBetween(from, to);
+		} else {
+			return debtService.findCashBoxDebtByDebtorAndDateBetween(debtorName, from, to);
 		}
 
 	}
@@ -120,15 +174,11 @@ public class DebtController {
 				.stream().mapToDouble(Debt::getDebtAmount).sum();
 	}
 
-	@RequestMapping(value = "/addDebt", method = RequestMethod.POST)
-	public ResponseEntity<?> saveGoods(@ModelAttribute @Valid Debt debt) {
-		Shift lastShift = shiftService.getLast();
-
-		debt.setShift(lastShift);
-		lastShift.addGivenDebtToList(debt);
-
-		Debt savedDebt = debtService.save(debt);
+	@RequestMapping(value = "/add-debt", method = RequestMethod.POST)
+	public ResponseEntity<?> addOtherDebt(@ModelAttribute @Valid Debt debt) {
+		Debt savedDebt = debtService.addDebtOnLastShift(debt);
 		Calculate calculate = savedDebt.getCalculate();
+
 		StringBuilder addDebtMessage = new StringBuilder("Долг с названием: \"" + savedDebt.getDebtor() + "\", суммой: "
                 + savedDebt.getDebtAmount() + " был добавлен " + savedDebt.getDate());
 

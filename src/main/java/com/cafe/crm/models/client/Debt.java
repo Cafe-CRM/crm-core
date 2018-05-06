@@ -29,6 +29,8 @@ public class Debt extends BaseEntity {
 
 	private boolean visible = true;
 
+	private boolean cashBoxDebt = false;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shift_id", nullable = false)
 	private Shift shift;
@@ -82,7 +84,15 @@ public class Debt extends BaseEntity {
 		this.visible = visible;
 	}
 
-	public Shift getShift() {
+    public boolean isCashBoxDebt() {
+        return cashBoxDebt;
+    }
+
+    public void setCashBoxDebt(boolean cashBoxDebt) {
+        this.cashBoxDebt = cashBoxDebt;
+    }
+
+    public Shift getShift() {
 		return shift;
 	}
 

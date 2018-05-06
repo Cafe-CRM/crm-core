@@ -24,7 +24,16 @@
                 <li><a href="/manager">Счета</a></li>
                 <li><a href="/manager/shift/settings">Настройки</a></li>
                 <li><a href="/manager/cost">Расходы</a></li>
-                <li><a href="/manager/tableDebt">Долги</a></li>
+                <!--<li><a href="/manager/tableDebt">Долги</a></li>-->
+
+                <li class="dropdown">
+                    <a class="dropdown-toggle disabled" data-toggle="dropdown" href="#">Долги<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/manager/tableDebt/other-debt">Прочие долги</a></li>
+                        <li><a href="/manager/tableDebt/cash-box-debt">Долги из кассы</a></li>
+                    </ul>
+                </li>
+
                 <li><a href="/manager/tableReceipt">Приходы</a></li>
                 <li><a data-toggle="modal" th:href="'#newPass'">Пароль</a></li>
                 <li th:if="${#lists.isEmpty(closeChecklist)}"><a th:href="@{/manager/shift/close}">Закрытие смены</a></li>

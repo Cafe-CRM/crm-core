@@ -24,11 +24,21 @@ public interface DebtService {
 
 	List<Debt> findByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
 
+	List<Debt> findOtherDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
+
+	List<Debt> findCashBoxDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
+
 	void offVisibleStatus(Debt debt);
 
 	List<Debt> findByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
 
+	List<Debt> findOtherDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
+
+	List<Debt> findCashBoxDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
+
 	List<Debt> findByCalculateId(Long calculateId);
 
 	Debt repayDebt(Long id);
+
+	Debt addDebtOnLastShift(Debt debt);
 }

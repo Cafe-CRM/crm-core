@@ -61,10 +61,10 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
-    $('#formAddDebts').submit(function (e) {
+    $('#formAddDebt').submit(function (e) {
         e.preventDefault();
-        var url = '/manager/tableDebt/addDebt';
-        var formData = $('#formAddDebts').serialize();
+        var url = '/manager/tableDebt/add-debt';
+        var formData = $('#formAddDebt').serialize();
         if(!isBlank($('#addDebt').val())) {
             $.ajax({
                 type: 'POST',
@@ -127,6 +127,38 @@ function deleteDebt(debtId) {
         }
     });
 }
+
+/*function sendSearchOtherDebtForm() {
+    var formData = $('#formSearch').serialize();
+    $.ajax({
+        type: "POST",
+        url: "/manager/tableDebt/find-other-debt",
+        data: formData,
+        success: function(data) {
+            //location.reload();
+        },
+        error: function(error){
+            alert(error);
+        }
+    });
+
+}
+
+function sendSearchCashBoxDebtForm() {
+    var formData = $('#formSearch').serialize();
+    $.ajax({
+        type: "POST",
+        url: "/manager/tableDebt/find-cash-box-debt",
+        data: formData,
+        success: function(data) {
+            location.reload();
+        },
+        error: function(error){
+            alert(error);
+        }
+    });
+
+}*/
 
 function repayDebt(id) {
     var url = '/manager/tableDebt/repay';

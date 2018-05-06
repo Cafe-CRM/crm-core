@@ -6,8 +6,13 @@
 </head>
 <body>
 <div class="modal fade" tabindex="-1" roles="dialog" id="modalAddDebts" th:fragment="modalAdd">
-    <form class="form-horizontal" id="formAddDebts" method="post" th:action="@{/manager/tableDebt/addDebt}"
+
+    <form class="form-horizontal" id="formAddDebt" method="post" th:action="@{/manager/tableDebt/add-debt}"
           th:object="${formDebt}">
+
+        <input th:if="${isCashBoxDebt}" type="hidden" class="form-control" aria-label="Категория"
+               required="required" value="true" th:name="cashBoxDebt"/>
+
         <div class="modal-dialog" roles="document">
             <div class="modal-content">
                 <div class="modal-header">
