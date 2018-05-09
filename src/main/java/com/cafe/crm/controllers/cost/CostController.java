@@ -49,7 +49,6 @@ public class CostController {
 	}
 
 
-	//toDo контроллер расходов
 	@RequestMapping(method = RequestMethod.GET)
 	public String showCostsPage(Model model) {
 		LocalDate today = timeManager.getDate();

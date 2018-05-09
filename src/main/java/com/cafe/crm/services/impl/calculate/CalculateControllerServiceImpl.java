@@ -61,7 +61,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	private final IngredientsService ingredientsService;
 	private final ConfirmTokenService confirmTokenService;
 
-	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalculateControllerServiceImpl.class);
 
 	@Autowired
 	public CalculateControllerServiceImpl(DebtService debtService,
@@ -536,7 +535,6 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		List<Client> clients = calculate.getClient();
 		List<Debt> debts = debtService.findByCalculateId(calculateId);
 		Set<LayerProduct> products = new HashSet<>();
-		logger.info("Удаление стола с описанием: " + calculate.getDescription() + " и id: " + calculate.getId());
 
 		for (Client client : clients) {
 			if (client.isState() || !client.isDeleteState()) {
