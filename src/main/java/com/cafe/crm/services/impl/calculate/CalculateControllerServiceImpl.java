@@ -96,7 +96,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	}
 
 	@Override
-	public void createCalculate(Long id, Long number, String description) {
+	public Calculate createCalculate(Long id, Long number, String description) {
 		Board board = boardService.getOne(id);
 		Calculate calculate = new Calculate();
 		List<Client> list = new ArrayList<>();
@@ -111,7 +111,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		calculate.setClient(list);
 		shiftService.getLast().getCalculates().add(calculate);
 		shiftService.getLast().getClients().addAll(list);
-		calculateService.save(calculate);
+		return calculateService.save(calculate);
 	}
 
 	@Override

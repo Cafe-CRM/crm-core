@@ -138,9 +138,9 @@ public class CalculateController {
 		if (id == null) {
 			throw new ClientDataException("Выберите стол");
 		}
-		calculateControllerService.createCalculate(id, number.longValue(), description);
+		Calculate calculate = calculateControllerService.createCalculate(id, number.longValue(), description);
 
-		logger.info("Счёт с описанием: \"" + description + "\" и id: " + id + " был добавлен на смену");
+		logger.info("Счёт с описанием: \"" + description + "\" и id: " + calculate.getId() + " был добавлен на смену");
 
 		return ResponseEntity.ok("стол добавлен");
 	}
