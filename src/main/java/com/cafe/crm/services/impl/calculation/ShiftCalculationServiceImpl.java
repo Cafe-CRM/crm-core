@@ -3,6 +3,7 @@ package com.cafe.crm.services.impl.calculation;
 
 import com.cafe.crm.dto.*;
 import com.cafe.crm.exceptions.NoStatData;
+import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.client.Debt;
@@ -24,7 +25,9 @@ import com.cafe.crm.services.interfaces.note.NoteService;
 import com.cafe.crm.services.interfaces.receipt.ReceiptService;
 import com.cafe.crm.services.interfaces.salary.UserSalaryDetailService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
+import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.services.interfaces.user.UserService;
+import com.cafe.crm.utils.Target;
 import com.yc.easytransformer.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 	private final UserSalaryDetailService userSalaryDetailService;
 	private final CostCategoryService costCategoryService;
 	private final UserService userService;
+	private final ConfirmTokenService confirmTokenService;
 
 	@Autowired
 	private ReceiptService receiptService;
@@ -51,7 +55,8 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 	public ShiftCalculationServiceImpl(CostService costService, ShiftService shiftService, Transformer transformer,
 									   NoteService noteService, ProductService productService,
 									   UserSalaryDetailService userSalaryDetailService,
-									   CostCategoryService costCategoryService, UserService userService) {
+									   CostCategoryService costCategoryService, UserService userService,
+									   ConfirmTokenService confirmTokenService) {
 		this.costService = costService;
 		this.shiftService = shiftService;
 		this.transformer = transformer;
@@ -60,6 +65,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		this.userSalaryDetailService = userSalaryDetailService;
 		this.costCategoryService = costCategoryService;
 		this.userService = userService;
+		this.confirmTokenService = confirmTokenService;
 	}
 
 	@Override
@@ -95,18 +101,6 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		int shiftAmount = user.getShifts().size();
 		return new UserSalaryDetail(user, totalSalary, totalBonus, salaryBalance, bonusBalance, shiftSalary, shiftAmount, shift, false);
 	}
-
-	private UserSalaryDetail getPaidUserSalaryDetail(User user, Shift shift) {
-		int totalSalary = user.getTotalSalary();
-		int totalBonus = user.getTotalBonus();
-		int salaryBalance = user.getSalaryBalance();
-		int bonusBalance = user.getBonusBalance();
-		int shiftSalary = user.getShiftSalary();
-		int shiftAmount = user.getShifts().size();
-		return new UserSalaryDetail(user, totalSalary, totalBonus, 0, 0, shiftSalary,
-				shiftAmount, salaryBalance, bonusBalance, shift, true);
-	}
-
 
 	@Override
 	public TotalStatisticView createTotalStatisticView(LocalDate from, LocalDate to) {
@@ -608,34 +602,117 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 	}
 
 	@Override
-	public void paySalary(List<User> salaryUsers) {
+	public List<User> paySalary(List<User> salaryUsers, String password) {
+
+		if (!confirmTokenService.confirm(password, Target.PAY_SALARY)) {
+			throw new PasswordException("Пароль не действителен!");
+		}
+
 		double totalCost = 0;
 		Shift lastShift = shiftService.getLast();
-		List<UserSalaryDetail> userSalaryDetails = new ArrayList<>();
+		StringBuilder costName = new StringBuilder();
 
-		for (User user : salaryUsers) {
+		for (int i = 0; i < salaryUsers.size(); i++) {
+			User user = salaryUsers.get(i);
+			costName.append(user.getFirstName())
+					.append(" ")
+					.append(user.getLastName());
+			if (i == (salaryUsers.size() - 1)) {
+				costName.append("\n");
+			} else {
+				costName.append(",\n");
+			}
+
 			int salary = user.getSalaryBalance() + user.getTotalSalary();
 			int bonus = user.getBonusBalance() + user.getTotalBonus();
+			int paidSalary = user.getSalaryBalance();
+			int paidBonus = user.getBonusBalance();
 
 			totalCost += user.getSalaryBalance() + user.getBonusBalance();
 
 			user.setTotalSalary(salary);
 			user.setTotalBonus(bonus);
-			UserSalaryDetail paidDetail = getPaidUserSalaryDetail(user, lastShift);
 			user.setSalaryBalance(0);
 			user.setBonusBalance(0);
+			UserSalaryDetail paidDetail = getPaidUserSalaryDetail(user, lastShift, paidSalary, paidBonus);
 
 			user.addSalaryDetail(paidDetail);
 		}
 
 		CostCategory salaryCategory = costCategoryService.getSalaryCategory();
 		LocalDate lastDate = shiftService.getLastShiftDate();
-		Cost cost = new Cost(salaryCategory.getName(), totalCost, 1.0, salaryCategory, lastDate);
+		Cost cost = new Cost(costName.toString(), totalCost, 1.0, salaryCategory, lastDate);
 
-		userSalaryDetailService.save(userSalaryDetails);
+
 		costService.save(cost);
-		userService.save(salaryUsers);
+		return userService.save(salaryUsers);
+	}
 
+	@Override
+	public User payChangedSalary(User user, Integer paidSalary, Integer paidBonus, String password) {
+
+		if (!confirmTokenService.confirm(password, Target.PAY_CHANGED_SALARY)) {
+			throw new PasswordException("Пароль не действителен!");
+		}
+
+		Shift lastShift = shiftService.getLast();
+		String userName = user.getFirstName() + " " + user.getLastName();
+
+		int salary = paidSalary + user.getTotalSalary();
+		int bonus = paidBonus + user.getTotalBonus();
+
+		int salaryBalanceRemainder = 0;
+		int bonusBalanceRemainder = 0;
+		int salaryDifference = user.getSalaryBalance() - salary;
+		int bonusDifference = user.getBonusBalance() - bonus;
+
+		int totalCost = paidSalary + paidBonus;
+
+		if (salaryDifference > 0) {
+			salaryBalanceRemainder = salaryDifference;
+		}
+
+		if (bonusDifference > 0) {
+			bonusBalanceRemainder = bonusDifference;
+		}
+
+		user.setTotalSalary(salary);
+		user.setTotalBonus(bonus);
+		user.setSalaryBalance(salaryBalanceRemainder);
+		user.setBonusBalance(bonusBalanceRemainder);
+		UserSalaryDetail paidDetail = getPaidUserSalaryDetail(user, lastShift, paidSalary, paidBonus);
+
+		user.addSalaryDetail(paidDetail);
+
+		CostCategory salaryCategory = costCategoryService.getSalaryCategory();
+		LocalDate lastDate = shiftService.getLastShiftDate();
+		Cost cost = new Cost(userName, totalCost, 1.0, salaryCategory, lastDate);
+
+		costService.save(cost);
+		return userService.save(user);
+	}
+
+	@Override
+	public User changeBalance(User user, Integer salaryBalance, Integer bonusBalance, String password) {
+
+		if (!confirmTokenService.confirm(password, Target.CHANGE_BALANCE)) {
+			throw new PasswordException("Пароль не действителен!");
+		}
+
+		user.setSalaryBalance(salaryBalance);
+		user.setBonusBalance(bonusBalance);
+		return userService.save(user);
+	}
+
+	private UserSalaryDetail getPaidUserSalaryDetail(User user, Shift shift, int paidSalary, int paidBonus) {
+		int totalSalary = user.getTotalSalary();
+		int totalBonus = user.getTotalBonus();
+		int salaryBalance = user.getSalaryBalance();
+		int bonusBalance = user.getBonusBalance();
+		int shiftSalary = user.getShiftSalary();
+		int shiftAmount = user.getShifts().size();
+		return new UserSalaryDetail(user, totalSalary, totalBonus, salaryBalance, bonusBalance, shiftSalary,
+				shiftAmount, paidSalary, paidBonus, shift, true);
 	}
 
 	private Double getAllDirtyPrice(Client client) {

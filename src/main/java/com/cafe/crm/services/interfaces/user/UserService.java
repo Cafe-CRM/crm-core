@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-	void save(User user);
+	User save(User user);
 
-	void save(Collection<User> users);
+	List<User> save(Collection<User> users);
 
-	void save(User user, String positionsIds, String rolesIds, String isDefaultPassword);
+	User save(User user, String positionsIds, String rolesIds, String isDefaultPassword);
 
-	void saveNewUser(User user);
+	User saveNewUser(User user);
 
 	List<User> findAll();
 

@@ -2,19 +2,19 @@ package com.cafe.crm.controllers.boss;
 
 import com.cafe.crm.dto.ExtraUserData;
 import com.cafe.crm.dto.PositionDTO;
-import com.cafe.crm.dto.RoleDTO;
 import com.cafe.crm.dto.UserLoggingDTO;
+import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.exceptions.user.PositionDataException;
 import com.cafe.crm.exceptions.user.UserDataException;
-import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.Position;
 import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
 import com.cafe.crm.services.interfaces.position.PositionService;
 import com.cafe.crm.services.interfaces.role.RoleService;
-import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.user.UserService;
+import com.cafe.crm.services.interfaces.vk.VkService;
+import com.cafe.crm.utils.Target;
 import com.yc.easytransformer.Transformer;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +26,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 public class UserAccountingController {
@@ -40,17 +38,19 @@ public class UserAccountingController {
 	private final RoleService roleService;
 	private final ShiftCalculationService shiftCalculationService;
 	private final Transformer transformer;
+	private final VkService vkService;
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(UserAccountingController.class);
 
 	@Autowired
 	public UserAccountingController(UserService userService, PositionService positionService, RoleService roleService,
-									ShiftCalculationService shiftCalculationService, Transformer transformer) {
+									ShiftCalculationService shiftCalculationService, Transformer transformer, VkService vkService) {
 		this.userService = userService;
 		this.positionService = positionService;
 		this.roleService = roleService;
 		this.shiftCalculationService = shiftCalculationService;
 		this.transformer = transformer;
+		this.vkService = vkService;
 	}
 
 	@RequestMapping(value = {"/boss/user/accounting"}, method = RequestMethod.GET)
@@ -183,8 +183,8 @@ public class UserAccountingController {
 
 	@RequestMapping(value = {"/boss/user/pay-salaries"}, method = RequestMethod.POST)
 	@ResponseBody
-	public List<User> paySalary(@RequestParam(name = "clientsId", required = false) long[] usersIds) {
-
+	public List<User> paySalary(@RequestParam(name = "clientsId", required = false) long[] usersIds,
+								@RequestParam(name = "password") String password) {
 		if (usersIds == null || usersIds.length == 0) {
 			throw new UserDataException("Выберите работников для выдачи зарплаты!");
 		}
@@ -208,10 +208,167 @@ public class UserAccountingController {
 
 		logger.info(salaryUsersInfo.toString());
 
-		shiftCalculationService.paySalary(salaryUsers);
+		shiftCalculationService.paySalary(salaryUsers, password);
 
 		return allUsers;
 	}
+
+	@RequestMapping(value = {"/boss/user/pay-changed-salary"}, method = RequestMethod.POST)
+	@ResponseBody
+	public User payChangedSalary(@RequestParam(name = "userId") Long userId,
+									   @RequestParam(name = "salary") Integer salary,
+									   @RequestParam(name = "bonus") Integer bonus,
+									   @RequestParam(name = "password") String password) {
+
+		if (userId == null) {
+			throw new UserDataException("Выберите работников для выдачи зарплаты!");
+		}
+
+		User salaryUser = userService.findById(userId);
+
+		if (salaryUser == null) {
+			throw new UserDataException("Выбраны несуществующие работники!");
+		}
+
+		int totalSalary = salary + bonus;
+
+		String salaryUsersInfo = "Выдана изменённая зарплата сотруднику с именем: \n"
+				+ salaryUser.getFirstName() + " " + salaryUser.getLastName() +
+				"\nОкладная часть - " + salaryUser.getSalaryBalance() +
+				"\nБонусная часть - " + salaryUser.getBonusBalance() +
+				"\nВыдано:" +
+				"\nОклад - " + salary +
+				"\nБонус - " + bonus +
+				"\nИтого: " + totalSalary;
+
+		logger.info(salaryUsersInfo);
+
+		return shiftCalculationService.payChangedSalary(salaryUser, salary, bonus, password);
+	}
+
+	@RequestMapping(value = {"/boss/user/changed-balance"}, method = RequestMethod.POST)
+	@ResponseBody
+	public User changeBalance(@RequestParam(name = "userId") Long userId,
+								 @RequestParam(name = "salary") Integer salary,
+								 @RequestParam(name = "bonus") Integer bonus,
+								 @RequestParam(name = "password") String password) {
+
+		if (userId == null) {
+			throw new UserDataException("Выберите работников для выдачи зарплаты!");
+		}
+
+		User salaryUser = userService.findById(userId);
+
+		if (salaryUser == null) {
+			throw new UserDataException("Выбраны несуществующие работники!");
+		}
+
+		String salaryUsersInfo = "Изменён баланс сотрудника с именем: \n"
+				+ salaryUser.getFirstName() + " " + salaryUser.getLastName() +
+				"\nОкладная часть - " + salaryUser.getSalaryBalance() + " -> " + salary +
+				"\nБонусная часть - " + salaryUser.getBonusBalance() + " -> " + bonus;
+
+		logger.info(salaryUsersInfo);
+
+		return shiftCalculationService.changeBalance(salaryUser, salary, bonus, password);
+	}
+
+	@RequestMapping(value = {"/boss/user/send-changed-salary-password"}, method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity sendChangeSalaryPassword(@RequestParam(name = "userId") Long userId,
+												   @RequestParam(name = "salary") Integer salary,
+												   @RequestParam(name = "bonus") Integer bonus) {
+
+		if (userId == null) {
+			throw new UserDataException("Выберите работников для выдачи зарплаты!");
+		}
+
+		User salaryUser = userService.findById(userId);
+
+		if (salaryUser == null) {
+			throw new UserDataException("Выбраны несуществующие работники!");
+		}
+
+		int totalSalary = salary + bonus;
+		String name = salaryUser.getFirstName() + " " + salaryUser.getLastName();
+
+		String prefix = "\nВыдача основной части для " + name  + " " + totalSalary +
+				"\nКод подтверждения: ";
+
+		vkService.sendConfirmToken(prefix, Target.PAY_CHANGED_SALARY);
+		return ResponseEntity.ok("Пароль послан");
+	}
+
+	@RequestMapping(value = {"/boss/user/send-change-balance-password"}, method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity sendChangeBalancePassword(@RequestParam(name = "userId") Long userId,
+												   @RequestParam(name = "salary") Integer salary,
+												   @RequestParam(name = "bonus") Integer bonus) {
+
+		if (userId == null) {
+			throw new UserDataException("Выберите работников для выдачи зарплаты!");
+		}
+
+		User salaryUser = userService.findById(userId);
+
+		if (salaryUser == null) {
+			throw new UserDataException("Выбраны несуществующие работники!");
+		}
+
+		String name = salaryUser.getFirstName() + " " + salaryUser.getLastName();
+
+		String prefix = "\nИзменение окладной части для  " + name +
+				" с " + salaryUser.getSalaryBalance() + " на " + salary +
+				"\nИзменение бонусной части с " + salaryUser.getBonusBalance() + " на " + bonus + "\n" +
+				"\nКод подтверждения: ";
+
+		vkService.sendConfirmToken(prefix, Target.CHANGE_BALANCE);
+		return ResponseEntity.ok("Пароль послан");
+	}
+
+	@RequestMapping(value = {"/boss/user/send-salary-token"}, method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity sendPaySalaryToken(@RequestParam(name = "clientsId", required = false) long[] usersIds) {
+
+		if (usersIds == null || usersIds.length == 0) {
+			throw new UserDataException("Выберите работников для выдачи зарплаты!");
+		}
+
+		List<User> users = userService.findByIdIn(usersIds);
+		List<User> salaryUsers = new ArrayList<>();
+
+		if (users == null) {
+			throw new UserDataException("Выбраны несуществующие работники!");
+		}
+
+		for (User user : salaryUsers) {
+			int userSalary = user.getSalaryBalance() + user.getBonusBalance();
+			if (userSalary != 0) {
+				salaryUsers.add(user);
+			}
+		}
+
+		if (salaryUsers.size() == 0) {
+			throw new UserDataException("Нельзя выдать зарплату сотрудникам с нулевым балансом!");
+		}
+
+		StringBuilder prefix = new StringBuilder("Выдача зарплат сотрудников: \n");
+
+		for (User user : salaryUsers) {
+			prefix.append(user.getLastName())
+					.append(" ")
+					.append(user.getLastName())
+					.append(" - ")
+					.append(user.getBonusBalance() + user.getSalaryBalance())
+					.append("\n");
+		}
+
+		prefix.append("Код подтверждения: ");
+
+		vkService.sendConfirmToken(prefix.toString(), Target.PAY_SALARY);
+		return ResponseEntity.ok("Пароль послан");
+	}
+
 
 	@ExceptionHandler(value = UserDataException.class)
 	public ResponseEntity<?> handleUserUpdateException(UserDataException ex) {
@@ -220,6 +377,11 @@ public class UserAccountingController {
 
 	@ExceptionHandler(value = PositionDataException.class)
 	public ResponseEntity<?> handleUserUpdateException(PositionDataException ex) {
+		return ResponseEntity.badRequest().body(ex.getMessage());
+	}
+
+	@ExceptionHandler(value = PasswordException.class)
+	public ResponseEntity<?> handleTransferException(PasswordException ex) {
 		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 }

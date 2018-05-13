@@ -18,6 +18,7 @@ jQuery(document).ready( function() {
                 $('#salaryUsersTable').html('');
 
                 for (var i = 0; i < data.length; i++) {
+                    var id = data[i].id;
                     var count = i + 1;
                     var name = data[i].firstName + " " + data[i].lastName;
                     var salaryBalance = data[i].salaryBalance;
@@ -26,16 +27,17 @@ jQuery(document).ready( function() {
                     $('#salaryUsersTable').append(
                         '<tr>' +
                         '<td><p align="center">' + count + '</p></td>' +
-                        '<td><p align="center">' + name + '</p></td>' +
-                        '<td><p align="center">' + salaryBalance + '</p></td>' +
-                        '<td><p align="center">' + bonusBalance + '</p></td>' +
+                        '<td id="fullName' + id + '"><p align="center">' + name + '</p></td>' +
+                        '<td id="salaryBalance' + id + '"><p align="center">' + salaryBalance + '</p></td>' +
+                        '<td id="bonusBalance' + id + '"><p align="center">' + bonusBalance + '</p></td>' +
+                        '<td>' +
+                        '<button onclick="payNewSalary(' + id + ');" class="btn btn-info">Выдать новую сумму</button>' +
+                        '<button style="float: right" onclick="changeUserBalance(' + id + ');" class="btn btn-danger">Изменить баланс</button>' +
+                        '</td>' +
                         '<td style="text-align: center;">' +
                         '<input name="clientsId" form="formCheckedWorkers" class="checkWorkerSalary" style="width: 20px;height: 20px;margin-top: 5px" id="' + data[i].id + '" value="' +  data[i].id + '" type="checkbox"/>' +
-                        '</td>' +
+                        '</td>totalSalaryCost' +
                         '</tr>'
-
-
-
                     );
                 }
             },
@@ -45,9 +47,158 @@ jQuery(document).ready( function() {
             }
         });
     });
-
-
 });
+
+function payNewSalary(userId) {
+    var salary = parseFloat($('#salaryBalance' + userId).text().toString());
+    var bonus = parseFloat($('#bonusBalance' + userId).text().toString());
+
+    $('#title').text('Изменение зп при выдаче.\nВведите новые данные и отправьте код подверждения.');
+    $('#workerName').text($('#fullName' + userId).text());
+    $('#newSalaryBalance').val(salary);
+    $('#newBonusBalance').val(bonus);
+    $('#newTotalSalary').html(salary + bonus);
+    $('#salaryDataButton').attr('onclick', 'sendNewSalaryDataToken(' + userId + ');' );
+    $("#changeBalanceModal").modal('show');
+}
+
+function recalculateSalary() {
+    var newSalary = parseFloat($('#newSalaryBalance').val().toString());
+    var newBonus = parseFloat($('#newBonusBalance').val().toString());
+
+    if (isNaN(newSalary)) newSalary = 0;
+    if (isNaN(newBonus)) newBonus = 0;
+
+    $('#newTotalSalary').html(newSalary + newBonus);
+}
+
+function sendNewSalaryDataToken(userId) {
+    var newSalary = parseFloat($('#newSalaryBalance').val().toString());
+    var newBonus = parseFloat($('#newBonusBalance').val().toString());
+
+    $.ajax({
+        type: "POST",
+        url: "/boss/user/send-changed-salary-password",
+        data: {userId: userId, salary: newSalary, bonus: newBonus},
+
+        success: function (data) {
+            $('#newSalaryBalance').prop('disabled',true);
+            $('#newBonusBalance').prop('disabled',true);
+            $('#title').html('В админ-конференцию был послан короткий код. \n Используйте его для подтверждения действия.');
+            $('#salaryDataButton').addClass('hidden');
+            $('#confirmCodeBlock').removeClass('hidden');
+            $('#sendChangedSalaryCodeAgain').removeClass('hidden');
+            $('#sendChangedSalaryCodeAgain').attr('onclick', 'sendNewSalaryDataToken(' + userId + ');' );
+            $('#payChangedSalary').removeClass('hidden');
+            $('#payChangedSalary').attr('onclick', 'payChangedSalary(' + userId + ');' );
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#changeSalaryError').html(errorMessage).show();
+        }
+    });
+}
+
+function payChangedSalary(userId) {
+    var newSalary = parseFloat($('#newSalaryBalance').val().toString());
+    var newBonus = parseFloat($('#newBonusBalance').val().toString());
+    var password = $('#confirmCode').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/boss/user/pay-changed-salary",
+        data: {userId: userId, salary: newSalary, bonus: newBonus, password: password},
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#changeSalaryError').html(errorMessage).show();
+        }
+    });
+}
+
+function changeUserBalance(userId) {
+    var salary = parseFloat($('#salaryBalance' + userId).text().toString());
+    var bonus = parseFloat($('#bonusBalance' + userId).text().toString());
+
+    $('#title').text('Изменение баланса сотрудника.\nВведите новые данные и отправьте код подверждения.');
+    $('#workerName').text($('#fullName' + userId).text());
+    $('#newSalaryBalance').val(salary);
+    $('#newBonusBalance').val(bonus);
+    $('#salaryInfo').addClass('hidden');
+    $('#salaryDataButton').attr('onclick', 'sendNewBalanceToken(' + userId + ');' );
+    $("#changeBalanceModal").modal('show');
+
+    $("#changeBalanceModal").modal('show');
+}
+
+function sendNewBalanceToken(userId) {
+    var newSalary = parseFloat($('#newSalaryBalance').val().toString());
+    var newBonus = parseFloat($('#newBonusBalance').val().toString());
+
+    $.ajax({
+        type: "POST",
+        url: "/boss/user/send-change-balance-password",
+        data: {userId: userId, salary: newSalary, bonus: newBonus},
+
+        success: function (data) {
+            $('#newSalaryBalance').prop('disabled',true);
+            $('#newBonusBalance').prop('disabled',true);
+            $('#title').html('В админ-конференцию был послан короткий код. \n Используйте его для подтверждения действия.');
+            $('#salaryDataButton').addClass('hidden');
+            $('#confirmCodeBlock').removeClass('hidden');
+            $('#sendChangedSalaryCodeAgain').removeClass('hidden');
+            $('#sendChangedSalaryCodeAgain').attr('onclick', 'sendNewBalanceToken(' + userId + ');' );
+            $('#changeBalance').removeClass('hidden');
+            $('#changeBalance').attr('onclick', 'changeBalance(' + userId + ');' );
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#changeSalaryError').html(errorMessage).show();
+        }
+    });
+}
+
+function changeBalance(userId) {
+    var newSalary = parseFloat($('#newSalaryBalance').val().toString());
+    var newBonus = parseFloat($('#newBonusBalance').val().toString());
+    var password = $('#confirmCode').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/boss/user/changed-balance",
+        data: {userId: userId, salary: newSalary, bonus: newBonus, password: password},
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#changeSalaryError').html(errorMessage).show();
+        }
+    });
+}
+
+function sendSalaryToken() {
+    $.ajax({
+        type: "POST",
+        url: "/boss/user/send-salary-token",
+        data: $('#formCheckedWorkers').serialize(),
+
+        success: function (data) {
+            $('#sendSalaryCode').addClass('hidden');
+            $('#sendSalaryCodeAgain').removeClass('hidden');
+            $('#confirmPayBlock').removeClass('hidden');
+            $('#paySalaryButton').removeClass('hidden');
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('#salaryWorkerError').html(errorMessage).show();
+        }
+    });
+}
 
 function getOtherProductsAndDisplay(iter) {
     var jBlock = jQuery('#otherBlock' + iter);
@@ -76,13 +227,6 @@ function showClose(jBlock, jButton, button) {
         button.innerHTML = 'Посмотреть заказ';
     }
 }
-/*$(".deleteButton").click(function () {
-    sendDeleteDebtToken();
-});
-
-$(".closeAndRecalculate").click(function () {
-    sendRecalculateToken();
-});*/
 
 function checkWorkers() {
     if ($('#checkAllWorker').is(':checked')) {
@@ -137,10 +281,16 @@ $('#salaryConfirmModal').on('hidden.bs.modal', function (event) {
 });
 
 function giveSalary() {
+    var formInfo = $('#formCheckedWorkers').serialize();
+    var arr = formInfo.split("&");
+    for (var i = 0; i < arr.length; i++) {
+        arr[i] = arr[i].substring(10);
+    }
     $.ajax({
         type: "POST",
         url: "/boss/user/pay-salaries",
-        data: $('#formCheckedWorkers').serialize(),
+
+        data: {clientsId: arr.toString(), password: $('#confirmPayCode').val()},
 
         success: function (data) {
             var successMessage = '<h4 style="color:green;" align="center"> Зарплаты начисленны! </h4>';
@@ -152,22 +302,27 @@ function giveSalary() {
                 $('#checkAllWorker').prop("checked", false);
 
                 for (var i = 0; i < data.length; i++) {
+                    var id = data[i].id;
                     var count = i + 1;
                     var name = data[i].firstName + " " + data[i].lastName;
                     var salaryBalance = data[i].salaryBalance;
                     var bonusBalance = data[i].bonusBalance;
 
                     $('#salaryUsersTable').append(
+
                         '<tr>' +
                         '<td><p align="center">' + count + '</p></td>' +
-                        '<td><p align="center">' + name + '</p></td>' +
-                        '<td><p align="center">' + salaryBalance + '</p></td>' +
-                        '<td><p align="center">' + bonusBalance + '</p></td>' +
+                        '<td id="fullName' + id + '"><p align="center">' + name + '</p></td>' +
+                        '<td id="salaryBalance' + id + '"><p align="center">' + salaryBalance + '</p></td>' +
+                        '<td id="bonusBalance' + id + '"><p align="center">' + bonusBalance + '</p></td>' +
+                        '<td>' +
+                        '<button onclick="payNewSalary(' + id + ');" class="btn btn-info">Выдать новую сумму</button>' +
+                        '<button style="float: right" onclick="changeClientBalance(' + id + ');" class="btn btn-danger">Изменить баланс</button>' +
+                        '</td>' +
                         '<td style="text-align: center;">' +
                         '<input name="clientsId" form="formCheckedWorkers" class="checkWorkerSalary" style="width: 20px;height: 20px;margin-top: 5px" id="' + data[i].id + '" value="' +  data[i].id + '" type="checkbox"/>' +
-                        '</td>' +
+                        '</td>totalSalaryCost' +
                         '</tr>'
-
 
 
                     );

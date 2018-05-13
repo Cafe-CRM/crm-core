@@ -15,15 +15,30 @@ import java.util.Set;
 
 public interface ShiftCalculationService {
 	UserSalaryDetail getUserSalaryDetail(User user, int percent, int bonus, Shift shift);
+
 	double getTotalCashBox(Set<Shift> allShiftsBetween);
+
 	TotalStatisticView createTotalStatisticView(LocalDate from, LocalDate to);
+
 	DetailStatisticView createDetailStatisticView(Shift shift);
+
 	ShiftView createShiftView(Shift shift);
+
 	void transferFromBankToCashBox(Double transfer);
+
 	void transferFromCashBoxToBank(Double transfer);
+
 	Map<Client, ClientDetails> getClientsOnDetails (Set<Calculate> allCalculate);
+
 	List<CalculateDTO> getCalculates(Shift shift);
+
 	double getAllPrice(Shift shift);
+
 	List<Client> getClients(Shift shift);
-	void paySalary(List<User> salaryUsers);
+
+	List<User> paySalary(List<User> salaryUsers, String password);
+
+	User payChangedSalary(User user, Integer paidSalary, Integer paidBonus, String password);
+
+	User changeBalance(User user, Integer salaryBalance, Integer bonusBalance, String password);
 }

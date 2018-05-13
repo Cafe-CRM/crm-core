@@ -86,37 +86,39 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void save(User user) {
+	public User save(User user) {
 		setCompany(user);
-		userRepository.saveAndFlush(user);
+		return userRepository.saveAndFlush(user);
 	}
 
 	@Override
-	public void save(Collection<User> users) {
+	public List<User> save(Collection<User> users) {
 		for (User user : users) {
 			setCompany(user);
 		}
-		userRepository.save(users);
+		return userRepository.save(users);
 	}
 
 	@Override
-	public void save(User user, String positionsIds, String rolesIds, String isDefaultPassword) {
+	public User save(User user, String positionsIds, String rolesIds, String isDefaultPassword) {
 		cacheManager.getCache("user").evict(user.getEmail());
 		checkForUniqueEmailAndPhone(user);
 		setPositionsToUser(user, positionsIds);
 		setRolesToUser(user, rolesIds);
 		setPasswordToUser(user, isDefaultPassword);
 		setCompany(user);
-		userRepository.saveAndFlush(user);
+		User savedUser = userRepository.saveAndFlush(user);
 		cacheManager.getCache("user").put(user.getEmail(), user);
+		return savedUser;
 	}
 
 	@Override
-	public void saveNewUser(User user) {
+	public User saveNewUser(User user) {
 		checkForUniqueEmailAndPhone(user);
 		companyService.save(user.getCompany());
-		userRepository.saveAndFlush(user);
+		User savedUser = userRepository.saveAndFlush(user);
 		cacheManager.getCache("user").clear();
+		return savedUser;
 	}
 
 	@Override
