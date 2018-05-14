@@ -283,7 +283,7 @@ public class VkServiceImpl implements VkService {
 			return df.format(profit);
 		}
 		for (Debt debt : debts) {
-			if (debt.isCashBoxDebt()) {
+			if (!debt.isCashBoxDebt()) {
 				otherDebtAmount += debt.getDebtAmount();
 			} else {
 				cashBoxDebtAmount += debt.getDebtAmount();

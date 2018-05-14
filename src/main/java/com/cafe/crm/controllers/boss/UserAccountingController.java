@@ -341,7 +341,7 @@ public class UserAccountingController {
 			throw new UserDataException("Выбраны несуществующие работники!");
 		}
 
-		for (User user : salaryUsers) {
+		for (User user : users) {
 			int userSalary = user.getSalaryBalance() + user.getBonusBalance();
 			if (userSalary != 0) {
 				salaryUsers.add(user);

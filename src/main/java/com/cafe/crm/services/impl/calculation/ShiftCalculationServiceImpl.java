@@ -663,8 +663,8 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 		int salaryBalanceRemainder = 0;
 		int bonusBalanceRemainder = 0;
-		int salaryDifference = user.getSalaryBalance() - salary;
-		int bonusDifference = user.getBonusBalance() - bonus;
+		int salaryDifference = user.getSalaryBalance() - paidSalary;
+		int bonusDifference = user.getBonusBalance() - paidBonus;
 
 		int totalCost = paidSalary + paidBonus;
 

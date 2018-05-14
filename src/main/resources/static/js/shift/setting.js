@@ -53,6 +53,9 @@ function payNewSalary(userId) {
     var salary = parseFloat($('#salaryBalance' + userId).text().toString());
     var bonus = parseFloat($('#bonusBalance' + userId).text().toString());
 
+    if (isNaN(salary)) salary = 0;
+    if (isNaN(bonus)) bonus = 0;
+
     $('#title').text('Изменение зп при выдаче.\nВведите новые данные и отправьте код подверждения.');
     $('#workerName').text($('#fullName' + userId).text());
     $('#newSalaryBalance').val(salary);
@@ -75,6 +78,9 @@ function recalculateSalary() {
 function sendNewSalaryDataToken(userId) {
     var newSalary = parseFloat($('#newSalaryBalance').val().toString());
     var newBonus = parseFloat($('#newBonusBalance').val().toString());
+
+    if (isNaN(newSalary)) newSalary = 0;
+    if (isNaN(newBonus)) newBonus = 0;
 
     $.ajax({
         type: "POST",
@@ -104,6 +110,9 @@ function payChangedSalary(userId) {
     var newBonus = parseFloat($('#newBonusBalance').val().toString());
     var password = $('#confirmCode').val();
 
+    if (isNaN(newSalary)) newSalary = 0;
+    if (isNaN(newBonus)) newBonus = 0;
+
     $.ajax({
         type: "POST",
         url: "/boss/user/pay-changed-salary",
@@ -123,6 +132,9 @@ function changeUserBalance(userId) {
     var salary = parseFloat($('#salaryBalance' + userId).text().toString());
     var bonus = parseFloat($('#bonusBalance' + userId).text().toString());
 
+    if (isNaN(salary)) salary = 0;
+    if (isNaN(bonus)) bonus = 0;
+
     $('#title').text('Изменение баланса сотрудника.\nВведите новые данные и отправьте код подверждения.');
     $('#workerName').text($('#fullName' + userId).text());
     $('#newSalaryBalance').val(salary);
@@ -137,6 +149,9 @@ function changeUserBalance(userId) {
 function sendNewBalanceToken(userId) {
     var newSalary = parseFloat($('#newSalaryBalance').val().toString());
     var newBonus = parseFloat($('#newBonusBalance').val().toString());
+
+    if (isNaN(newSalary)) newSalary = 0;
+    if (isNaN(newBonus)) newBonus = 0;
 
     $.ajax({
         type: "POST",
@@ -165,6 +180,9 @@ function changeBalance(userId) {
     var newSalary = parseFloat($('#newSalaryBalance').val().toString());
     var newBonus = parseFloat($('#newBonusBalance').val().toString());
     var password = $('#confirmCode').val();
+
+    if (isNaN(newSalary)) newSalary = 0;
+    if (isNaN(newBonus)) newBonus = 0;
 
     $.ajax({
         type: "POST",
