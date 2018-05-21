@@ -1,9 +1,12 @@
 package com.cafe.crm.models.client;
 
+import com.cafe.crm.dto.DebtDTO;
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.menu.Category;
 import com.cafe.crm.models.shift.Shift;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.yc.easytransformer.annotations.NotTransform;
+import com.yc.easytransformer.annotations.Transform;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +17,7 @@ import java.util.Objects;
 
 @Entity
 @Table
+@Transform(DebtDTO.class)
 public class Debt extends BaseEntity {
 
 	@Id
@@ -25,6 +29,7 @@ public class Debt extends BaseEntity {
 	private Double debtAmount;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@NotTransform
 	private LocalDate date;
 
 	private boolean visible = true;
@@ -33,10 +38,12 @@ public class Debt extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "shift_id", nullable = false)
+	@NotTransform
 	private Shift shift;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "calculate_id")
+	@NotTransform
 	private Calculate calculate;
 
 	public Debt() {

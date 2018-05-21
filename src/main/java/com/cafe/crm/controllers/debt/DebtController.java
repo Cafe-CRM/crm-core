@@ -1,5 +1,6 @@
 package com.cafe.crm.controllers.debt;
 
+import com.cafe.crm.dto.DebtDTO;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.exceptions.password.PasswordException;
@@ -15,6 +16,7 @@ import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.Target;
 import com.cafe.crm.utils.TimeManager;
+import com.yc.easytransformer.Transformer;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -123,8 +125,10 @@ public class DebtController {
 		LocalDate from = (fromDate == null || fromDate.isEmpty()) ? null : LocalDate.parse(fromDate, formatter);
 		LocalDate to = (toDate == null || toDate.isEmpty()) ? null : LocalDate.parse(toDate, formatter);
 
+		List<DebtDTO> debtDTOS = debtService.transformDebtsWithOutShiftAndCalc(debtList);
+
 		ModelAndView modelAndView = new ModelAndView("debt/debt");
-		modelAndView.addObject("debtsList", debtList);
+		modelAndView.addObject("debtsList", debtDTOS);
 		modelAndView.addObject("totalDebtAmount", totalDebtAmount);
 		modelAndView.addObject("debtorName", debtorName);
 		modelAndView.addObject("formDebt", new Debt());

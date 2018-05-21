@@ -1,6 +1,7 @@
 package com.cafe.crm.services.interfaces.debt;
 
 
+import com.cafe.crm.dto.DebtDTO;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.shift.Shift;
 
@@ -37,6 +38,8 @@ public interface DebtService {
 	List<Debt> findCashBoxDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
 
 	List<Debt> findByCalculateId(Long calculateId);
+
+	List<DebtDTO> transformDebtsWithOutShiftAndCalc(List<Debt> debts);
 
 	Debt repayDebt(Long id);
 

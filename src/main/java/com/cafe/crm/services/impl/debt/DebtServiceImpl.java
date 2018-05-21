@@ -1,6 +1,7 @@
 package com.cafe.crm.services.impl.debt;
 
 
+import com.cafe.crm.dto.DebtDTO;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.company.Company;
@@ -10,10 +11,12 @@ import com.cafe.crm.services.interfaces.company.CompanyService;
 import com.cafe.crm.services.interfaces.debt.DebtService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.utils.CompanyIdCache;
+import com.yc.easytransformer.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,13 +27,16 @@ public class DebtServiceImpl implements DebtService {
 	private final ShiftService shiftService;
 	private final CompanyService companyService;
 	private final CompanyIdCache companyIdCache;
+	private final Transformer transformer;
 
 	@Autowired
-	public DebtServiceImpl(DebtRepository repository, ShiftService shiftService, CompanyService companyService, CompanyIdCache companyIdCache) {
+	public DebtServiceImpl(DebtRepository repository, ShiftService shiftService, CompanyService companyService,
+						   CompanyIdCache companyIdCache, Transformer transformer) {
 		this.repository = repository;
 		this.shiftService = shiftService;
 		this.companyService = companyService;
 		this.companyIdCache = companyIdCache;
+		this.transformer = transformer;
 	}
 
 	private void setCompany(Debt debt) {
@@ -128,6 +134,19 @@ public class DebtServiceImpl implements DebtService {
 	@Override
 	public List<Debt> findByCalculateId(Long calculateId) {
 		return repository.findByCalculateId(calculateId);
+	}
+
+	@Override
+	public List<DebtDTO> transformDebtsWithOutShiftAndCalc(List<Debt> debts) {
+		List<DebtDTO> debtsDTOS = new ArrayList<>(debts.size());
+
+		for (Debt debt : debts) {
+			DebtDTO dto = transformer.transform(debt, DebtDTO.class);
+			dto.setDate(debt.getDate());
+			debtsDTOS.add(dto);
+		}
+
+		return debtsDTOS;
 	}
 
 	@Override
