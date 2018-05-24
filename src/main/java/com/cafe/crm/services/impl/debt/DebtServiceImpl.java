@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -82,29 +83,13 @@ public class DebtServiceImpl implements DebtService {
 	}
 
 	@Override
-	public List<Debt> findByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to) {
-		return repository.findByVisibleIsTrueAndDateBetweenAndCompanyId(from, to, companyIdCache.getCompanyId());
-	}
-
-	@Override
 	public List<Debt> findOtherDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to) {
-		return repository.findByVisibleIsTrueAndDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(from, to, companyIdCache.getCompanyId());
+		return repository.findByDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public List<Debt> findCashBoxDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to) {
-		return repository.findByVisibleIsTrueAndDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(from, to, companyIdCache.getCompanyId());
-	}
-
-	@Override
-	public void offVisibleStatus(Debt debt) {
-		debt.setVisible(false);
-		repository.save(debt);
-	}
-
-	@Override
-	public List<Debt> findByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to) {
-		return repository.findByDebtorAndDateBetweenAndCompanyId(debtor, from, to, companyIdCache.getCompanyId());
+		return repository.findByDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -121,15 +106,9 @@ public class DebtServiceImpl implements DebtService {
 	public Debt repayDebt(Long id) {
 		Shift lastShift = shiftService.getLast();
 		Debt debt = repository.findOne(id);
-		//todo repaired debts
-		lastShift.addRepaidDebtToList(debt);
-		Shift shiftWithDebt = debt.getShift();
-		if (lastShift.equals(shiftWithDebt)) {
-			//todo given debts
-			shiftWithDebt.getGivenDebts().remove(debt);
-		}
-		shiftService.saveAndFlush(lastShift);
-		offVisibleStatus(debt);
+		debt.setRepaired(true);
+		debt.setRepairedShift(lastShift);
+		save(debt);
 		return debt;
 	}
 
@@ -154,11 +133,27 @@ public class DebtServiceImpl implements DebtService {
 	@Override
 	public Debt addDebtOnLastShift(Debt debt) {
 		Shift lastShift = shiftService.getLast();
-
-		debt.setShift(lastShift);
-		//todo given debts
-		lastShift.addGivenDebtToList(debt);
-
+		debt.setGivenShift(lastShift);
 		return save(debt);
+	}
+
+	@Override
+	public List<Debt> findGivenDebtsByShift(Shift shifts) {
+		return repository.findByGivenShiftAndCompanyId(shifts, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findRepaidDebtsByShift(Shift shifts) {
+		return repository.findByRepaidShiftAndCompanyId(shifts, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findGivenDebtsByShifts(Collection<Shift> shifts) {
+		return repository.findByGivenShiftInAndCompanyId(shifts, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findRepaidDebtsByShifts(Collection<Shift> shifts) {
+		return repository.findByRepaidShiftInAndCompanyId(shifts, companyIdCache.getCompanyId());
 	}
 }

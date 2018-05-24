@@ -38,6 +38,4 @@ public interface ShiftService {
  	LocalDate getLastShiftDate();
 
 	Set<Shift> findByDates(LocalDate start, LocalDate end);
-
-	Shift findByDateShift(LocalDate date);
 }

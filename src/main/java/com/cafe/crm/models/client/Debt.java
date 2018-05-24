@@ -32,22 +32,26 @@ public class Debt extends BaseEntity {
 	@NotTransform
 	private LocalDate date;
 
-	private boolean visible = true;
+	private boolean repaired = false;
 
 	private boolean cashBoxDebt = false;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "shift_id", nullable = false)
 	@NotTransform
-	private Shift shift;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "given_shift")
+	private Shift givenShift;
+
+	@NotTransform
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "repaired_shift")
+	private Shift repaidShift;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "calculate_id")
 	@NotTransform
 	private Calculate calculate;
 
-	public Debt() {
-	}
+	public Debt() {}
 
 	public Debt(String debtor, Double debtAmount, LocalDate date) {
 		this.debtor = debtor;
@@ -83,15 +87,15 @@ public class Debt extends BaseEntity {
 		this.date = date;
 	}
 
-	public boolean isVisible() {
-		return visible;
+	public boolean isRepaired() {
+		return repaired;
 	}
 
-	public void setVisible(boolean visible) {
-		this.visible = visible;
+	public void setRepaired(boolean repaired) {
+		this.repaired = repaired;
 	}
 
-    public boolean isCashBoxDebt() {
+	public boolean isCashBoxDebt() {
         return cashBoxDebt;
     }
 
@@ -99,12 +103,20 @@ public class Debt extends BaseEntity {
         this.cashBoxDebt = cashBoxDebt;
     }
 
-    public Shift getShift() {
-		return shift;
+	public Shift getGivenShift() {
+		return givenShift;
 	}
 
-	public void setShift(Shift shift) {
-		this.shift = shift;
+	public void setGivenShift(Shift givenShift) {
+		this.givenShift = givenShift;
+	}
+
+	public Shift getRepaidShift() {
+		return repaidShift;
+	}
+
+	public void setRepairedShift(Shift repaidShift) {
+		this.repaidShift = repaidShift;
 	}
 
 	public Calculate getCalculate() {
@@ -126,7 +138,6 @@ public class Debt extends BaseEntity {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, cashBoxDebt);
     }
 }

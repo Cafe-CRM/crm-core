@@ -55,12 +55,6 @@ public class Shift extends BaseEntity {
 	@OneToMany(mappedBy = "shift", fetch = FetchType.EAGER)
 	private Set<UserSalaryDetail> userSalaryDetail;
 
-	@OneToMany(fetch = FetchType.EAGER)
-	private Set<Debt> repaidDebts = new HashSet<>();
-
-	@OneToMany(fetch = FetchType.EAGER)
-	private Set<Debt> givenDebts = new HashSet<>();
-
 	@OneToMany(mappedBy = "shift", fetch = FetchType.EAGER)
 	private Set<Cost> costs;
 
@@ -194,18 +188,6 @@ public class Shift extends BaseEntity {
 		opened = open;
 	}
 
-	public Set<Debt> getRepaidDebts() {
-		return repaidDebts;
-	}
-
-	public void addRepaidDebtToList(Debt debt) {
-		this.repaidDebts.add(debt);
-	}
-
-	public void addGivenDebtToList(Debt debt) {
-		this.givenDebts.add(debt);
-	}
-
 	public void addSalaryDetail(UserSalaryDetail detail) {
 		this.userSalaryDetail.add(detail);
 	}
@@ -232,14 +214,6 @@ public class Shift extends BaseEntity {
 
 	public void setNoteRecords(List<NoteRecord> noteRecords) {
 		this.noteRecords = noteRecords;
-	}
-
-	public Set<Debt> getGivenDebts() {
-		return givenDebts;
-	}
-
-	public void setGivenDebts(Set<Debt> givenDebts) {
-		this.givenDebts = givenDebts;
 	}
 
 	@Override

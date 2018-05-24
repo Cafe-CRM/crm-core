@@ -11,6 +11,7 @@ import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.impl.user.UserServiceImpl;
 import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
+import com.cafe.crm.services.interfaces.debt.DebtService;
 import com.cafe.crm.services.interfaces.email.EmailService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
@@ -47,13 +48,15 @@ public class ShiftController {
     private final ChecklistService checklistService;
     private final ShiftCalculationService shiftCalculationService;
     private final ConfirmTokenService confirmTokenService;
+    private final DebtService debtService;
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(ShiftController.class);
 
     @Autowired
     public ShiftController(ShiftService shiftService, TimeManager timeManager, EmailService emailService,
 						   VkService vkService, UserService userService, ChecklistService checklistService,
-						   ShiftCalculationService shiftCalculationService, ConfirmTokenService confirmTokenService) {
+						   ShiftCalculationService shiftCalculationService, ConfirmTokenService confirmTokenService,
+                           DebtService debtService) {
         this.shiftService = shiftService;
         this.timeManager = timeManager;
         this.emailService = emailService;
@@ -62,6 +65,7 @@ public class ShiftController {
         this.checklistService = checklistService;
         this.shiftCalculationService = shiftCalculationService;
         this.confirmTokenService = confirmTokenService;
+        this.debtService = debtService;
     }
 
     @Transactional
@@ -144,8 +148,7 @@ public class ShiftController {
         model.addAttribute("clientOnDetail", shiftCalculationService.getClientsOnDetails(lastShift.getCalculates()));
         model.addAttribute("clients", shiftCalculationService.getClients(lastShift));
         model.addAttribute("closeChecklist", checklistService.getAllForCloseShift());
-        //todo repaired debts
-        model.addAttribute("repaidDebts", shiftService.getLast().getRepaidDebts());
+        model.addAttribute("repaidDebts", debtService.findRepaidDebtsByShift(lastShift));
         model.addAttribute("receipts", shiftService.getLast().getReceipts());
         model.addAttribute("bossFunctional", SecurityUtils.hasRole("BOSS", "MANAGER"));
         return "shift/shiftSettings";

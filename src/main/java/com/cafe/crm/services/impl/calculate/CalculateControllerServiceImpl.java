@@ -431,15 +431,12 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			} else if (paidAmount == totalDebtAmount) {
 				throw new DebtDataException("Сумма долга равна уплаченной сумме!");
 			}
-
 			Debt debt = new Debt();
 			debt.setDate(lastShift.getShiftDate());
 			debt.setDebtor(debtorName);
 			debt.setDebtAmount(totalDebtAmount);
-			debt.setShift(lastShift);
+			debt.setGivenShift(lastShift);
 			debt.setCalculate(calculate);
-			//todo given debts
-			lastShift.addGivenDebtToList(debt);
 			calculate.addGivenDebtToSet(debt);
 			debtService.save(debt);
 
@@ -546,7 +543,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		}
 
 		for (Debt debt : debts) {
-			debt.setVisible(false);
+            debtService.delete(debt);
 		}
 
 		checkIngredients(products);

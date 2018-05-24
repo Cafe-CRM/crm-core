@@ -6,6 +6,7 @@ import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.shift.Shift;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -23,15 +24,9 @@ public interface DebtService {
 
 	List<Debt> getAll();
 
-	List<Debt> findByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
-
 	List<Debt> findOtherDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
 
 	List<Debt> findCashBoxDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
-
-	void offVisibleStatus(Debt debt);
-
-	List<Debt> findByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
 
 	List<Debt> findOtherDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
 
@@ -44,4 +39,12 @@ public interface DebtService {
 	Debt repayDebt(Long id);
 
 	Debt addDebtOnLastShift(Debt debt);
+
+	List<Debt> findGivenDebtsByShift(Shift shifts);
+
+	List<Debt> findRepaidDebtsByShift(Shift shifts);
+
+	List<Debt> findGivenDebtsByShifts(Collection<Shift> shifts);
+
+	List<Debt> findRepaidDebtsByShifts(Collection<Shift> shifts);
 }

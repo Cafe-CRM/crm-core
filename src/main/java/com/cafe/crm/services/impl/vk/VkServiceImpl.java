@@ -13,6 +13,7 @@ import com.cafe.crm.models.shift.UserSalaryDetail;
 import com.cafe.crm.models.template.Template;
 import com.cafe.crm.models.user.User;
 import com.cafe.crm.services.interfaces.cost.CostService;
+import com.cafe.crm.services.interfaces.debt.DebtService;
 import com.cafe.crm.services.interfaces.email.EmailService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
 import com.cafe.crm.services.interfaces.property.PropertyService;
@@ -92,12 +93,13 @@ public class VkServiceImpl implements VkService {
 	private final ConfirmTokenService tokenService;
 	private final UserSalaryDetailService userSalaryDetailService;
 	private final CostService costService;
+	private final DebtService debtService;
 
 	@Autowired
 	public VkServiceImpl(TemplateService templateService, RestTemplate restTemplate, EmailService emailService,
 						 UserService userService, PropertyService propertyService,  ProductService productService,
 						 UserSalaryDetailService userSalaryDetailService, ConfirmTokenService tokenService,
-						 CostService costService) {
+						 CostService costService, DebtService debtService) {
 		this.templateService = templateService;
 		this.restTemplate = restTemplate;
 		this.emailService = emailService;
@@ -107,6 +109,7 @@ public class VkServiceImpl implements VkService {
 		this.tokenService = tokenService;
 		this.userSalaryDetailService = userSalaryDetailService;
 		this.costService = costService;
+		this.debtService = debtService;
 	}
 
 	@Override
@@ -172,15 +175,16 @@ public class VkServiceImpl implements VkService {
 		StringBuilder salaryCosts = new StringBuilder();
 		StringBuilder otherCosts = new StringBuilder();
 		List<Client> clients = shift.getClients().stream().filter(c -> !c.isDeleteState()).collect(Collectors.toList());
-		//todo given debts
-		double cashBoxDebtAmount = shift.getGivenDebts().stream().filter(Debt::isCashBoxDebt).mapToDouble(Debt::getDebtAmount).sum();
+		List<Debt> givenDebts = debtService.findGivenDebtsByShift(shift);
+		double profit = shift.getProfit();
+		double cashBoxDebtAmount = givenDebts.stream().filter(Debt::isCashBoxDebt).mapToDouble(Debt::getDebtAmount).sum();
 		double totalCosts = formatCostsAndGetOtherCosts(shift, otherCosts) + formatCostsAndGetSalariesCost(shift, salaryCosts);
-		double shortage = shift.getProfit() - cashBoxDebtAmount - totalCosts - shift.getCashBox() - shift.getBankCashBox();
+		double shortage = profit - cashBoxDebtAmount - totalCosts - shift.getCashBox() - shift.getBankCashBox();
 
 		params[0] = shortage <= 0d ? "" : "НЕДОСТАЧА!";
 		params[1] = getDayOfWeek(shift.getShiftDate());
 		params[2] = getDate(shift.getShiftDate());
-		params[3] = getProfit(shift);
+		params[3] = profit;
 		params[4] = df.format(shift.getAlteredCashAmount());
 		params[5] = getAmountOfClients(clients);
 		params[6] = clients.size();
@@ -273,18 +277,17 @@ public class VkServiceImpl implements VkService {
 		return sb.toString();
 	}
 
-	private String getProfit(Shift shift) {
+	private String getProfit(Shift shift, List<Debt> givenDebts) {
 		DecimalFormat df = new DecimalFormat("#.##");
 
 		double profit = shift.getProfit();
 		double otherDebtAmount = 0D;
 		double cashBoxDebtAmount = 0D;
-		//todo given debts
-		Set<Debt> debts = shift.getGivenDebts();
-		if (debts.isEmpty()) {
+
+		if (givenDebts.isEmpty()) {
 			return df.format(profit);
 		}
-		for (Debt debt : debts) {
+		for (Debt debt : givenDebts) {
 			if (!debt.isCashBoxDebt()) {
 				otherDebtAmount += debt.getDebtAmount();
 			} else {

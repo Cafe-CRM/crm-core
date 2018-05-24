@@ -227,11 +227,6 @@ public class ShiftServiceImpl implements ShiftService {
         return shiftRepository.findByDatesAndCompanyId(start, end, companyIdCache.getCompanyId());
     }
 
-	@Override
-	public Shift findByDateShift(LocalDate date) {
-		return shiftRepository.findByShiftDateAndCompanyId(date, companyIdCache.getCompanyId());
-	}
-
     @Override
     public LocalDate getLastShiftDate() {
         Shift lastShift = shiftRepository.getLastAndCompanyId(companyIdCache.getCompanyId());
