@@ -43,7 +43,7 @@ public class CostCategoryController {
 	public ResponseEntity<?> add(@ModelAttribute @Valid CostCategory category, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			String fieldError = bindingResult.getFieldError().getDefaultMessage();
-			throw new CostCategoryDataException("Не удалось добавить товар " + fieldError);
+			throw new CostCategoryDataException("Не удалось добавить товар! " + fieldError);
 		}
 
 		CostCategory savedCategory = categoryService.save(category);
@@ -58,7 +58,7 @@ public class CostCategoryController {
 	@ResponseBody
 	public ResponseEntity<?> edit(@ModelAttribute CostCategory category, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
-			return ResponseEntity.badRequest().body("Не удалось обновить категорию");
+			return ResponseEntity.badRequest().body("Не удалось обновить категорию!");
 		}
 
 		CostCategory costCategory = categoryService.find(category.getId());

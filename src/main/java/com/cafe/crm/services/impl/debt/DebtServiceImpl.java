@@ -121,9 +121,11 @@ public class DebtServiceImpl implements DebtService {
 	public Debt repayDebt(Long id) {
 		Shift lastShift = shiftService.getLast();
 		Debt debt = repository.findOne(id);
+		//todo repaired debts
 		lastShift.addRepaidDebtToList(debt);
 		Shift shiftWithDebt = debt.getShift();
 		if (lastShift.equals(shiftWithDebt)) {
+			//todo given debts
 			shiftWithDebt.getGivenDebts().remove(debt);
 		}
 		shiftService.saveAndFlush(lastShift);
@@ -154,6 +156,7 @@ public class DebtServiceImpl implements DebtService {
 		Shift lastShift = shiftService.getLast();
 
 		debt.setShift(lastShift);
+		//todo given debts
 		lastShift.addGivenDebtToList(debt);
 
 		return save(debt);

@@ -144,6 +144,7 @@ public class ShiftController {
         model.addAttribute("clientOnDetail", shiftCalculationService.getClientsOnDetails(lastShift.getCalculates()));
         model.addAttribute("clients", shiftCalculationService.getClients(lastShift));
         model.addAttribute("closeChecklist", checklistService.getAllForCloseShift());
+        //todo repaired debts
         model.addAttribute("repaidDebts", shiftService.getLast().getRepaidDebts());
         model.addAttribute("receipts", shiftService.getLast().getReceipts());
         model.addAttribute("bossFunctional", SecurityUtils.hasRole("BOSS", "MANAGER"));

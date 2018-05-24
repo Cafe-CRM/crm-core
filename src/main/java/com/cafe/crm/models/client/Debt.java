@@ -115,20 +115,18 @@ public class Debt extends BaseEntity {
 		this.calculate = calculate;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Debt debt = (Debt) o;
-		return Objects.equals(id, debt.id) &&
-				Objects.equals(debtor, debt.debtor) &&
-				Objects.equals(debtAmount, debt.debtAmount) &&
-				Objects.equals(date, debt.date) &&
-				Objects.equals(shift, debt.shift);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Debt debt = (Debt) o;
+        return cashBoxDebt == debt.cashBoxDebt &&
+                Objects.equals(id, debt.id);
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, debtor, debtAmount, date, shift);
-	}
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, cashBoxDebt);
+    }
 }

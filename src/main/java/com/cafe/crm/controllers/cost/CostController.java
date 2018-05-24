@@ -133,7 +133,7 @@ public class CostController {
 	public ResponseEntity<?> add(@ModelAttribute @Valid Cost cost, BindingResult result) {
 		if (result.hasErrors()) {
 			String fieldError = result.getFieldError().getDefaultMessage();
-			return ResponseEntity.badRequest().body("Не удалось добавить товар!\n" + fieldError);
+			return ResponseEntity.badRequest().body("Не удалось добавить товарНе удалось добавить товар!\n" + fieldError);
 		}
 		Cost savedCost = costService.save(cost);
 

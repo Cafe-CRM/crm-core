@@ -135,7 +135,9 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 		for (Shift shift : shifts) {
 			allCalculate.addAll(shift.getCalculates());
+			//todo given debts
 			givenDebts.addAll(shift.getGivenDebts());
+			//todo repaired debts
 			repaidDebt.addAll(shift.getRepaidDebts());
 			receiptAmount.addAll(receiptService.findByShiftId(shift.getId()));
 			alteredCashAmount += shift.getAlteredCashAmount();
@@ -460,10 +462,11 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		for (Cost cost : salaryCost) {
 			allSalaryCost += cost.getPrice();
 		}
-
+		//todo given debts
 		for (Debt debt : shift.getGivenDebts()) {
 			givenDebts += debt.getDebtAmount();
 		}
+		//todo repaired debts
 		for (Debt debt : shift.getRepaidDebts()) {
 			repaidDebts += debt.getDebtAmount();
 		}
@@ -496,12 +499,13 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
 	private double getCashBoxDebtAmount(Shift shift) {
 		double debtAmount = 0;
-
+		//todo repaired debts
 		for (Debt debt : shift.getRepaidDebts()) {
 			if (debt.isCashBoxDebt() && (!debt.getShift().getId().equals(shift.getId()))) {
 				debtAmount += debt.getDebtAmount();
 			}
 		}
+		//todo given debts
 		for (Debt debt : shift.getGivenDebts()) {
 			if (debt.isCashBoxDebt()) {
 				debtAmount -= debt.getDebtAmount();
@@ -579,11 +583,13 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 				allPrice += getAllDirtyPrice(client);
 			}
 		}
+		//todo repaired debts
 		for (Debt debt : shift.getRepaidDebts()) {
 			if (!debt.isCashBoxDebt() && (!debt.getShift().getId().equals(shift.getId()))) {
 				allPrice += debt.getDebtAmount();
 			}
 		}
+		//todo given debts
 		for (Debt debt : shift.getGivenDebts()) {
 			if (!debt.isCashBoxDebt()) {
 				allPrice -= debt.getDebtAmount();

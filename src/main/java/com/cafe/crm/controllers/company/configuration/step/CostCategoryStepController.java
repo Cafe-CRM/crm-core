@@ -29,7 +29,7 @@ public class CostCategoryStepController {
 	public ResponseEntity<?> add(@ModelAttribute @Valid CostCategory category, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			String fieldError = bindingResult.getFieldError().getDefaultMessage();
-			throw new CostCategoryDataException("Не удалось добавить товар " + fieldError);
+			throw new CostCategoryDataException("Не удалось добавить товар! " + fieldError);
 		}
 		CostCategory costCategory = categoryService.save(category);
 		return ResponseEntity.ok(costCategory);

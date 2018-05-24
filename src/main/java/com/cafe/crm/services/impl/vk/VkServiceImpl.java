@@ -172,6 +172,7 @@ public class VkServiceImpl implements VkService {
 		StringBuilder salaryCosts = new StringBuilder();
 		StringBuilder otherCosts = new StringBuilder();
 		List<Client> clients = shift.getClients().stream().filter(c -> !c.isDeleteState()).collect(Collectors.toList());
+		//todo given debts
 		double cashBoxDebtAmount = shift.getGivenDebts().stream().filter(Debt::isCashBoxDebt).mapToDouble(Debt::getDebtAmount).sum();
 		double totalCosts = formatCostsAndGetOtherCosts(shift, otherCosts) + formatCostsAndGetSalariesCost(shift, salaryCosts);
 		double shortage = shift.getProfit() - cashBoxDebtAmount - totalCosts - shift.getCashBox() - shift.getBankCashBox();
@@ -278,6 +279,7 @@ public class VkServiceImpl implements VkService {
 		double profit = shift.getProfit();
 		double otherDebtAmount = 0D;
 		double cashBoxDebtAmount = 0D;
+		//todo given debts
 		Set<Debt> debts = shift.getGivenDebts();
 		if (debts.isEmpty()) {
 			return df.format(profit);

@@ -34,7 +34,7 @@ public class VkStepController {
 	@ResponseBody
 	public ResponseEntity<?> addVk(VkProperties newVkProperties) throws JsonProcessingException {
 		if (!isValidVkData(newVkProperties)) {
-			return ResponseEntity.badRequest().body("Переданы недопустимые данные!");
+			return ResponseEntity.badRequest().body("Введённые данные не корректны или пропущены обязательные для заполнения поля!");
 		}
 		String vkPropertyValueAsString = new ObjectMapper().writeValueAsString(newVkProperties);
 		Property property = new Property(vkPropertyName, vkPropertyValueAsString);

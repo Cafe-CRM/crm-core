@@ -438,6 +438,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 			debt.setDebtAmount(totalDebtAmount);
 			debt.setShift(lastShift);
 			debt.setCalculate(calculate);
+			//todo given debts
 			lastShift.addGivenDebtToList(debt);
 			calculate.addGivenDebtToSet(debt);
 			debtService.save(debt);

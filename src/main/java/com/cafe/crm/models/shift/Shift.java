@@ -234,6 +234,14 @@ public class Shift extends BaseEntity {
 		this.noteRecords = noteRecords;
 	}
 
+	public Set<Debt> getGivenDebts() {
+		return givenDebts;
+	}
+
+	public void setGivenDebts(Set<Debt> givenDebts) {
+		this.givenDebts = givenDebts;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -263,13 +271,5 @@ public class Shift extends BaseEntity {
 				", shiftDate=" + shiftDate +
 				", opened=" + opened +
 				'}';
-	}
-
-	public Set<Debt> getGivenDebts() {
-		return givenDebts;
-	}
-
-	public void setGivenDebts(Set<Debt> givenDebts) {
-		this.givenDebts = givenDebts;
 	}
 }
