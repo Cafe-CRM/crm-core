@@ -12,38 +12,44 @@ import java.util.List;
 public interface DebtRepository extends JpaRepository<Debt, Long> {
 
 	//Все долги компании
-	List<Debt> findByCompanyId(Long companyId);
+	List<Debt> findByDeletedIsFalseAndCompanyId(Long companyId);
 
 	//Все долги со счёта
-	List<Debt> findByCalculateId(Long calculateId);
+	List<Debt> findByDeletedIsFalseAndCalculateId(Long calculateId);
 
 	//Все долги из кассы по датам
-	List<Debt> findByDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(LocalDate from, LocalDate to, Long companyId);
+	List<Debt> findByDeletedIsFalseAndRepaidIsFalseAndGivenDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(LocalDate from, LocalDate to, Long companyId);
 
-	//Все обычные долги по датам
-	List<Debt> findByDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(LocalDate from, LocalDate to, Long companyId);
+	//Все не возвращённые обычные долги по датам
+	List<Debt> findByDeletedIsFalseAndRepaidIsFalseAndGivenDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(LocalDate from, LocalDate to, Long companyId);
 
 	//Все долги по датам
-	List<Debt> findByDateBetweenAndCompanyId(LocalDate from, LocalDate to, Long companyId);
+	List<Debt> findByDeletedIsFalseAndGivenDateBetweenAndCompanyId(LocalDate from, LocalDate to, Long companyId);
 
 	//Все долги по должнику и датам
-	List<Debt> findByDebtorAndDateBetweenAndCompanyId(String debtor, LocalDate from, LocalDate to, Long companyId);
+	List<Debt> findByDeletedIsFalseAndDebtorAndGivenDateBetweenAndCompanyId(String debtor, LocalDate from, LocalDate to, Long companyId);
 
 	//Все обычные долги по должнику и датам
-	List<Debt> findByDebtorAndDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(String debtor, LocalDate from, LocalDate to, Long companyId);
+	List<Debt> findByDeletedIsFalseAndDebtorAndGivenDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(String debtor, LocalDate from, LocalDate to, Long companyId);
 
 	//Все долги из кассы по должнику и датам
-	List<Debt> findByDebtorAndDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(String debtor, LocalDate from, LocalDate to, Long companyId);
+	List<Debt> findByDeletedIsFalseAndDebtorAndGivenDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(String debtor, LocalDate from, LocalDate to, Long companyId);
 
 	//Все взятые долги на смене
-	List<Debt> findByGivenShiftAndCompanyId(Shift givenShift, Long companyId);
+	List<Debt> findByDeletedIsFalseAndGivenShiftAndCompanyId(Shift givenShift, Long companyId);
 
 	//Все возвращённые долги на смене
-	List<Debt> findByRepaidShiftAndCompanyId(Shift repairedShift, Long companyId);
+	List<Debt> findByDeletedIsFalseAndRepaidShiftAndCompanyId(Shift repairedShift, Long companyId);
 
 	//Все взятые долги за смены
-	List<Debt> findByGivenShiftInAndCompanyId(Collection<Shift> shifts, Long companyId);
+	List<Debt> findByDeletedIsFalseAndGivenShiftInAndCompanyId(Iterable<? extends Shift> shifts, Long companyId);
 
 	//Все возвращённые долги за смены
-	List<Debt> findByRepaidShiftInAndCompanyId(Collection<Shift> shifts, Long companyId);
+	List<Debt> findByDeletedIsFalseAndRepaidShiftInAndCompanyId(Iterable<? extends Shift> shifts, Long companyId);
+
+	//Все обычные долги, взятые на этой смене, и удалённые на любых других
+	List<Debt> findByDeletedIsTrueAndDeletedShiftIsNotAndGivenShiftAndCompanyIdAndCashBoxDebtIsFalse(Shift deletedShift, Shift givenShift, Long companyId);
+
+	//Все обычные долги, взятые на этих сменах, и удалённые на любых других
+	List<Debt> findByDeletedIsTrueAndDeletedShiftNotInAndGivenShiftInAndCompanyIdAndCashBoxDebtIsFalse(Iterable<? extends Shift> deletedShift, Iterable<? extends Shift> givenShift, Long companyId);
 }

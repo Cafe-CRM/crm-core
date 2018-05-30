@@ -14,23 +14,27 @@ public interface DebtService {
 
 	Debt save(Debt debt);
 
-	void saveAll(List<Debt> debts);
-
 	void delete(Debt debt);
 
 	void delete(Long id);
+
+	void delete(Iterable<? extends Debt> debts);
 
 	Debt get(Long id);
 
 	List<Debt> getAll();
 
-	List<Debt> findOtherDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
+	List<Debt> findOtherDebtByRepaidIsFalseAndDateBetween(LocalDate from, LocalDate to);
 
-	List<Debt> findCashBoxDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to);
+	List<Debt> findCashBoxDebtByRepaidIsFalseAndDateBetween(LocalDate from, LocalDate to);
 
 	List<Debt> findOtherDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
 
 	List<Debt> findCashBoxDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to);
+
+	List<Debt> findGivenDebtThatHaveBeenRemovedOnAnotherShifts(Shift thatShift);
+
+	List<Debt> findGivenDebtThatHaveBeenRemovedOnAnotherShifts(Iterable<? extends Shift> thatShifts);
 
 	List<Debt> findByCalculateId(Long calculateId);
 
@@ -44,7 +48,7 @@ public interface DebtService {
 
 	List<Debt> findRepaidDebtsByShift(Shift shifts);
 
-	List<Debt> findGivenDebtsByShifts(Collection<Shift> shifts);
+	List<Debt> findGivenDebtsByShifts(Iterable<? extends Shift> shifts);
 
-	List<Debt> findRepaidDebtsByShifts(Collection<Shift> shifts);
+	List<Debt> findRepaidDebtsByShifts(Iterable<? extends Shift> shifts);
 }

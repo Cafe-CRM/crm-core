@@ -121,6 +121,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 
         List<Debt> givenDebts = debtService.findGivenDebtsByShifts(shifts);
         List<Debt> repaidDebt = debtService.findRepaidDebtsByShifts(shifts);
+        List<Debt> deletedDebts = debtService.findGivenDebtThatHaveBeenRemovedOnAnotherShifts(shifts);
 
 		List<Debt> givenOtherDebts = new ArrayList<>();
 		List<Debt> repaidOtherDebt = new ArrayList<>();
@@ -161,16 +162,12 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		}
 
 		for (Debt repDebt : repaidDebt) {
-
-		    if (!repDebt.isCashBoxDebt()) {
+			if (!repDebt.isCashBoxDebt()) {
                 repaidOtherDebt.add(repDebt);
-                if (repDebt.getDate().isBefore(from)) {
-                    profit += repDebt.getDebtAmount();
-                }
+                profit += repDebt.getDebtAmount();
             } else {
 		        repaidCashBoxDebt.add(repDebt);
             }
-
 		}
 		for (Debt givDebt : givenDebts) {
 		    if (!givDebt.isCashBoxDebt()) {
@@ -180,6 +177,10 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 		        givenCashBoxDebts.add(givDebt);
             }
 		}
+		for (Debt delDebt : deletedDebts) {
+			profit -= delDebt.getDebtAmount();
+		}
+
 		for (Calculate calculate : allCalculate) {
 			if (!isCalcDeleted(calculate)) {
 				profitRecalculate += calculate.getProfitRecalculation();
@@ -585,6 +586,8 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 	private double getAllPrice(Shift shift, List<Debt> givenDebts, List<Debt> repaidDebts) {
 		List<Client> clients = getClients(shift);
 		List<Receipt> receiptAmount = receiptService.findByShiftId(shift.getId());
+		Shift lastShift = shiftService.getLast();
+		List<Debt> deletedDebts = new ArrayList<>();
 		double allPrice = 0D;
 		for (Client client : clients) {
 			if (!client.isDeleteState()) {
@@ -592,7 +595,7 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 			}
 		}
 		for (Debt debt : repaidDebts) {
-			if (!debt.isCashBoxDebt() && (!debt.getGivenShift().getId().equals(shift.getId()))) {
+			if (!debt.isCashBoxDebt()) {
 				allPrice += debt.getDebtAmount();
 			}
 		}
@@ -610,6 +613,15 @@ public class ShiftCalculationServiceImpl implements ShiftCalculationService {
 				allPrice -= calculate.getLossRecalculation();
 			}
 		}
+		if (!shift.equals(lastShift)) {
+			deletedDebts = debtService.findGivenDebtThatHaveBeenRemovedOnAnotherShifts(shift);
+		}
+		if (!deletedDebts.isEmpty()) {
+			for (Debt debt : deletedDebts) {
+				allPrice -= debt.getDebtAmount();
+			}
+		}
+
 		return allPrice;
 	}
 

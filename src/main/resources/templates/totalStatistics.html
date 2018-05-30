@@ -270,7 +270,7 @@
                             <thead>
                             <tr>
                                 <th> Всего</th>
-                                <th> Дата</th>
+                                <th> Дата выдачи</th>
                                 <th> Прайс</th>
                                 <th> Должник</th>
                                 <th> Состояние</th>
@@ -278,15 +278,16 @@
                             </thead>
                             <tbody id="givenOtherPrice">
                             <tr th:each="givenDebt : ${totalStat.givenOtherDebts}">
-                                <td th:text="${givenDebt.date}"></td>
+                                <td th:text="${givenDebt.givenDate}"></td>
                                 <td class="specificGivenPrice" th:text="${givenDebt.debtAmount}"></td>
                                 <td th:text="${givenDebt.debtor}"></td>
-                                <td>Не возвращено</td>
+                                <td th:if="${givenDebt.repaired}" th:text="'Возвращено(' + ${givenDebt.repaidDate} + ')'"></td>
+                                <td th:unless="${givenDebt.repaired}">Не возвращено</td>
                             </tr>
                             </tbody>
                             <tbody id="repaidOtherPrice">
                             <tr th:each="repaidDebt : ${totalStat.repaidOtherDebts}">
-                                <td th:text="${repaidDebt.date}"></td>
+                                <td th:text="${repaidDebt.givenDate}"></td>
                                 <td class="specificRepaidPrice" th:text="${repaidDebt.debtAmount}"></td>
                                 <td th:text="${repaidDebt.debtor}"></td>
                                 <td>Возвращено</td>
@@ -323,15 +324,16 @@
                             </thead>
                             <tbody id="givenCashBoxPrice">
                             <tr th:each="givenDebt : ${totalStat.givenCashBoxDebts}">
-                                <td th:text="${givenDebt.date}"></td>
+                                <td th:text="${givenDebt.givenDate}"></td>
                                 <td class="specificGivenPrice" th:text="${givenDebt.debtAmount}"></td>
                                 <td th:text="${givenDebt.debtor}"></td>
-                                <td>Не возвращено</td>
+                                <td th:if="${givenDebt.repaired}" th:text="'Возвращено(' + ${givenDebt.repaidDate} + ')'"></td>
+                                <td th:unless="${givenDebt.repaired}">Не возвращено</td>
                             </tr>
                             </tbody>
                             <tbody id="repaidCashBoxPrice">
                             <tr th:each="repaidDebt : ${totalStat.repaidCashBoxDebts}">
-                                <td th:text="${repaidDebt.date}"></td>
+                                <td th:text="${repaidDebt.givenDate}"></td>
                                 <td class="specificRepaidPrice" th:text="${repaidDebt.debtAmount}"></td>
                                 <td th:text="${repaidDebt.debtor}"></td>
                                 <td>Возвращено</td>

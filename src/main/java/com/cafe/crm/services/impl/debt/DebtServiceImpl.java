@@ -57,14 +57,16 @@ public class DebtServiceImpl implements DebtService {
 	}
 
 	@Override
-	public void saveAll(List<Debt> debts) {
-		repository.save(debts);
+	public void delete(Debt debt) {
+		Shift lastShift = shiftService.getLast();
+		debt.setDeleted(true);
+		debt.setDeletedShift(lastShift);
+		repository.save(debt);
 	}
 
-
 	@Override
-	public void delete(Debt debt) {
-		repository.delete(debt);
+	public void delete(Iterable<? extends Debt> debts) {
+		repository.delete(debts);
 	}
 
 	@Override
@@ -79,27 +81,37 @@ public class DebtServiceImpl implements DebtService {
 
 	@Override
 	public List<Debt> getAll() {
-		return repository.findByCompanyId(companyIdCache.getCompanyId());
+		return repository.findByDeletedIsFalseAndCompanyId(companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Debt> findOtherDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to) {
-		return repository.findByDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(from, to, companyIdCache.getCompanyId());
+	public List<Debt> findOtherDebtByRepaidIsFalseAndDateBetween(LocalDate from, LocalDate to) {
+		return repository.findByDeletedIsFalseAndRepaidIsFalseAndGivenDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Debt> findCashBoxDebtByVisibleIsTrueAndDateBetween(LocalDate from, LocalDate to) {
-		return repository.findByDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(from, to, companyIdCache.getCompanyId());
+	public List<Debt> findCashBoxDebtByRepaidIsFalseAndDateBetween(LocalDate from, LocalDate to) {
+		return repository.findByDeletedIsFalseAndRepaidIsFalseAndGivenDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public List<Debt> findOtherDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to) {
-		return repository.findByDebtorAndDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(debtor, from, to, companyIdCache.getCompanyId());
+		return repository.findByDeletedIsFalseAndDebtorAndGivenDateBetweenAndCompanyIdAndCashBoxDebtIsFalse(debtor, from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public List<Debt> findCashBoxDebtByDebtorAndDateBetween(String debtor, LocalDate from, LocalDate to) {
-		return repository.findByDebtorAndDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(debtor, from, to, companyIdCache.getCompanyId());
+		return repository.findByDeletedIsFalseAndDebtorAndGivenDateBetweenAndCompanyIdAndCashBoxDebtIsTrue(debtor, from, to, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findGivenDebtThatHaveBeenRemovedOnAnotherShifts(Shift thatShift) {
+		return repository.findByDeletedIsTrueAndDeletedShiftIsNotAndGivenShiftAndCompanyIdAndCashBoxDebtIsFalse(thatShift, thatShift, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findGivenDebtThatHaveBeenRemovedOnAnotherShifts(Iterable<? extends Shift> thatShifts) {
+		return repository.findByDeletedIsTrueAndDeletedShiftNotInAndGivenShiftInAndCompanyIdAndCashBoxDebtIsFalse(thatShifts, thatShifts, companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -107,6 +119,7 @@ public class DebtServiceImpl implements DebtService {
 		Shift lastShift = shiftService.getLast();
 		Debt debt = repository.findOne(id);
 		debt.setRepaired(true);
+		debt.setRepaidDate(lastShift.getShiftDate());
 		debt.setRepairedShift(lastShift);
 		save(debt);
 		return debt;
@@ -114,7 +127,7 @@ public class DebtServiceImpl implements DebtService {
 
 	@Override
 	public List<Debt> findByCalculateId(Long calculateId) {
-		return repository.findByCalculateId(calculateId);
+		return repository.findByDeletedIsFalseAndCalculateId(calculateId);
 	}
 
 	@Override
@@ -123,7 +136,8 @@ public class DebtServiceImpl implements DebtService {
 
 		for (Debt debt : debts) {
 			DebtDTO dto = transformer.transform(debt, DebtDTO.class);
-			dto.setDate(debt.getDate());
+			dto.setGivenDate(debt.getGivenDate());
+			dto.setRepaidDate(debt.getRepaidDate());
 			debtsDTOS.add(dto);
 		}
 
@@ -139,21 +153,21 @@ public class DebtServiceImpl implements DebtService {
 
 	@Override
 	public List<Debt> findGivenDebtsByShift(Shift shifts) {
-		return repository.findByGivenShiftAndCompanyId(shifts, companyIdCache.getCompanyId());
+		return repository.findByDeletedIsFalseAndGivenShiftAndCompanyId(shifts, companyIdCache.getCompanyId());
 	}
 
 	@Override
 	public List<Debt> findRepaidDebtsByShift(Shift shifts) {
-		return repository.findByRepaidShiftAndCompanyId(shifts, companyIdCache.getCompanyId());
+		return repository.findByDeletedIsFalseAndRepaidShiftAndCompanyId(shifts, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Debt> findGivenDebtsByShifts(Collection<Shift> shifts) {
-		return repository.findByGivenShiftInAndCompanyId(shifts, companyIdCache.getCompanyId());
+	public List<Debt> findGivenDebtsByShifts(Iterable<? extends Shift> shifts) {
+		return repository.findByDeletedIsFalseAndGivenShiftInAndCompanyId(shifts, companyIdCache.getCompanyId());
 	}
 
 	@Override
-	public List<Debt> findRepaidDebtsByShifts(Collection<Shift> shifts) {
-		return repository.findByRepaidShiftInAndCompanyId(shifts, companyIdCache.getCompanyId());
+	public List<Debt> findRepaidDebtsByShifts(Iterable<? extends Shift> shifts) {
+		return repository.findByDeletedIsFalseAndRepaidShiftInAndCompanyId(shifts, companyIdCache.getCompanyId());
 	}
 }

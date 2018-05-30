@@ -15,15 +15,23 @@ public class DebtDTO {
 
     private Double debtAmount;
 
-    private LocalDate date;
+    private LocalDate givenDate;
 
-    private boolean visible = true;
+    private LocalDate repaidDate;
 
-    private boolean cashBoxDebt = false;
+    private boolean visible;
 
-    private Shift shift;
+    private boolean cashBoxDebt;
+
+    private boolean deleted;
+
+    private Shift givenShift;
+
+    private Shift repaidShift;
 
     private Calculate calculate;
+
+
 
     public Long getId() {
         return id;
@@ -49,12 +57,20 @@ public class DebtDTO {
         this.debtAmount = debtAmount;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getGivenDate() {
+        return givenDate;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setGivenDate(LocalDate givenDate) {
+        this.givenDate = givenDate;
+    }
+
+    public LocalDate getRepaidDate() {
+        return repaidDate;
+    }
+
+    public void setRepaidDate(LocalDate repaidDate) {
+        this.repaidDate = repaidDate;
     }
 
     public boolean isVisible() {
@@ -73,12 +89,28 @@ public class DebtDTO {
         this.cashBoxDebt = cashBoxDebt;
     }
 
-    public Shift getShift() {
-        return shift;
+    public boolean isDeleted() {
+        return deleted;
     }
 
-    public void setShift(Shift shift) {
-        this.shift = shift;
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public Shift getGivenShift() {
+        return givenShift;
+    }
+
+    public void setGivenShift(Shift givenShift) {
+        this.givenShift = givenShift;
+    }
+
+    public Shift getRepaidShift() {
+        return repaidShift;
+    }
+
+    public void setRepaidShift(Shift repaidShift) {
+        this.repaidShift = repaidShift;
     }
 
     public Calculate getCalculate() {

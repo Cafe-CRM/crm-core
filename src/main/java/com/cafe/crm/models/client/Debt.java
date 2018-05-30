@@ -30,11 +30,17 @@ public class Debt extends BaseEntity {
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@NotTransform
-	private LocalDate date;
+	private LocalDate givenDate;
 
-	private boolean repaired = false;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@NotTransform
+	private LocalDate repaidDate;
+
+	private boolean repaid = false;
 
 	private boolean cashBoxDebt = false;
+
+	private boolean deleted = false;
 
 	@NotTransform
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -43,8 +49,13 @@ public class Debt extends BaseEntity {
 
 	@NotTransform
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "repaired_shift")
+    @JoinColumn(name = "repaid_shift")
 	private Shift repaidShift;
+
+	@NotTransform
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "deleted_shift")
+	private Shift deletedShift;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "calculate_id")
@@ -53,10 +64,10 @@ public class Debt extends BaseEntity {
 
 	public Debt() {}
 
-	public Debt(String debtor, Double debtAmount, LocalDate date) {
+	public Debt(String debtor, Double debtAmount, LocalDate givenDate) {
 		this.debtor = debtor;
 		this.debtAmount = debtAmount;
-		this.date = date;
+		this.givenDate = givenDate;
 	}
 
 	public Long getId() {
@@ -79,20 +90,28 @@ public class Debt extends BaseEntity {
 		this.debtAmount = debtAmount;
 	}
 
-	public LocalDate getDate() {
-		return date;
+	public LocalDate getGivenDate() {
+		return givenDate;
 	}
 
-	public void setDate(LocalDate date) {
-		this.date = date;
+	public void setGivenDate(LocalDate givenDate) {
+		this.givenDate = givenDate;
+	}
+
+	public LocalDate getRepaidDate() {
+		return repaidDate;
+	}
+
+	public void setRepaidDate(LocalDate repaidDate) {
+		this.repaidDate = repaidDate;
 	}
 
 	public boolean isRepaired() {
-		return repaired;
+		return repaid;
 	}
 
 	public void setRepaired(boolean repaired) {
-		this.repaired = repaired;
+		this.repaid = repaired;
 	}
 
 	public boolean isCashBoxDebt() {
@@ -102,6 +121,14 @@ public class Debt extends BaseEntity {
     public void setCashBoxDebt(boolean cashBoxDebt) {
         this.cashBoxDebt = cashBoxDebt;
     }
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
 
 	public Shift getGivenShift() {
 		return givenShift;
@@ -113,6 +140,14 @@ public class Debt extends BaseEntity {
 
 	public Shift getRepaidShift() {
 		return repaidShift;
+	}
+
+	public Shift getDeletedShift() {
+		return deletedShift;
+	}
+
+	public void setDeletedShift(Shift deletedShift) {
+		this.deletedShift = deletedShift;
 	}
 
 	public void setRepairedShift(Shift repaidShift) {

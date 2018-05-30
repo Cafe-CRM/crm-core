@@ -40,7 +40,7 @@
                         <label for="addDate" class="col-md-offset-1 col-sm-2 control-label">Дата</label>
                         <div class="col-md-6">
                             <input type="date" class="form-control" id="addDate" placeholder="Дата" required="required"
-                                   th:name="date" th:value="${#temporals.format(today, 'yyyy-MM-dd')}"/>
+                                   th:name="givenDate" th:value="${#temporals.format(today, 'yyyy-MM-dd')}"/>
                         </div>
                     </div>
                 </div>

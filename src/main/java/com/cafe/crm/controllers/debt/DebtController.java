@@ -61,7 +61,7 @@ public class DebtController {
 	public ModelAndView showOtherDebts() {
 		LocalDate today = timeManager.getDate();
 		LocalDate lastShiftDate = shiftService.getLastShiftDate();
-		List<Debt> debtList = debtService.findOtherDebtByVisibleIsTrueAndDateBetween(lastShiftDate, today.plusYears(100));
+		List<Debt> debtList = debtService.findOtherDebtByRepaidIsFalseAndDateBetween(lastShiftDate, today.plusYears(100));
 
 		ModelAndView modelAndView = getDebtPage(debtList, today, lastShiftDate);
 		modelAndView.addObject("isCashBoxDebt", false);
@@ -73,7 +73,7 @@ public class DebtController {
 	public ModelAndView showCashBoxDebts() {
 		LocalDate today = timeManager.getDate();
 		LocalDate lastShiftDate = shiftService.getLastShiftDate();
-		List<Debt> debtList = debtService.findCashBoxDebtByVisibleIsTrueAndDateBetween(lastShiftDate, today.plusYears(100));
+		List<Debt> debtList = debtService.findCashBoxDebtByRepaidIsFalseAndDateBetween(lastShiftDate, today.plusYears(100));
 
 		ModelAndView modelAndView = getDebtPage(debtList, today, lastShiftDate);
 		modelAndView.addObject("isCashBoxDebt", true);
@@ -149,7 +149,7 @@ public class DebtController {
 				? today.plusYears(100) : LocalDate.parse(toDate, formatter);
 
 		if (debtorName == null || debtorName.isEmpty()) {
-			return debtService.findOtherDebtByVisibleIsTrueAndDateBetween(from, to);
+			return debtService.findOtherDebtByRepaidIsFalseAndDateBetween(from, to);
 		} else {
 			return debtService.findOtherDebtByDebtorAndDateBetween(debtorName, from, to);
 		}
@@ -166,7 +166,7 @@ public class DebtController {
 				? today.plusYears(100) : LocalDate.parse(toDate, formatter);
 
 		if (debtorName == null || debtorName.isEmpty()) {
-			return debtService.findCashBoxDebtByVisibleIsTrueAndDateBetween(from, to);
+			return debtService.findCashBoxDebtByRepaidIsFalseAndDateBetween(from, to);
 		} else {
 			return debtService.findCashBoxDebtByDebtorAndDateBetween(debtorName, from, to);
 		}
@@ -184,7 +184,7 @@ public class DebtController {
 		Calculate calculate = savedDebt.getCalculate();
 
 		StringBuilder addDebtMessage = new StringBuilder("Долг с названием: \"" + savedDebt.getDebtor() + "\", суммой: "
-                + savedDebt.getDebtAmount() + " был добавлен " + savedDebt.getDate());
+                + savedDebt.getDebtAmount() + " был добавлен " + savedDebt.getGivenDate());
 
 		if (calculate != null) {
 		    addDebtMessage.append("\nСчёт долга: \n")
@@ -204,7 +204,7 @@ public class DebtController {
 	public ResponseEntity<?> repayDebts(@RequestParam(name = "debtId") Long id) {
 		Debt debt = debtService.repayDebt(id);
 
-        logger.info("Долг \"" + debt.getDebtor() + "\" за " + debt.getDate() + " суммой: " + debt.getDebtAmount() +
+        logger.info("Долг \"" + debt.getDebtor() + "\" за " + debt.getGivenDate() + " суммой: " + debt.getDebtAmount() +
                 " был возвращён");
 
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -225,7 +225,7 @@ public class DebtController {
 
 		if (debt != null) {
 			debtService.delete(debt);
-			logger.info("Удаление долга \"" + debt.getDebtor() + "\" за " + debt.getDate() + " суммой: " + debt.getDebtAmount());
+			logger.info("Удаление долга \"" + debt.getDebtor() + "\" за " + debt.getGivenDate() + " суммой: " + debt.getDebtAmount());
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

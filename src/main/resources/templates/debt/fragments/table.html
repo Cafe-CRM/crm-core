@@ -21,7 +21,7 @@
         <td th:text="${debts.id}" class="id">1</td>
         <td th:text="${debts.debtor}" class="name">Вася</td>
         <td th:text="${debts.debtAmount}" class="price">3000</td>
-        <td th:text="${#temporals.format(debts.date, 'dd-MM-yyyy')}" class="date">20.20.2000</td>
+        <td th:text="${#temporals.format(debts.givenDate, 'dd-MM-yyyy')}" class="date">20.20.2000</td>
         <td>
             <button type="button" class="btn btn-info" data-toggle="modal" th:href="'#repayDebt' +${debts.id}">Вернуть</button>
         </td>
