@@ -12,9 +12,12 @@ import java.util.Set;
 
 public interface ShiftRepository extends JpaRepository<Shift, Long> {
 
-	@Query("SELECT u FROM Shift u WHERE u.company.id = :companyId AND u.id =(select max(id) from Shift)")
+	@Query("SELECT u FROM Shift u WHERE u.company.id = :companyId AND u.id =(select max(id) from Shift c WHERE c.missingShift = false)")
 		//последняя смена в базе
 	Shift getLastAndCompanyId(@Param ("companyId") Long companyId);
+
+	@Query("SELECT u FROM Shift u WHERE u.company.id = :companyId AND u.id =(select max(id) from Shift c WHERE c.missingShift = true)")
+	Shift getLastMissingShift(@Param ("companyId") Long companyId);
 
 	@Query("SELECT e FROM Shift e WHERE e.company.id = :companyId AND e.shiftDate BETWEEN :startDate and :endDate")
 	Set<Shift> findByDatesAndCompanyId(@Param("startDate") LocalDate startDate,

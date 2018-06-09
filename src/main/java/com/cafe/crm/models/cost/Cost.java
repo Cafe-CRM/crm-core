@@ -2,6 +2,7 @@ package com.cafe.crm.models.cost;
 
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.shift.Shift;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Cost extends BaseEntity {
 	@Id
 	@GeneratedValue
@@ -21,7 +23,7 @@ public class Cost extends BaseEntity {
 
 	@NotNull(message = "Поле \"Цена\" не может быть пустым")
 	private double price;
-
+    //todo количество не может быть дробным
 	@NotNull(message = "Поле \"Коливество\" не может быть пустым")
 	private double quantity;
 
@@ -51,6 +53,15 @@ public class Cost extends BaseEntity {
 		this.category = category;
 		this.date = date;
 	}
+
+    public Cost(String name, double price, double quantity, CostCategory category, Shift shift, LocalDate date) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+        this.category = category;
+        this.shift = shift;
+        this.date = date;
+    }
 
 	public Long getId() {
 		return id;

@@ -52,4 +52,10 @@ public interface DebtRepository extends JpaRepository<Debt, Long> {
 
 	//Все обычные долги, взятые на этих сменах, и удалённые на любых других
 	List<Debt> findByDeletedIsTrueAndDeletedShiftNotInAndGivenShiftInAndCompanyIdAndCashBoxDebtIsFalse(Iterable<? extends Shift> deletedShift, Iterable<? extends Shift> givenShift, Long companyId);
+
+	//Все обычные долги, взятые на этой смене
+	List<Debt> findByDeletedIsFalseAndGivenShiftAndCashBoxDebtIsFalseAndCompanyId(Shift givenShift, Long companyId);
+
+	//Все долги из кассы, взятые на этой смене
+	List<Debt> findByDeletedIsFalseAndGivenShiftAndCashBoxDebtIsTrueAndCompanyId(Shift givenShift, Long companyId);
 }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Добавление пропущенной смены</title>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+</head>
+<body>
+<div th:replace="bossnavbar :: bossNavbar"></div>
+<div class="container" style="margin-top:50px">
+    <div class="panel panel-default" th:fragment="panel">
+        <div class="panel-heading">
+            <div align="center"><h4 class="panel-title">Добавление пропущенной смены</h4></div>
+        </div>
+        <div class="panel-body">
+            <form id="choiceShiftDate" th:action="@{/manager/shift/close}" method="post" class="form-signin">
+
+                <label for="from" class="control-label" >Дата смены: </label>
+                <input name="forDate" th:value="${now}" class="form-control"
+                       th:type="date" id="from" required=""/>
+
+                <button class="btn btn-default" name="del" type="submit">Выбрать</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/shift/close.js}"></script>
+</body>
+</html>

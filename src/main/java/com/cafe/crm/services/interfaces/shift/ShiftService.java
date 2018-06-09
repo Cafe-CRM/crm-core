@@ -19,6 +19,8 @@ public interface ShiftService {
 
 	Shift createNewShift(Double cashBox, Double bankCashBox, long... usersId);
 
+	Shift createMissingShift(LocalDate date);
+
 	Shift findOne(Long L);
 
 	List<User> getUsersNotOnShift();
@@ -31,6 +33,8 @@ public interface ShiftService {
 
 	Shift getLast();
 
+	Shift getMissingLast();
+
 	List<Shift> findAll();
 
 	Shift closeShift(Map<Long, Integer> mapOfUsersIdsAndBonuses, Double allPrice, Double shortage, Double bankCashBox, String comment, Map<String, String> mapOfNoteNameAndValue);
@@ -38,4 +42,8 @@ public interface ShiftService {
  	LocalDate getLastShiftDate();
 
 	Set<Shift> findByDates(LocalDate start, LocalDate end);
+
+	Shift findByDate(LocalDate start);
+
+	Shift getLastMissingShift();
 }

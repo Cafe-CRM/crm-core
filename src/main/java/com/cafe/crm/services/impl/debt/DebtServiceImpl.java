@@ -170,4 +170,14 @@ public class DebtServiceImpl implements DebtService {
 	public List<Debt> findRepaidDebtsByShifts(Iterable<? extends Shift> shifts) {
 		return repository.findByDeletedIsFalseAndRepaidShiftInAndCompanyId(shifts, companyIdCache.getCompanyId());
 	}
+
+	@Override
+	public List<Debt> findAllGivenOtherDebt(Shift shifts) {
+		return repository.findByDeletedIsFalseAndGivenShiftAndCashBoxDebtIsFalseAndCompanyId(shifts, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findAllGivenCashBoxDebt(Shift shifts) {
+		return repository.findByDeletedIsFalseAndGivenShiftAndCashBoxDebtIsTrueAndCompanyId(shifts, companyIdCache.getCompanyId());
+	}
 }

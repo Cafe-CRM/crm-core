@@ -71,6 +71,7 @@ public class ShiftServiceImpl implements ShiftService {
 	public void saveAndFlush(Shift shift) {
 		setCompany(shift);
 		shiftRepository.saveAndFlush(shift);
+        //shiftRepository.save(shift);
 	}
 
 	@Override
@@ -99,6 +100,15 @@ public class ShiftServiceImpl implements ShiftService {
         setCompany(shift);
         shiftRepository.saveAndFlush(shift);
         return shift;
+    }
+
+    @Override
+    public Shift createMissingShift(LocalDate date) {
+        Shift shift = new Shift(date);
+        shift.setOpen(true);
+        shift.setMissingShift(true);
+        setCompany(shift);
+        return shiftRepository.saveAndFlush(shift);
     }
 
     @Transactional(readOnly = true)
@@ -153,6 +163,12 @@ public class ShiftServiceImpl implements ShiftService {
     @Override
     public Shift getLast() {
         return shiftRepository.getLastAndCompanyId(companyIdCache.getCompanyId());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Shift getMissingLast() {
+        return shiftRepository.getLastMissingShift(companyIdCache.getCompanyId());
     }
 
     @Transactional(readOnly = true)
@@ -225,6 +241,17 @@ public class ShiftServiceImpl implements ShiftService {
     @Override
     public Set<Shift> findByDates(LocalDate start, LocalDate end) {
         return shiftRepository.findByDatesAndCompanyId(start, end, companyIdCache.getCompanyId());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Shift findByDate(LocalDate date) {
+        return shiftRepository.findByShiftDateAndCompanyId(date, companyIdCache.getCompanyId());
+    }
+
+    @Override
+    public Shift getLastMissingShift() {
+        return shiftRepository.getLastMissingShift(companyIdCache.getCompanyId());
     }
 
     @Override

@@ -70,6 +70,13 @@ public class Debt extends BaseEntity {
 		this.givenDate = givenDate;
 	}
 
+	public Debt(String debtor, Double debtAmount, LocalDate givenDate, Shift givenShift) {
+		this.debtor = debtor;
+		this.debtAmount = debtAmount;
+		this.givenDate = givenDate;
+		this.givenShift = givenShift;
+	}
+
 	public Long getId() {
 		return id;
 	}

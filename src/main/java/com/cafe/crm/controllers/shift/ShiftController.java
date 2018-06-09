@@ -184,6 +184,7 @@ public class ShiftController {
 		return "shift/shiftClose";
 	}
 
+	//todo Убрать создание второй ShiftView
     @RequestMapping(value = "/shift/close", method = RequestMethod.POST)
     public String closeShift(ShiftCloseDTO shiftCloseDTO) {
         Shift lastShift = shiftService.getLast();

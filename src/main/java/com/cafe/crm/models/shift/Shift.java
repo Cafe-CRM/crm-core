@@ -4,13 +4,10 @@ package com.cafe.crm.models.shift;
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
-import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.cost.Cost;
 import com.cafe.crm.models.note.NoteRecord;
 import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.models.user.User;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -67,10 +64,16 @@ public class Shift extends BaseEntity {
 	@OneToMany(mappedBy = "shift")
 	private List<NoteRecord> noteRecords;
 
+	private boolean missingShift;
+
 	public Shift(LocalDate shiftDate, List<User> users, double bankCashBox) {
 		this.shiftDate = shiftDate;
 		this.users = users;
 		this.bankCashBox = bankCashBox;
+	}
+
+	public Shift(LocalDate shiftDate) {
+		this.shiftDate = shiftDate;
 	}
 
 	public Shift() {
@@ -200,6 +203,10 @@ public class Shift extends BaseEntity {
 		this.costs = costs;
 	}
 
+	public void addCostToSet (Cost cost) {
+		this.costs.add(cost);
+	}
+
 	public String getComment() {
 		return comment;
 	}
@@ -214,6 +221,22 @@ public class Shift extends BaseEntity {
 
 	public void setNoteRecords(List<NoteRecord> noteRecords) {
 		this.noteRecords = noteRecords;
+	}
+
+	public boolean isOpened() {
+		return opened;
+	}
+
+	public void setOpened(boolean opened) {
+		this.opened = opened;
+	}
+
+	public boolean isMissingShift() {
+		return missingShift;
+	}
+
+	public void setMissingShift(boolean missingShift) {
+		this.missingShift = missingShift;
 	}
 
 	@Override

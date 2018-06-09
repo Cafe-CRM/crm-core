@@ -50,7 +50,9 @@ public class Product extends BaseEntity {
 	@Column(name = "percent")
 	private Map<Position, Integer> staffPercent;
 
-	private boolean deleted = false;
+	private boolean deleted;
+
+	private boolean missingProduct;
 
 	private int rating;
 
@@ -135,7 +137,15 @@ public class Product extends BaseEntity {
 		this.deleted = deleted;
 	}
 
-	@Override
+    public boolean isMissingProduct() {
+        return missingProduct;
+    }
+
+    public void setMissingProduct(boolean missingProduct) {
+        this.missingProduct = missingProduct;
+    }
+
+    @Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
