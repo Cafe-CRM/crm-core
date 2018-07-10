@@ -41,7 +41,7 @@ public class StatisticController {
         LocalDate dateFrom = shiftService.getLastShiftDate();
         LocalDate dateTo = timeManager.getDate();
         TotalStatisticView totalStatisticView = shiftCalculationService.createTotalStatisticView(dateFrom, dateTo);
-		Set<Shift> allShiftsBetween = shiftService.findByDates(dateFrom, dateTo);
+		List<Shift> allShiftsBetween = shiftService.findByDates(dateFrom, dateTo);
 		double totalCashBox = shiftCalculationService.getTotalCashBox(allShiftsBetween);
 		modelAndView.addObject("cashBox", totalCashBox);
 		modelAndView.addObject("shifts", allShiftsBetween);
@@ -56,7 +56,7 @@ public class StatisticController {
     public ModelAndView searchByDateStat(@RequestParam("from") String from, @RequestParam("to") String to) {
         ModelAndView modelAndView = new ModelAndView("totalStatistics");
         TotalStatisticView totalStatisticView = shiftCalculationService.createTotalStatisticView(LocalDate.parse(from), LocalDate.parse(to));
-        Set<Shift> allShiftsBetween = shiftService.findByDates(LocalDate.parse(from), LocalDate.parse(to));
+        List<Shift> allShiftsBetween = shiftService.findByDates(LocalDate.parse(from), LocalDate.parse(to));
 		double totalCashBox = shiftCalculationService.getTotalCashBox(allShiftsBetween);
 		modelAndView.addObject("cashBox", totalCashBox);
 		modelAndView.addObject("shifts", allShiftsBetween);

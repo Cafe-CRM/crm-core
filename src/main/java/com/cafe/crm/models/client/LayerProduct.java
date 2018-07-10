@@ -32,6 +32,7 @@ public class LayerProduct extends BaseEntity {
 
 	private boolean accountability;
 
+	//todo Product
 	@NotNull
 	private Long productId;
 

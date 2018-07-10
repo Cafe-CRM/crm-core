@@ -10,6 +10,8 @@ public interface MissingProductService {
 
     List<MissingProduct> findAll();
 
+    //List<MissingProduct> getAllWithFetchGraph(String graphName);
+
     List<MissingProduct> saveAll(List<MissingProduct> products);
 
     MissingProduct saveAndFlush(MissingProduct product);
@@ -22,4 +24,7 @@ public interface MissingProductService {
 
     List<MissingProduct> findByShiftWithCategory(Shift shift);
 
+    void deleteByShift(Shift shift);
+
+    void deleteByShiftIdIn(long[] ids);
 }

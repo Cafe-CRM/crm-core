@@ -11,19 +11,33 @@ import java.util.List;
 public class UserDTO {
 
     private Long id;
+
     private String firstName;
+
     private String lastName;
+
     private String email;
+
     private String phone;
+
     private String password;
+
     private List<PositionDTO> positions;
+
     private int shiftSalary;
+
 	private int shiftAmount;
+
     private int totalSalary;
+
     private int totalBonus;
+
     private int salaryBalance;
+
     private int bonusBalance;
+
     private boolean activated = true;
+
     private boolean enabled = true;
 
     public Long getId() {

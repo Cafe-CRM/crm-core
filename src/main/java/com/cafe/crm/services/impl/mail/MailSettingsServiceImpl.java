@@ -60,7 +60,8 @@ public class MailSettingsServiceImpl implements MailSettingsService {
 
 	@Override
 	public List<MailSettings> getAll() {
-		return mailSettingsRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return mailSettingsRepository.findByCompanyId(companyIdCache.getCompanyId());
+		return mailSettingsRepository.findAll();
 	}
 
 	@Override

@@ -1,11 +1,13 @@
 package com.cafe.crm.services.impl.salary;
 
 
+import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.shift.UserSalaryDetail;
 import com.cafe.crm.repositories.salary.UserSalaryDetailRepository;
 import com.cafe.crm.services.interfaces.salary.UserSalaryDetailService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +52,11 @@ public class UserSalaryDetailServiceImpl implements UserSalaryDetailService{
 	}
 
 	@Override
+	public List<UserSalaryDetail> findOtherDetailsByShiftId(Long shiftId) {
+		return userSalaryDetailRepository.findByShiftIdAndIsPaidDetailFalse(shiftId);
+	}
+
+	@Override
 	public UserSalaryDetail findPaidDetailsByUserIdAndShiftId(Long shiftId, Long userId) {
 		return userSalaryDetailRepository.findByShiftIdAndUserIdAndIsPaidDetailTrue(shiftId, userId);
 	}
@@ -77,5 +84,31 @@ public class UserSalaryDetailServiceImpl implements UserSalaryDetailService{
 	@Override
 	public void deleteByUserIdAndShiftId(Long userId, Long shiftId) {
 		userSalaryDetailRepository.deleteByUserIdAndShiftId(userId, shiftId);
+	}
+
+	@Override
+	public List<UserSalaryDetail> findAllAdminsDetailByShift(Shift shift) {
+		return userSalaryDetailRepository.findByShiftAndUserPositionsId(shift, 1L);
+	}
+
+	@Override
+	public List<UserSalaryDetail> findAllWorkersDetailByShift(Shift shift) {
+		return userSalaryDetailRepository.findByShiftAndUserPositionsIdIsNot(shift, 1L);
+	}
+
+	@Override
+	public UserSalaryDetail findLastShiftOtherDetailByUser(long shiftId, long userId) {
+		//return userSalaryDetailRepository.getLastShiftDetail(shiftId, date, userId);
+		return userSalaryDetailRepository.getLastShiftDetail(shiftId, userId);
+	}
+
+	@Override
+	public void deleteAllByShiftId(Long shiftId) {
+		userSalaryDetailRepository.deleteAllByShiftId(shiftId);
+	}
+
+	@Override
+	public void deleteAllByShiftIdIn(long[] ids) {
+		userSalaryDetailRepository.deleteAllByShiftIdIn(ids);
 	}
 }

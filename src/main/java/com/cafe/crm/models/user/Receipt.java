@@ -1,15 +1,19 @@
 package com.cafe.crm.models.user;
 
+import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.utils.annotation.Dateable;
+import com.cafe.crm.utils.annotation.SelfDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
-@Table
-public class Receipt {
+@Dateable
+public class Receipt extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -20,6 +24,7 @@ public class Receipt {
     private Double receiptAmount;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @SelfDate
     private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)

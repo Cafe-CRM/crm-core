@@ -32,6 +32,11 @@ public class MissingProductServiceImpl implements MissingProductService {
         return missingProductRepository.findAll();
     }
 
+    /*@Override
+    public List<MissingProduct> getAllWithFetchGraph(String graphName) {
+        return missingProductRepository.readByShiftAndCompanyId(graphName, companyIdCache.getCompanyId());
+    }*/
+
     @Override
     public List<MissingProduct> saveAll(List<MissingProduct> products) {
         for (MissingProduct product : products) {
@@ -58,12 +63,24 @@ public class MissingProductServiceImpl implements MissingProductService {
 
     @Override
     public List<MissingProduct> findByShift(Shift shift) {
-        return missingProductRepository.readByShiftAndCompanyId(shift, companyIdCache.getCompanyId());
+        //return missingProductRepository.findAll();
+        return missingProductRepository.findByShiftAndCompanyId(shift, companyIdCache.getCompanyId());
     }
 
     @Override
     public List<MissingProduct> findByShiftWithCategory(Shift shift) {
+        //return missingProductRepository.findAll();
         return missingProductRepository.readByShiftAndCompanyId(shift, companyIdCache.getCompanyId());
+    }
+
+    @Override
+    public void deleteByShift(Shift shift) {
+        missingProductRepository.deleteAllByShiftAndCompanyId(shift, companyIdCache.getCompanyId());
+    }
+
+    @Override
+    public void deleteByShiftIdIn(long[] ids) {
+        missingProductRepository.deleteAllByShiftIdInAndCompanyId(ids, companyIdCache.getCompanyId());
     }
 
     private void setCompany(MissingProduct missingProduct) {

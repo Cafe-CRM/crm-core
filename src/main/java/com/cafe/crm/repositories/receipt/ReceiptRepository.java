@@ -1,12 +1,14 @@
 package com.cafe.crm.repositories.receipt;
 
 import com.cafe.crm.models.user.Receipt;
+import com.cafe.crm.repositories.customRepository.CommonRepository;
+import com.cafe.crm.repositories.customRepository.DateableRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface ReceiptRepository extends JpaRepository<Receipt, Long>{
+public interface ReceiptRepository extends JpaRepository<Receipt, Long> {
 
     List<Receipt> findByDateBetween(LocalDate from, LocalDate to);
 

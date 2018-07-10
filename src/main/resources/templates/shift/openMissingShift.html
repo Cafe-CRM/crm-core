@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>Открытие смены</title>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+</head>
+<body>
+    <div th:replace="bossnavbar :: bossNavbar"></div>
+    <div style="margin-top: 200px" class="row-fluid">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title" th:align="center">Новая смена</h3>
+            </div>
+            <div class="panel-body">
+                <form class="form-horizontal" th:action="@{/boss/add-missing-shift/check-shift-date}" method="post">
+                    <div class="form-group ">
+                        <label for="inputDate" class="col-xs-2 control-label col-xs-4 col-md-offset-3">Дата начала
+                            смены</label>
+                        <div class="col-xs-2  col-md-offset-1">
+                            <input name="shiftDate" type="date" class="form-control" id="inputDate"
+                                   th:value="${date}"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputDate" class="col-xs-2 control-label  col-xs-4 col-md-offset-3">Начало
+                            смены</label>
+                        <div class="col-xs-4 col-md-offset-1">
+                            <button id="openMissingShiftButton"
+                                    class="btn btn-primary"
+                                    style="width: 160px">Открыть смену</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

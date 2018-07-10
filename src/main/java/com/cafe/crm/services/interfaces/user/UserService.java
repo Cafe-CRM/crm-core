@@ -3,6 +3,7 @@ package com.cafe.crm.services.interfaces.user;
 
 import com.cafe.crm.dto.ExtraUserData;
 import com.cafe.crm.dto.UserLoggingDTO;
+import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.Position;
 import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
@@ -31,6 +32,12 @@ public interface UserService {
 	List<User> findByPositionIdAndOrderByLastName(Long positionId);
 
 	List<User> findByPositionIdWithAnyEnabledStatus(Long positionId);
+
+	List<User> findByPositionIdIsNotWithAnyEnabledStatus(Long positionId);
+
+	List<User> findAllEnabledAdminOnShift(Shift shift);
+
+	List<User> findAllEnabledNotAdminOnShift(Shift shift);
 
 	List<User> findByRoleIdWithAnyEnabledStatus(Long roleId);
 

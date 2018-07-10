@@ -47,7 +47,7 @@ public class ShiftStatisticController {
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	public ModelAndView search(@Param("fromDate") String start, @Param("toDate") String end) {
 		ModelAndView mv = new ModelAndView("shift/shiftStatistics");
-		Set<Shift> dates = shiftService.findByDates(LocalDate.parse(start), LocalDate.parse(end));
+		List<Shift> dates = shiftService.findByDates(LocalDate.parse(start), LocalDate.parse(end));
 		mv.addObject("shifts", dates);
 		mv.addObject("date", start);
 		return mv;

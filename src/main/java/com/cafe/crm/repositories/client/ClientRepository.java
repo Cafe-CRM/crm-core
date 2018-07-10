@@ -2,6 +2,7 @@ package com.cafe.crm.repositories.client;
 
 import com.cafe.crm.models.card.Card;
 import com.cafe.crm.models.client.Client;
+import com.cafe.crm.repositories.customRepository.CommonRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

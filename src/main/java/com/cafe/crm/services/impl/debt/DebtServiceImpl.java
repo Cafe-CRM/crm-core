@@ -162,6 +162,11 @@ public class DebtServiceImpl implements DebtService {
 	}
 
 	@Override
+	public List<Debt> findRepaidDebtsByShiftIdIn(long[] ids) {
+		return repository.findByDeletedIsFalseAndRepaidShiftIdInAndCompanyId(ids, companyIdCache.getCompanyId());
+	}
+
+	@Override
 	public List<Debt> findGivenDebtsByShifts(Iterable<? extends Shift> shifts) {
 		return repository.findByDeletedIsFalseAndGivenShiftInAndCompanyId(shifts, companyIdCache.getCompanyId());
 	}
@@ -179,5 +184,25 @@ public class DebtServiceImpl implements DebtService {
 	@Override
 	public List<Debt> findAllGivenCashBoxDebt(Shift shifts) {
 		return repository.findByDeletedIsFalseAndGivenShiftAndCashBoxDebtIsTrueAndCompanyId(shifts, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findAllDeletedDebtsByShift(Shift shift) {
+		return repository.findByDeletedIsTrueAndDeletedShiftAndCompanyId(shift, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<Debt> findAllDeletedDebtsByShiftIdIn(long[] ids) {
+		return repository.findByDeletedIsTrueAndDeletedShiftIdInAndCompanyId(ids, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public void deleteByGivenShift(Shift shift) {
+		repository.deleteAllByGivenShiftAndCompanyId(shift, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public void deleteByGivenShiftIdIn(long[] ids) {
+		repository.deleteAllByGivenShiftIdInAndCompanyId(ids, companyIdCache.getCompanyId());
 	}
 }

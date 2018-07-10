@@ -42,6 +42,7 @@ public class IngredientsServiceImpl implements IngredientsService {
 	@Override
 	public List<Ingredients> getAll() {
 		return ingredientsRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return ingredientsRepository.findAll();
 	}
 
 	@Override
@@ -63,6 +64,7 @@ public class IngredientsServiceImpl implements IngredientsService {
 	@Override
 	public Ingredients findByName(String name) {
 		return ingredientsRepository.findByNameAndCompanyId(name, companyIdCache.getCompanyId());
+		//return ingredientsRepository.findByField("name", name);
 	}
 
 	@Override

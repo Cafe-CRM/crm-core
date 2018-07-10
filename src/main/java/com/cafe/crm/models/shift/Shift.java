@@ -4,10 +4,11 @@ package com.cafe.crm.models.shift;
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
-import com.cafe.crm.models.cost.Cost;
 import com.cafe.crm.models.note.NoteRecord;
 import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.models.user.User;
+import com.cafe.crm.utils.annotation.Dateable;
+import com.cafe.crm.utils.annotation.SelfDate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "shifts")
+@Dateable
 public class Shift extends BaseEntity {
 
 	@Id
@@ -25,12 +27,13 @@ public class Shift extends BaseEntity {
 	private boolean opened;
 
 	@Column(name = "shift_date")
+	@SelfDate
 	private LocalDate shiftDate;
 
 	@Column(name = "check_value")
 	private Integer checkValue;// after change on set<>
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private Set<Calculate> calculates;
 
 	@OneToMany(fetch = FetchType.EAGER)
@@ -49,13 +52,7 @@ public class Shift extends BaseEntity {
 	@ManyToMany(mappedBy = "shifts", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	private List<User> users;
 
-	@OneToMany(mappedBy = "shift", fetch = FetchType.EAGER)
-	private Set<UserSalaryDetail> userSalaryDetail;
-
-	@OneToMany(mappedBy = "shift", fetch = FetchType.EAGER)
-	private Set<Cost> costs;
-
-	@OneToMany(mappedBy = "shift")
+	@OneToMany(mappedBy = "shift", cascade = CascadeType.REMOVE)
 	private List<Receipt> receipts;
 
 	// TODO: 26.07.2017 Подумать над размером
@@ -93,14 +90,6 @@ public class Shift extends BaseEntity {
 
 	public void setUsers(List<User> users) {
 		this.users = users;
-	}
-
-	public Set<UserSalaryDetail> getUserSalaryDetail() {
-		return userSalaryDetail;
-	}
-
-	public void setUserSalaryDetail(Set<UserSalaryDetail> userSalaryDetail) {
-		this.userSalaryDetail = userSalaryDetail;
 	}
 
 	public String getUsersNames() {
@@ -189,22 +178,6 @@ public class Shift extends BaseEntity {
 
 	public void setOpen(boolean open) {
 		opened = open;
-	}
-
-	public void addSalaryDetail(UserSalaryDetail detail) {
-		this.userSalaryDetail.add(detail);
-	}
-
-	public Set<Cost> getCosts() {
-		return costs;
-	}
-
-	public void setCosts(Set<Cost> costs) {
-		this.costs = costs;
-	}
-
-	public void addCostToSet (Cost cost) {
-		this.costs.add(cost);
 	}
 
 	public String getComment() {

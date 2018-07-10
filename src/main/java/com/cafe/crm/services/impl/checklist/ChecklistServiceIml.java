@@ -75,7 +75,8 @@ public class ChecklistServiceIml implements ChecklistService{
 
 	@Override
 	public List<Checklist> getAll() {
-		return checklistRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return checklistRepository.findByCompanyId(companyIdCache.getCompanyId());
+		return checklistRepository.findAll();
 	}
 
 	@Override

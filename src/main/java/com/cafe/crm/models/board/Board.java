@@ -73,4 +73,19 @@ public class Board extends BaseEntity {
 		result = 31 * result + (name != null ? name.hashCode() : 0);
 		return result;
 	}
+
+	static int menishee(int d,int k) {
+		if (d < k) {
+			return d;
+		} else {
+			return k;
+		}
+
+
+	}
+
+	public static void main(String[] args) {
+		System.out.println(menishee(23,99));
+
+	}
 }

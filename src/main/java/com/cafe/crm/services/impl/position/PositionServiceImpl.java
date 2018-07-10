@@ -46,6 +46,7 @@ public class PositionServiceImpl implements PositionService {
 	@Override
 	public List<Position> findAll() {
 		return positionRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return positionRepository.findAll();
 	}
 
 	@Override
@@ -77,6 +78,7 @@ public class PositionServiceImpl implements PositionService {
 	@Override
 	public Position findByName(String name) {
 		return positionRepository.findByNameAndCompanyId(name, companyIdCache.getCompanyId());
+		//return positionRepository.findByField("name", name);
 	}
 
 	@Override

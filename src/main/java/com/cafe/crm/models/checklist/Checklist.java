@@ -15,7 +15,9 @@ public class Checklist extends BaseEntity {
 	@Id
 	@GeneratedValue
 	private Long id;
+
 	private String onCloseShiftText;
+
 	private String onOpenShiftText;
 
 	public Checklist() {

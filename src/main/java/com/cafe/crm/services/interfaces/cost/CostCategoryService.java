@@ -24,5 +24,7 @@ public interface CostCategoryService {
 
 	boolean isSalaryCostExist();
 
+	List<CostCategory> findAllOtherCost();
+
 	void delete(Long id);
 }

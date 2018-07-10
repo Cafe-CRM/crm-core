@@ -16,7 +16,7 @@ import java.util.Set;
 public interface ShiftCalculationService {
 	UserSalaryDetail getUserSalaryDetail(User user, int percent, int bonus, Shift shift);
 
-	double getTotalCashBox(Set<Shift> allShiftsBetween);
+	double getTotalCashBox(List<Shift> allShiftsBetween);
 
 	TotalStatisticView createTotalStatisticView(LocalDate from, LocalDate to);
 

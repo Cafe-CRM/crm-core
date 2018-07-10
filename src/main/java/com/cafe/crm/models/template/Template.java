@@ -4,9 +4,10 @@ import com.cafe.crm.models.BaseEntity;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-public class Template {
+public class Template implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long id;

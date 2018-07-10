@@ -7,6 +7,7 @@ import com.cafe.crm.dto.RoleDTO;
 import com.cafe.crm.dto.UserLoggingDTO;
 import com.cafe.crm.exceptions.user.UserDataException;
 import com.cafe.crm.models.company.Company;
+import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.Position;
 import com.cafe.crm.models.user.Role;
 import com.cafe.crm.models.user.User;
@@ -153,7 +154,22 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<User> findByPositionIdWithAnyEnabledStatus(Long positionId) {
-		return userRepository.findByPositionsIdAndCompanyId(positionId, companyIdCache.getCompanyId());
+		return userRepository.findByPositionsIdAndEnabledIsTrueAndCompanyId(positionId, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<User> findByPositionIdIsNotWithAnyEnabledStatus(Long positionId) {
+		return userRepository.findByPositionsIdIsNotAndEnabledIsTrueAndCompanyId(positionId, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<User> findAllEnabledAdminOnShift(Shift shift) {
+		return userRepository.findByShiftsAndPositionsIdAndEnabledIsTrueAndCompanyId(shift, 1L, companyIdCache.getCompanyId());
+	}
+
+	@Override
+	public List<User> findAllEnabledNotAdminOnShift(Shift shift) {
+		return userRepository.findByShiftsAndPositionsIdIsNotAndEnabledIsTrueAndCompanyId(shift, 1L, companyIdCache.getCompanyId());
 	}
 
 	@Override

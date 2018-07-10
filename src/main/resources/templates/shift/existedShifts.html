@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>Открытие смены</title>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+</head>
+<body>
+<div th:replace="bossnavbar :: bossNavbar"></div>
+<div class="container">
+    <div class="panel panel-default" th:fragment="panel">
+    <div class="row" style="margin-top: 50px;">
+        <div id="salaryContainer" class="col-md-6 col-md-offset-3">
+            <h3 align="center">Смены к удалению:</h3>
+            <table class="table table-striped table-bordered table-hover">
+                <tr>
+                    <th><p th:align="center">ID</p></th>
+                    <th><p th:align="center">Дата</p></th>
+                    <th><p th:align="center">Касса</p></th>
+                    <th><p th:align="center">Грязными</p></th>
+                </tr>
+                <tbody id="salaryTable" class="searchable">
+                <tr th:each="shift: ${shiftsDTO}">
+                    <td>
+                        <p align="center" th:text="${shift.id}"></p>
+                    </td>
+                    <td>
+                        <p align="center" th:text="${shift.shiftDate}"></p>
+                    </td>
+                    <td>
+                        <p align="center" th:text="${shift.cashBox + shift.bankCashBox}"></p>
+                    </td>
+                    <td>
+                        <p align="center" th:text="${shift.profit}"></p>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+
+                </tfoot>
+            </table>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button th:onclick="'sendDeletedShiftToken(\'' + ${date} + '\')'"
+                        data-dismiss="modal"
+                        data-toggle="modal"
+                        class="btn btn-danger"
+                        data-target="#deleteShifts">
+                    Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div id="deleteShifts" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="top: 120px; width: 550px;">
+        <div class="modal-content">
+            <div class="modal-header" style="padding-bottom: 0px;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <p class="newAmountError" style="display: none;"></p>
+                <h3 style="font-size: 19px; font-weight: 600;">В админ-конференцию был послан короткий код.</h3>
+                <h3 style="font-size: 19px; font-weight: 600;">Используйте его для подтверждения операции.</h3>
+            </div>
+
+            <div class="modal-body" style="height: 65px;">
+                <form class="form-horizontal" role="form">
+
+                    <div class="form-group">
+                        <div class="col-md-6">
+                            <input class="form-control" id="password"
+                                   name="password" required="" placeholder="Введите полученный код" type="password"/>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        th:onclick="'sendDeletedShiftToken(\'' + ${date} + '\')'"
+                        style="font-size:16px;" class="btn btn-primary">Отправить код повторно
+                </button>
+                <button type="button"
+                        th:onclick="'deleteShifts(\'' + ${date} + '\')'"
+                        style="font-size:16px;" class="btn btn-primary">Подтвердить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/shift/missingShift.js}"></script>
+</body>
+</html>

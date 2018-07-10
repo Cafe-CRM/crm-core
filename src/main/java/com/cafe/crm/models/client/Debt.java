@@ -4,6 +4,8 @@ import com.cafe.crm.dto.DebtDTO;
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.menu.Category;
 import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.utils.annotation.Dateable;
+import com.cafe.crm.utils.annotation.SelfDate;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.yc.easytransformer.annotations.NotTransform;
 import com.yc.easytransformer.annotations.Transform;
@@ -18,6 +20,7 @@ import java.util.Objects;
 @Entity
 @Table
 @Transform(DebtDTO.class)
+@Dateable
 public class Debt extends BaseEntity {
 
 	@Id
@@ -30,6 +33,7 @@ public class Debt extends BaseEntity {
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@NotTransform
+	@SelfDate
 	private LocalDate givenDate;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")

@@ -1,11 +1,13 @@
 package com.cafe.crm.models.shift;
 
+import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.user.User;
 import javax.persistence.*;
+import java.io.Serializable;
 
 
 @Entity
-public class UserSalaryDetail {
+public class UserSalaryDetail extends BaseEntity {
 	@Id
 	@GeneratedValue
 	private Long id;
@@ -26,9 +28,9 @@ public class UserSalaryDetail {
 
 	private int bonusBalance;
 
-	private int paidSalary = 0;
+	private int paidSalary;
 
-	private int paidBonus = 0;
+	private int paidBonus;
 
 	private boolean isPaidDetail;
 

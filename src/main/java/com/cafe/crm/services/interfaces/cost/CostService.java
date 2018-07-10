@@ -2,13 +2,13 @@ package com.cafe.crm.services.interfaces.cost;
 
 
 import com.cafe.crm.models.cost.Cost;
+import com.cafe.crm.models.shift.Shift;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 public interface CostService {
-
 	Cost save(Cost cost);
 
 	Cost getOne(Long costId);
@@ -17,19 +17,11 @@ public interface CostService {
 
 	void delete(Long id);
 
-	Cost offVisibleStatus(Long id);
-
 	List<Cost> offVisibleStatus(long[] ids);
-
-	List<Cost> findOtherCostByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to);
 
 	List<Cost> findAllCostByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to);
 
-	List<Cost> findOtherCostByNameAndDateBetween(String name, LocalDate from, LocalDate to);
-
 	List<Cost> findAllCostByNameAndDateBetween(String name, LocalDate from, LocalDate to);
-
-	List<Cost> findOtherCostByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to);
 
 	List<Cost> findAllCostByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to);
 
@@ -39,17 +31,15 @@ public interface CostService {
 
 	Set<Cost> findOtherCostByNameStartingWith(String startName);
 
-	List<Cost> findOtherCostByDateAndVisibleTrue(LocalDate date);
+	List<Cost> findOtherCostByShiftId(Shift shift);
 
-	List<Cost> findOtherCostByDateAndCategoryNameAndVisibleTrue(LocalDate date, String name);
+	List<Cost> findSalaryCostAtShift(Shift shift);
 
-	List<Cost> findOtherCostByShiftIdAndCategoryNameNot(Long shiftId, String name);
-
-	List<Cost> findOtherCostByShiftId(Long shiftId);
-
-	List<Cost> findOtherCostByCategoryName(String name);
-
-	List<Cost> findSalaryCostAtShift(Long shiftId);
+	List<Cost> findOtherCostAtShift(Shift shift);
 
 	List<Cost> findSalaryCostByDateBetween(LocalDate from, LocalDate to);
+
+	void deleteAllCostByShift(Shift shift);
+
+	void deleteAllCostByShiftIdIn(long[] ids);
 }

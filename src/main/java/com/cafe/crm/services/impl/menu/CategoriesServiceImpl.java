@@ -30,7 +30,8 @@ public class CategoriesServiceImpl implements CategoriesService {
 
 	@Override
 	public List<Category> findAll() {
-		return categoryRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return categoryRepository.findByCompanyId(companyIdCache.getCompanyId());
+		return categoryRepository.findAll();
 	}
 
 	@Override
@@ -57,7 +58,8 @@ public class CategoriesServiceImpl implements CategoriesService {
 
 	@Override
 	public List<Category> sortProductListAndGetAllCategories() {
-		List<Category> allCategories = categoryRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//List<Category> allCategories = categoryRepository.findByCompanyId(companyIdCache.getCompanyId());
+		List<Category> allCategories = categoryRepository.findAll();
 		List<Category> categoriesWithSortedProducts = new ArrayList<>();
 		for (Category category : allCategories) {
 			List<Product> products = category.getProducts();

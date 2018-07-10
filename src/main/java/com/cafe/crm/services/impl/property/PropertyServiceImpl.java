@@ -49,11 +49,13 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public List<Property> findAll() {
 		return propertyRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return propertyRepository.findAll();
 	}
 
 	@Override
 	public Property findByName(String name) {
 		return propertyRepository.findByNameAndCompanyId(name, companyIdCache.getCompanyId());
+		//return propertyRepository.findByField("name", name);
 	}
 
 	@Override

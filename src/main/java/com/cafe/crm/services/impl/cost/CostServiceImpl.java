@@ -11,6 +11,7 @@ import com.cafe.crm.services.interfaces.cost.CostService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,11 +30,16 @@ public class CostServiceImpl implements CostService {
 	private final CompanyIdCache companyIdCache;
 
 	@Autowired
-	public CostServiceImpl(CostRepository goodsRepository, CostCategoryService goodsCategoryService, CompanyService companyService, CompanyIdCache companyIdCache) {
+	public CostServiceImpl(CostRepository goodsRepository,
+						   CostCategoryService goodsCategoryService,
+						   CompanyService companyService,
+						   @Lazy ShiftService shiftService,
+						   CompanyIdCache companyIdCache) {
 		this.costRepository = goodsRepository;
 		this.costCategoryService = goodsCategoryService;
 		this.companyService = companyService;
 		this.companyIdCache = companyIdCache;
+		this.shiftService = shiftService;
 	}
 
 	private void setCompanyId(Cost cost) {
@@ -42,10 +48,10 @@ public class CostServiceImpl implements CostService {
 		cost.setCompany(company);
 	}
 
-	@Autowired
+	/*@Autowired
 	public void setShiftService(ShiftService shiftService) {
 		this.shiftService = shiftService;
-	}
+	}*/
 
 	@Override
 	public Cost save(Cost cost) {
@@ -87,22 +93,10 @@ public class CostServiceImpl implements CostService {
 	}
 
 	@Override
-	public Cost offVisibleStatus(Long id) {
-		Cost cost = costRepository.getOne(id);
-		cost.setVisible(false);
-		return costRepository.save(cost);
-	}
-
-	@Override
 	public List<Cost> offVisibleStatus(long[] ids) {
 		List<Cost> costs = costRepository.findByIdIn(ids);
 		costs.forEach(goods -> goods.setVisible(false));
 		return costRepository.save(costs);
-	}
-
-	@Override
-	public List<Cost> findOtherCostByCategoryNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
-		return costRepository.findByCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyIdAndCategoryIsSalaryCostFalse(categoryName, from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -111,18 +105,8 @@ public class CostServiceImpl implements CostService {
 	}
 
 	@Override
-	public List<Cost> findOtherCostByNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
-		return costRepository.findByNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyIdAndCategoryIsSalaryCostFalse(categoryName, from, to, companyIdCache.getCompanyId());
-	}
-
-	@Override
 	public List<Cost> findAllCostByNameAndDateBetween(String categoryName, LocalDate from, LocalDate to) {
 		return costRepository.findByNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyId(categoryName, from, to, companyIdCache.getCompanyId());
-	}
-
-	@Override
-	public List<Cost> findOtherCostByNameAndCategoryNameAndDateBetween(String name, String categoryName, LocalDate from, LocalDate to) {
-		return costRepository.findByNameIgnoreCaseAndCategoryNameIgnoreCaseAndVisibleIsTrueAndDateBetweenAndCompanyIdAndCategoryIsSalaryCostFalse(name, categoryName, from, to, companyIdCache.getCompanyId());
 	}
 
 	@Override
@@ -138,6 +122,8 @@ public class CostServiceImpl implements CostService {
 	@Override
 	public List<Cost> findAllCostByDateBetween(LocalDate from, LocalDate to) {
 		return costRepository.findByVisibleIsTrueAndDateBetweenAndCompanyId(from, to, companyIdCache.getCompanyId());
+		//return costRepository.findAllBySelfDateBetween(from, to);
+		//return null;
 	}
 
 	@Override
@@ -146,33 +132,18 @@ public class CostServiceImpl implements CostService {
 	}
 
 	@Override
-	public List<Cost> findOtherCostByDateAndVisibleTrue(LocalDate date) {
-		return costRepository.findByDateAndVisibleTrueAndCompanyIdAndCategoryIsSalaryCostFalse(date, companyIdCache.getCompanyId());
+	public List<Cost> findOtherCostByShiftId(Shift shift) {
+		return costRepository.findByShiftAndVisibleIsTrueAndCategoryIsSalaryCostFalse(shift);
 	}
 
 	@Override
-	public List<Cost> findOtherCostByDateAndCategoryNameAndVisibleTrue(LocalDate date, String name) {
-		return costRepository.findByDateAndCategoryNameAndVisibleTrueAndCompanyIdAndCategoryIsSalaryCostFalse(date, name, companyIdCache.getCompanyId());
+	public List<Cost> findSalaryCostAtShift(Shift shift) {
+		return costRepository.findByShiftAndCategoryIsSalaryCostTrue(shift);
 	}
 
 	@Override
-	public List<Cost> findOtherCostByShiftIdAndCategoryNameNot(Long shiftId, String name) {
-		return costRepository.findByShiftIdAndCategoryNameNotAndVisibleIsTrueAndCategoryIsSalaryCostFalse(shiftId, name);
-	}
-
-	@Override
-	public List<Cost> findOtherCostByShiftId(Long shiftId) {
-		return costRepository.findByShiftIdAndVisibleIsTrueAndCategoryIsSalaryCostFalse(shiftId);
-	}
-
-	@Override
-	public List<Cost> findOtherCostByCategoryName(String name) {
-		return costRepository.findByCategoryNameAndVisibleIsTrueAndCompanyIdAndCategoryIsSalaryCostFalse(name, companyIdCache.getCompanyId());
-	}
-
-	@Override
-	public List<Cost> findSalaryCostAtShift(Long shiftId) {
-		return costRepository.findByShiftIdAndCategoryIsSalaryCostTrue(shiftId);
+	public List<Cost> findOtherCostAtShift(Shift shift) {
+		return costRepository.findByShiftAndCategoryIsSalaryCostFalse(shift);
 	}
 
 	@Override
@@ -180,5 +151,13 @@ public class CostServiceImpl implements CostService {
 		return costRepository.findByDateBetweenAndCategoryIsSalaryCostTrue(from, to);
 	}
 
+	@Override
+	public void deleteAllCostByShift(Shift shift) {
+		costRepository.deleteAllByShiftAndCompanyId(shift, companyIdCache.getCompanyId());
+	}
 
+	@Override
+	public void deleteAllCostByShiftIdIn(long[] ids) {
+		costRepository.deleteAllByShiftIdInAndCompanyId(ids, companyIdCache.getCompanyId());
+	}
 }

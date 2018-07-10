@@ -46,6 +46,7 @@ public class DiscountServiceImpl implements DiscountService {
 	@Override
 	public List<Discount> getAll() {
 		return discountRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return discountRepository.findAll();
 	}
 
 	@Override
@@ -61,6 +62,7 @@ public class DiscountServiceImpl implements DiscountService {
 	@Override
 	public List<Discount> getAllOpen() {
 		return discountRepository.getAllOpenAndCompanyId(companyIdCache.getCompanyId());
+		//return discountRepository.findAllByField("isOpen", "true");
 	}
 }
 

@@ -3,6 +3,8 @@ package com.cafe.crm.repositories.debt;
 
 import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.repositories.customRepository.CommonRepository;
+import com.cafe.crm.repositories.customRepository.DateableRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -41,6 +43,9 @@ public interface DebtRepository extends JpaRepository<Debt, Long> {
 	//Все возвращённые долги на смене
 	List<Debt> findByDeletedIsFalseAndRepaidShiftAndCompanyId(Shift repairedShift, Long companyId);
 
+	//Все возвращённые долги на смене
+	List<Debt> findByDeletedIsFalseAndRepaidShiftIdInAndCompanyId(long[] ids, Long companyId);
+
 	//Все взятые долги за смены
 	List<Debt> findByDeletedIsFalseAndGivenShiftInAndCompanyId(Iterable<? extends Shift> shifts, Long companyId);
 
@@ -58,4 +63,16 @@ public interface DebtRepository extends JpaRepository<Debt, Long> {
 
 	//Все долги из кассы, взятые на этой смене
 	List<Debt> findByDeletedIsFalseAndGivenShiftAndCashBoxDebtIsTrueAndCompanyId(Shift givenShift, Long companyId);
+
+	//Все удалённые долги на этой смене
+	List<Debt> findByDeletedIsTrueAndDeletedShiftAndCompanyId(Shift deletedShift, Long companyId);
+
+	//Все удалённые долги на этих сменах
+	List<Debt> findByDeletedIsTrueAndDeletedShiftIdInAndCompanyId(long[] ids, Long companyId);
+
+	//Удалить все долги взятые на этой смене
+	void deleteAllByGivenShiftAndCompanyId(Shift givenShift, Long companyId);
+
+	//Удалить все долги на этих сменах
+	void deleteAllByGivenShiftIdInAndCompanyId(long[] ids, Long companyId);
 }

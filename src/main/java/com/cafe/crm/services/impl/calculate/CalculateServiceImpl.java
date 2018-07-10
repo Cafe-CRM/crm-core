@@ -44,7 +44,8 @@ public class CalculateServiceImpl implements CalculateService {
 
 	@Override
 	public List<Calculate> getAll() {
-		return calculateRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return calculateRepository.findByCompanyId(companyIdCache.getCompanyId());
+		return calculateRepository.findAll();
 	}
 
 	@Override

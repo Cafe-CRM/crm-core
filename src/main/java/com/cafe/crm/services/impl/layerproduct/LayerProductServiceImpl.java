@@ -45,7 +45,8 @@ public class LayerProductServiceImpl implements LayerProductService {
 
 	@Override
 	public List<LayerProduct> getAll() {
-		return layerProductRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return layerProductRepository.findByCompanyId(companyIdCache.getCompanyId());
+		return layerProductRepository.findAll();
 	}
 
 	@Override

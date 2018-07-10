@@ -45,6 +45,7 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public List<Board> getAll() {
 		return boardRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return boardRepository.findAll();
 	}
 
 	@Override
@@ -60,6 +61,7 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public List<Board> getAllOpen() {
 		return boardRepository.getAllOpen(companyIdCache.getCompanyId());
+		//return boardRepository.findAllByField("isOpen", "true");
 	}
 
 	@Override

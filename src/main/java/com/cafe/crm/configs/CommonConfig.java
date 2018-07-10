@@ -4,7 +4,10 @@ import com.cafe.crm.configs.filters.CardFilter;
 import com.cafe.crm.configs.filters.CompanyConfigurationFilter;
 import com.cafe.crm.configs.filters.ShiftOpenFilter;
 import com.cafe.crm.configs.property.AdvertisingProperties;
+import com.cafe.crm.repositories.customRepository.CommonRepositoryImpl;
 import com.cloudinary.Cloudinary;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.cache.CacheBuilder;
 import com.yc.easytransformer.Transformer;
 import com.yc.easytransformer.impl.EasyTransformer;
@@ -20,6 +23,8 @@ import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,6 +43,9 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableAspectJAutoProxy
+/*@EnableJpaRepositories(basePackages = {"com.cafe.crm.repositories"},
+		repositoryBaseClass = CommonRepositoryImpl.class
+)*/
 public class CommonConfig {
 
 	@Bean
@@ -143,5 +151,14 @@ public class CommonConfig {
 		FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(companySettingFilter);
 		filterRegistrationBean.setOrder(Integer.MAX_VALUE - 2);
 		return filterRegistrationBean;
+	}
+
+	@Bean
+	public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+		MappingJackson2HttpMessageConverter converter =
+				new MappingJackson2HttpMessageConverter(mapper);
+		return converter;
 	}
 }

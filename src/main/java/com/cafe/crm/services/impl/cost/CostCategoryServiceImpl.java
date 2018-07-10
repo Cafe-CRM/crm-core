@@ -60,6 +60,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 	@Override
 	public List<CostCategory> findAll() {
 		return costCategoryRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return costCategoryRepository.findAll();
 	}
 
 	@Override
@@ -90,6 +91,7 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 	@Override
 	public CostCategory getSalaryCategory() {
 		return costCategoryRepository.findByIsSalaryCostAndCompanyId(true, companyIdCache.getCompanyId());
+		//return costCategoryRepository.findByField("isSalaryCost", "true");
 	}
 
 	@Override
@@ -102,6 +104,11 @@ public class CostCategoryServiceImpl implements CostCategoryService {
 	public boolean isSalaryCostExist() {
 		CostCategory category = getSalaryCategory();
 		return category != null;
+	}
+
+	@Override
+	public List<CostCategory> findAllOtherCost() {
+		return costCategoryRepository.findAllByIsSalaryCostFalseAndCompanyId(companyIdCache.getCompanyId());
 	}
 
 	private String printAllCostOnCategory(List<Cost> costs) {

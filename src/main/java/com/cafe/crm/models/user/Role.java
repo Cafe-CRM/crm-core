@@ -6,11 +6,12 @@ import com.yc.easytransformer.annotations.Transform;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "roles")
 @Transform(RoleDTO.class)
-public class Role {
+public class Role implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long id;

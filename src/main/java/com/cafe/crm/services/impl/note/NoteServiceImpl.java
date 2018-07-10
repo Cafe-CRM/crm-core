@@ -45,6 +45,7 @@ public class NoteServiceImpl implements NoteService {
 	@Override
 	public List<Note> findAllByEnableIsTrue() {
 		return noteRepository.findByCompanyIdAndEnableIsTrue(companyIdCache.getCompanyId());
+		//return noteRepository.findAllByField("enable", "true");
 	}
 
 	@Override

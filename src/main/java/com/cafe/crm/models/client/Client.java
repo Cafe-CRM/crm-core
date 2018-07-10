@@ -39,7 +39,7 @@ public class Client extends BaseEntity {
 
 	private boolean state = true;// Open or Closed
 
-	private boolean deleteState = false;// Open or Closed
+	private boolean deleteState;// Open or Closed
 	@NotNull
 	@Max(100)
 	private Long discount = 0L;//связанный обьект отдает скидку в это поле
@@ -70,7 +70,7 @@ public class Client extends BaseEntity {
 	@NotTransform
 	private Double payWithCard = 0D;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 	@JsonBackReference
 	@JoinTable(name = "client_layer_product",
 			joinColumns = {@JoinColumn(name = "client_id", referencedColumnName = "id")},

@@ -2,6 +2,7 @@ package com.cafe.crm.repositories.property;
 
 
 import com.cafe.crm.models.property.Property;
+import com.cafe.crm.repositories.customRepository.CommonRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

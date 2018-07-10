@@ -32,7 +32,7 @@ public class Calculate extends BaseEntity {
 
 	private boolean isPause = false;  // now is paused ?
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private List<Client> client;
 
 	@ManyToOne
@@ -48,7 +48,7 @@ public class Calculate extends BaseEntity {
 	@Column(name = "profit_recalculation")
 	private double profitRecalculation;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private Set<Debt> debts = new HashSet<>();
 
 	public Calculate() {

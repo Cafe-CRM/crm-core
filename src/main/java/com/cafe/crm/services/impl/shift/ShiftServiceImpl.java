@@ -1,6 +1,9 @@
 package com.cafe.crm.services.impl.shift;
 
+import com.cafe.crm.exceptions.password.PasswordException;
+import com.cafe.crm.models.client.Debt;
 import com.cafe.crm.models.company.Company;
+import com.cafe.crm.models.missingModel.MissingProduct;
 import com.cafe.crm.models.note.NoteRecord;
 import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.shift.UserSalaryDetail;
@@ -9,16 +12,24 @@ import com.cafe.crm.models.user.User;
 import com.cafe.crm.repositories.shift.ShiftRepository;
 import com.cafe.crm.services.interfaces.calculation.ShiftCalculationService;
 import com.cafe.crm.services.interfaces.company.CompanyService;
+import com.cafe.crm.services.interfaces.cost.CostService;
+import com.cafe.crm.services.interfaces.debt.DebtService;
+import com.cafe.crm.services.interfaces.missing.MissingProductService;
 import com.cafe.crm.services.interfaces.note.NoteRecordService;
 import com.cafe.crm.services.interfaces.salary.UserSalaryDetailService;
 import com.cafe.crm.services.interfaces.shift.ShiftService;
+import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.services.interfaces.user.UserService;
 import com.cafe.crm.utils.CompanyIdCache;
+import com.cafe.crm.utils.Target;
 import com.cafe.crm.utils.TimeManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -32,6 +43,10 @@ public class ShiftServiceImpl implements ShiftService {
 	private final NoteRecordService noteRecordService;
 	private UserSalaryDetailService userSalaryDetailService;
 	private ShiftCalculationService shiftCalculationService;
+	private final MissingProductService missingProductService;
+	private DebtService debtService;
+	private CostService costService;
+	private ConfirmTokenService confirmTokenService;
 
     private final CompanyService companyService;
     private final CompanyIdCache companyIdCache;
@@ -42,13 +57,19 @@ public class ShiftServiceImpl implements ShiftService {
                             UserService userService,
                             NoteRecordService noteRecordService,
                             CompanyIdCache companyIdCache,
-                            CompanyService companyService) {
+                            CompanyService companyService,
+                            MissingProductService missingProductService,
+                            CostService costService,
+                            ConfirmTokenService confirmTokenService) {
 		this.timeManager = timeManager;
 		this.shiftRepository = shiftRepository;
 		this.userService = userService;
 		this.noteRecordService = noteRecordService;
         this.companyService = companyService;
         this.companyIdCache = companyIdCache;
+        this.missingProductService = missingProductService;
+        this.costService = costService;
+        this.confirmTokenService = confirmTokenService;
 	}
 
 	@Autowired
@@ -61,17 +82,26 @@ public class ShiftServiceImpl implements ShiftService {
 		this.shiftCalculationService = shiftCalculationService;
 	}
 
-	private void setCompany(Shift shift) {
+	@Autowired
+    public void setDebtService(DebtService debtService) {
+        this.debtService = debtService;
+    }
+
+    @Autowired
+    public void setCostService(CostService costService) {
+        this.costService = costService;
+    }
+
+    private void setCompany(Shift shift) {
 		Long companyId = companyIdCache.getCompanyId();
 		Company company = companyService.findOne(companyId);
 		shift.setCompany(company);
 	}
 
 	@Override
-	public void saveAndFlush(Shift shift) {
+	public Shift saveAndFlush(Shift shift) {
 		setCompany(shift);
-		shiftRepository.saveAndFlush(shift);
-        //shiftRepository.save(shift);
+		return shiftRepository.saveAndFlush(shift);
 	}
 
 	@Override
@@ -174,7 +204,8 @@ public class ShiftServiceImpl implements ShiftService {
     @Transactional(readOnly = true)
     @Override
     public List<Shift> findAll() {
-        return shiftRepository.findByCompanyId(companyIdCache.getCompanyId());
+        //return shiftRepository.findByCompanyId(companyIdCache.getCompanyId());
+        return shiftRepository.findAll();
     }
 
 
@@ -221,6 +252,122 @@ public class ShiftServiceImpl implements ShiftService {
 		return shift;
 	}
 
+    @Override
+	public void deleteShifts(String password, long... shiftId) {
+
+        if (password.equals("")) {
+            throw new PasswordException("Заполните поле пароля перед отправкой!");
+        }
+        if (!confirmTokenService.confirm(password, Target.DELETE_SHIFT)) {
+            throw new PasswordException("Пароль не действителен!");
+        }
+
+	    List<Shift> shifts = shiftRepository.findByIdIn(shiftId);
+	    missingProductService.deleteByShiftIdIn(shiftId);
+
+        /*Debts*/
+	    debtService.deleteByGivenShiftIdIn(shiftId);
+	    List<Debt> repaidDebts = debtService.findRepaidDebtsByShiftIdIn(shiftId);
+	    List<Debt> deletedDebts = debtService.findAllDeletedDebtsByShiftIdIn(shiftId);
+	    for (Debt debt : repaidDebts) {
+	        debt.setRepaired(false);
+	        debt.setRepaidDate(null);
+	        debt.setRepairedShift(null);
+        }
+        for (Debt debt : deletedDebts) {
+	        debt.setDeleted(false);
+	        debt.setDeletedShift(null);
+        }
+
+        /*Costs*/
+        costService.deleteAllCostByShiftIdIn(shiftId);
+
+        /*Users*/
+	    Set<User> usersOnShift = new HashSet<>();
+
+	    for (Shift shift : shifts) {
+
+	        Set<User> users = new HashSet<>(shift.getUsers());
+
+            for (User user : users) {
+                user.getShifts().remove(shift);
+                setSalaryDate(user, shift);
+            }
+            userSalaryDetailService.deleteAllByShiftId(shift.getId());
+            usersOnShift.addAll(users);
+
+        }
+
+        userSalaryDetailService.deleteAllByShiftIdIn(shiftId);
+
+        userService.save(usersOnShift);
+
+	    shiftRepository.deleteAllByIdIn(shiftId);
+    }
+
+    @Override
+    public void deleteMissingShift(Long shiftId) {
+        Shift shift = shiftRepository.findById(shiftId);
+        missingProductService.deleteByShift(shift);
+
+        /*Debts*/
+        debtService.deleteByGivenShift(shift);
+        List<Debt> repaidDebts = debtService.findRepaidDebtsByShift(shift);
+        List<Debt> deletedDebts = debtService.findAllDeletedDebtsByShift(shift);
+        for (Debt debt : repaidDebts) {
+            debt.setRepaired(false);
+            debt.setRepaidDate(null);
+            debt.setRepairedShift(null);
+        }
+        for (Debt debt : deletedDebts) {
+            debt.setDeleted(false);
+            debt.setDeletedShift(null);
+        }
+
+        /*Costs*/
+        costService.deleteAllCostByShift(shift);
+
+        /*Users*/
+        Set<User> usersOnShift = new HashSet<>(shift.getUsers());
+
+        /*Salary details*/
+        for (User user : usersOnShift) {
+            user.getShifts().remove(shift);
+            setSalaryDate(user, shift);
+        }
+
+        userSalaryDetailService.deleteAllByShiftId(shiftId);
+
+        userService.save(usersOnShift);
+
+        shiftRepository.delete(shiftId);
+    }
+
+    private void setSalaryDate(User user, Shift shift) {
+	    long shiftId = shift.getId();
+        UserSalaryDetail detail = null;
+        try {
+            detail = userSalaryDetailService.findLastShiftOtherDetailByUser(shiftId, user.getId());
+        } catch (EntityNotFoundException e) {
+
+        }
+
+        if (detail != null) {
+            user.setBonusBalance(detail.getBonusBalance());
+            user.setSalaryBalance(detail.getSalaryBalance());
+            user.setTotalBonus(detail.getTotalBonus());
+            user.setTotalSalary(detail.getTotalSalary());
+        } else {
+            user.setBonusBalance(0);
+            user.setSalaryBalance(0);
+            user.setTotalBonus(0);
+            user.setTotalSalary(0);
+        }
+
+        int shiftAmount = user.getShiftAmount() - 1;
+        user.setShiftAmount(shiftAmount);
+    }
+
     private List<NoteRecord> saveAndGetNoteRecords(Map<String, String> mapOfNoteNameAndValue, Shift shift) {
         List<NoteRecord> noteRecords = new ArrayList<>();
         if (mapOfNoteNameAndValue != null) {
@@ -239,19 +386,43 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Transactional(readOnly = true)
     @Override
-    public Set<Shift> findByDates(LocalDate start, LocalDate end) {
-        return shiftRepository.findByDatesAndCompanyId(start, end, companyIdCache.getCompanyId());
+    public List<Shift> findByDates(LocalDate start, LocalDate end) {
+        return new ArrayList<>(shiftRepository.findByDatesAndCompanyId(start, end, companyIdCache.getCompanyId()));
+        //return shiftRepository.findAllBySelfDateBetween(start, end);
     }
 
     @Transactional(readOnly = true)
     @Override
     public Shift findByDate(LocalDate date) {
         return shiftRepository.findByShiftDateAndCompanyId(date, companyIdCache.getCompanyId());
+        //return shiftRepository.findBySelfDate(date);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countingByDateWithoutMissing(LocalDate date) {
+        return shiftRepository.countAllByShiftDateAndMissingShiftIsFalseAndCompanyId(date, companyIdCache.getCompanyId());
+        //return shiftRepository.findBySelfDate(date);
+    }
+
+    @Override
+    public long countingByMissing() {
+        return shiftRepository.countAllByMissingShiftIsTrueAndOpenedIsTrue();
+    }
+
+    @Override
+    public List<Shift> findAllByDate(LocalDate start) {
+        return shiftRepository.findAllByShiftDateAndCompanyId(start, companyIdCache.getCompanyId());
     }
 
     @Override
     public Shift getLastMissingShift() {
         return shiftRepository.getLastMissingShift(companyIdCache.getCompanyId());
+    }
+
+    @Override
+    public long countingByDate(LocalDate date) {
+        return shiftRepository.countAllByShiftDate(date);
     }
 
     @Override

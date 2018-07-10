@@ -48,6 +48,8 @@ public interface DebtService {
 
 	List<Debt> findRepaidDebtsByShift(Shift shifts);
 
+    List<Debt> findRepaidDebtsByShiftIdIn(long[] ids);
+
 	List<Debt> findGivenDebtsByShifts(Iterable<? extends Shift> shifts);
 
 	List<Debt> findRepaidDebtsByShifts(Iterable<? extends Shift> shifts);
@@ -55,4 +57,12 @@ public interface DebtService {
 	List<Debt> findAllGivenOtherDebt(Shift shifts);
 
 	List<Debt> findAllGivenCashBoxDebt(Shift shifts);
+
+	List<Debt> findAllDeletedDebtsByShift(Shift shift);
+
+    List<Debt> findAllDeletedDebtsByShiftIdIn(long[] ids);
+
+	void deleteByGivenShift(Shift shift);
+
+	void deleteByGivenShiftIdIn(long[] ids);
 }

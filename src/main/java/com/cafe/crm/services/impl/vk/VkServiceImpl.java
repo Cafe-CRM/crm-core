@@ -115,14 +115,7 @@ public class VkServiceImpl implements VkService {
 	@Override
 	public String sendDailyReportToConference(Shift shift) {
 		VkProperties vkProperties = getVkPropertiesFromDB();
-		if (vkProperties == null) {
-			throw new NullPointerException("Не удалось получить vk properties из базы");
-		}
-		Template messageTemplate = templateService.findByName(vkProperties.getMessageName());
-		if (messageTemplate == null) {
-			throw new NullPointerException("Не удалось получить шаблон сообщения vk из базы");
-		}
-		String message = formatMessage(shift, new String(messageTemplate.getContent(), Charset.forName("UTF-8")));
+		String message = getReportMessage(shift);
 		Map<String, String> variables = new HashMap<>();
 		variables.put("chat_id", vkProperties.getServiceChatId());
 		variables.put("message", message);
@@ -132,6 +125,19 @@ public class VkServiceImpl implements VkService {
 		checkForInvalidToken(response);
 
 		return message;
+	}
+
+	@Override
+	public String getReportMessage(Shift shift) {
+		VkProperties vkProperties = getVkPropertiesFromDB();
+		if (vkProperties == null) {
+			throw new NullPointerException("Не удалось получить vk properties из базы");
+		}
+		Template messageTemplate = templateService.findByName(vkProperties.getMessageName());
+		if (messageTemplate == null) {
+			throw new NullPointerException("Не удалось получить шаблон сообщения vk из базы");
+		}
+		return formatMessage(shift, new String(messageTemplate.getContent(), Charset.forName("UTF-8")));
 	}
 
 	@Override
@@ -328,7 +334,7 @@ public class VkServiceImpl implements VkService {
 	}
 
 	private double formatCostsAndGetOtherCosts(Shift shift, StringBuilder otherCosts) {
-		List<Cost> costs = costService.findOtherCostByShiftId(shift.getId());
+		List<Cost> costs = costService.findOtherCostByShiftId(shift);
 
 		DecimalFormat df = new DecimalFormat("#.##");
 		double otherCost = 0d;

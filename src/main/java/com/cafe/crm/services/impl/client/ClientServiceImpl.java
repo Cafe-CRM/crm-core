@@ -56,7 +56,8 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public List<Client> getAll() {
-		return clientRepository.findByCompanyId(companyIdCache.getCompanyId());
+		//return clientRepository.findByCompanyId(companyIdCache.getCompanyId());
+		return clientRepository.findAll();
 	}
 
 	@Override

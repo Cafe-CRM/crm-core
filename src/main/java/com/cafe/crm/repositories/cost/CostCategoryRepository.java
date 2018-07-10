@@ -1,6 +1,7 @@
 package com.cafe.crm.repositories.cost;
 
 import com.cafe.crm.models.cost.CostCategory;
+import com.cafe.crm.repositories.customRepository.CommonRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface CostCategoryRepository extends JpaRepository<CostCategory, Long
 	List<CostCategory> findByNameStartingWithAndCompanyId(String startName, long companyId);
 
 	List<CostCategory> findByCompanyId(Long companyId);
+
+	List<CostCategory> findAllByIsSalaryCostFalseAndCompanyId(Long companyId);
 }

@@ -13,150 +13,188 @@
         </div>
         <div class="panel-body">
             <!--<form id="choiceShiftDate" th:action="@{/manager/shift/close}" method="post" class="form-signin">-->
-
-                <label for="from" class="control-label" >Дата смены: </label>
-                <input name="forDate" th:value="${shift.shiftDate}" class="form-control"
-                       th:type="date" id="from" required=""/>
-
                 <div class="row">
-                    <h3 align="center">Куплено:</h3>
-                    <div class="col-md-4"><h4 align="center">Категория</h4></div>
-                    <div class="col-md-2"><h4 align="center">Колличество</h4></div>
-                    <div class="col-md-2"><h4 align="center">Цена</h4></div>
-                    <div class="col-md-1"><h4 align="center">Опции</h4></div>
+                    <div class="col-md-4 col-md-offset-4"
+                         style="text-align: center">
+                        <label for="from" class="control-label" >Дата смены: </label>
+                        <input name="forDate"
+                               readonly="readonly"
+                               th:value="${shift.shiftDate}"
+                               class="form-control"
+                               th:type="date"
+                               id="from"
+                               required=""/>
+                    </div>
                 </div>
-                <div id="productContainer" class="row">
-                    <div th:each="product : ${products}" class="missingProd">
-                        <div class="col-md-4">
-                            <select class="form-control">
-                                <option th:value="${product.category.id}"
-                                        th:text="${product.category.name}"
-                                        selected="selected"></option>
-                                <option th:each="category : ${categories}"
-                                        th:unless="${category.id == product.category.id}"
-                                        th:value="${category.id}"
-                                        th:text="${category.name}"></option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" class="form-control" th:value="${product.amount}"/>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" class="form-control" th:value="${product.price}"/>
-                        </div>
-                        <div class="col-md-1">
-                            <button class="btn btn-danger"
-                                    th:onclick="'deleteProd(\'' + ${product.id} + '\');'">Удалить</button>
-                        </div>
+                <div class="row">
+                    <div id="productContainer" class="col-md-8 col-md-offset-2" style="margin-top: 50px;">
+                        <h3 align="center">Продано:</h3>
+                        <table class="table table-striped table-bordered table-hover">
+                            <tr>
+                                <th><p th:align="center">#</p></th>
+                                <th><p th:align="center">Категория</p></th>
+                                <th><p th:align="center">Колличество</p></th>
+                                <th><p th:align="center">Цена</p></th>
+                                <th><p th:align="center">Опции</p></th>
+                            </tr>
+                            <tbody id="missingProductTable" class="searchable">
+                                <tr th:each="product, iter : ${products}">
+                                    <td>
+                                        <p align="center" th:text="${iter.count}"></p>
+                                    </td>
+                                    <td>
+                                        <p align="center" th:text="${product.category.name}"></p>
+                                    </td>
+                                    <td>
+                                        <p align="center" th:text="${product.amount}"></p>
+                                    </td>
+                                    <td>
+                                        <p align="center" th:text="${product.price}"></p>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger"
+                                                th:onclick="'deleteProd(\'' + ${product.id} + '\');'">Удалить</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <select id="addMissingCat" class="form-control" name="catId">
+                                            <option th:each="category : ${categories}"
+                                                    th:value="${category.id}"
+                                                    th:text="${category.name}"></option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input id="addMissingAmount"
+                                               oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                                               placeholder="Количество"
+                                               type="number"
+                                               class="form-control"
+                                               name="amount"/>
+                                    </td>
+                                    <td>
+                                        <input id="addMissingPrice"
+                                               oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                                               placeholder="Цена"
+                                               type="number"
+                                               class="form-control"
+                                               name="price"/>
+                                    </td>
+                                    <td>
+                                        <button id="addProdButton" class="btn btn-primary">Добавить</button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
 
-                <div id="addMissingProd" class="row">
-                    <h3 align="center">Куплено:</h3>
-                    <div class="col-md-4">
-                        <h4 align="center">Категория</h4>
-                        <select id="addMissingCat" class="form-control" name="catId">
-                            <option th:each="category : ${categories}"
-                                    th:value="${category.id}"
-                                    th:text="${category.name}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <h4 align="center">Колличество</h4>
-                        <input id="addMissingAmount" type="number" class="form-control" name="amount"/>
-                    </div>
-                    <div class="col-md-2">
-                        <h4 align="center">Цена</h4>
-                        <input id="addMissingPrice" type="number" class="form-control" name="price"/>
-                    </div>
-                    <div class="col-md-1">
-                        <h4 align="center">Опции</h4>
-                        <button id="addProdButton" class="btn btn-primary">Добавить</button>
-                    </div>
-                </div>
-
-            <div class="row">
+            <div class="row" style="margin-top: 50px;">
                 <div id="otherDebtTitles" class="col-md-6">
                     <h3 align="center">Прочие долги:</h3>
-                    <div class="col-md-2"><h4 align="center">#</h4></div>
-                    <div class="col-md-4"><h4 align="center">Должник</h4></div>
-                    <div class="col-md-4"><h4 align="center">Сумма</h4></div>
-                    <div class="col-md-2"><h4 align="center">Опции</h4></div>
+                    <table class="table table-striped table-bordered table-hover">
+                            <tr>
+                                <th><p th:align="center">#</p></th>
+                                <th><p th:align="center">Должник</p></th>
+                                <th><p th:align="center">Сумма</p></th>
+                                <th><p th:align="center">Опции</p></th>
+                            </tr>
+                        <tbody id="otherDebtTable" class="searchable">
+                            <tr th:each="debt, iter : ${otherDebt}">
+                                <td>
+                                    <p align="center" th:text="${iter.count}"></p>
+                                </td>
+                                <td>
+                                    <p align="center" th:text="${debt.debtor}"></p>
+                                </td>
+                                <td>
+                                    <p align="center" th:text="${debt.debtAmount}"></p>
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger"
+                                            th:onclick="'deleteOtherDebt(\'' + ${debt.id} + '\');'">Удалить</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <input id="addOtherDebtorName"
+                                           placeholder="Должник"
+                                           type="text"
+                                           class="form-control"/>
+                                </td>
+                                <td>
+                                    <input id="addOtherDebtAmount"
+                                           placeholder="Сумма"
+                                           oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                                           type="number"
+                                           class="form-control"/>
+                                </td>
+                                <td>
+                                    <button id="addOtherDebtButton" type="submit" class="btn btn-primary">Добавить</button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
                 <div id="cashBoxDebtTitles" class="col-md-6">
                     <h3 align="center">Долги из кассы:</h3>
-                    <div class="col-md-2"><h4 align="center">#</h4></div>
-                    <div class="col-md-4"><h4 align="center">Должник</h4></div>
-                    <div class="col-md-4"><h4 align="center">Сумма</h4></div>
-                    <div class="col-md-2"><h4 align="center">Опции</h4></div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div id="otherDebtContainer" class="col-md-6">
-                    <div th:each="debt, iter : ${otherDebt}" class="missingOtherDebt">
-                        <div class="col-md-2" th:text="${iter.count}"></div>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" th:value="${debt.debtor}"/>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="number" class="form-control" th:value="${debt.debtAmount}"/>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-danger"
-                                    th:onclick="'deleteOtherDebt(\'' + ${debt.id} + '\');'">Удалить</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="cashBoxDebtContainer" class="col-md-6">
-                    <div th:each="debt, iter : ${cashBoxDebt}" class="missingOtherDebt">
-                        <div class="col-md-2" th:text="${iter.count}"></div>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" th:value="${debt.debtor}"/>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="number" class="form-control" th:value="${debt.debtAmount}"/>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-danger"
-                                    th:onclick="'deleteCashBoxDebt(\'' + ${debt.id} + '\');'">Удалить</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div id="otherDebtAdd" class="col-md-6">
-                    <div class="col-md-4">
-                        <h4 align="center">Должник</h4>
-                        <input id="addOtherDebtorName" type="text" class="form-control"/>
-                    </div>
-                    <div class="col-md-4">
-                        <h4 align="center">Сумма</h4>
-                        <input id="addOtherDebtAmount" type="number" class="form-control"/>
-                    </div>
-                    <div class="col-md-2">
-                        <h4 align="center">Опции</h4>
-                        <button id="addOtherDebtButton" type="submit" class="btn btn-primary">Добавить</button>
-                    </div>
-                </div>
-                <div id="cashBoxDebtAdd" class="col-md-6">
-                    <div class="col-md-4">
-                        <h4 align="center">Должник</h4>
-                        <input id="addCashBoxDebtorName" type="text" class="form-control"/>
-                    </div>
-                    <div class="col-md-4">
-                        <h4 align="center">Сумма</h4>
-                        <input id="addCashBoxDebtAmount" type="number" class="form-control"/>
-                    </div>
-                    <div class="col-md-2">
-                        <h4 align="center">Опции</h4>
-                        <button id="addCashBoxDebtButton" type="submit" class="btn btn-primary">Добавить</button>
-                    </div>
+                    <table class="table table-striped table-bordered table-hover">
+                        <tr>
+                            <th><p th:align="center">#</p></th>
+                            <th><p th:align="center">Должник</p></th>
+                            <th><p th:align="center">Сумма</p></th>
+                            <th><p th:align="center">Опции</p></th>
+                        </tr>
+                        <tbody id="cashBoxDebtTable" class="searchable">
+                        <tr th:each="debt, iter : ${cashBoxDebt}">
+                            <td>
+                                <p align="center" th:text="${iter.count}"></p>
+                            </td>
+                            <td>
+                                <p align="center" th:text="${debt.debtor}"></p>
+                            </td>
+                            <td>
+                                <p align="center" th:text="${debt.debtAmount}"></p>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger"
+                                        th:onclick="'deleteCashBoxDebt(\'' + ${debt.id} + '\');'">Удалить</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <input id="addCashBoxDebtorName"
+                                       placeholder="Должник"
+                                       type="text"
+                                       class="form-control"/>
+                            </td>
+                            <td>
+                                <input id="addCashBoxDebtAmount"
+                                       placeholder="Сумма"
+                                       oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                                       type="number"
+                                       class="form-control"/>
+                            </td>
+                            <td>
+                                <button id="addCashBoxDebtButton" type="submit" class="btn btn-primary">Добавить</button>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
 
             <div class="row" style="margin-top: 50px;">
+                <h3 align="center">Прочие расходы:</h3>
                 <div id="costContainer" class="col-md-6">
                     <table class="table table-striped table-bordered table-hover">
                         <tr>
@@ -167,7 +205,7 @@
                             <th><p th:align="center">Опции</p></th>
                         </tr>
                         <tbody id="missingCostTable" class="searchable">
-                            <tr th:each="cost, iter : ${shift.costs}">
+                            <tr th:each="cost, iter : ${costs}">
                                 <td>
                                     <p align="center" th:text="${iter.count}"></p>
                                 </td>
@@ -234,11 +272,224 @@
                 </div>
             </div>
 
+            <div class="row" style="margin-top: 50px;">
+                <div id="adminContainer" class="col-md-6">
+                    <h3 align="center">Администраторы:</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <tr>
+                            <th><p th:align="center">#</p></th>
+                            <th><p th:align="center">Имя</p></th>
+                            <th><p th:align="center">Оклад</p></th>
+                            <th><p th:align="center">Бонус</p></th>
+                            <th><p th:align="center">Опции</p></th>
+                        </tr>
+                        <tbody id="adminTable" class="searchable">
+                            <tr th:each="adminDTO, iter : ${adminsDTO}">
+                                <td>
+                                    <p align="center" th:text="${iter.count}"></p>
+                                </td>
+                                <td>
+                                    <p align="center" th:text="${adminDTO.firstName + ' ' + adminDTO.lastName}"></p>
+                                </td>
+                                <td>
+                                    <p align="center" th:text="${adminDTO.shiftSalary}"></p>
+                                </td>
+                                <td>
+                                    <input th:id="${'bonusInput' + adminDTO.id}"
+                                           style="width: 100px"
+                                           class="form-control"
+                                           type="number"
+                                           oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                                           th:onblur="'changeBonusAdmin(\'' + ${adminDTO.id} + '\');'"
+                                           placeholder="Бонус"
+                                           th:value="${adminDTO.paidBonus}"/>
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger"
+                                            th:onclick="'deleteAdmin(\'' + ${adminDTO.id} + '\');'">Удалить</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5">
+                                    <select id="selectAdmin" class="form-control" style="width: 80%; float: left">
+                                        <option th:each="admin : ${admins}"
+                                                th:value="${admin.id}"
+                                                th:text="${admin.firstName + ' ' + admin.lastName}"></option>
+                                    </select>
+                                    <button id="addAdminButton"
+                                            class="btn btn-primary"
+                                            style="float: right">Добавить</button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div id="userContainer" class="col-md-6">
+                    <h3 align="center">Работники:</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <tr>
+                            <th><p th:align="center">#</p></th>
+                            <th><p th:align="center">Имя</p></th>
+                            <th><p th:align="center">Оклад</p></th>
+                            <th><p th:align="center">Бонус</p></th>
+                            <th><p th:align="center">Опции</p></th>
+                        </tr>
+                        <tbody id="workersTable" class="searchable">
+                            <tr th:each="workerDTO, iter : ${workersDTO}">
+                                <td>
+                                    <p align="center" th:text="${iter.count}"></p>
+                                </td>
+                                <td>
+                                    <p align="center" th:text="${workerDTO.firstName + ' ' + workerDTO.lastName}"></p>
+                                </td>
+                                <td>
+                                    <p align="center" th:text="${workerDTO.shiftSalary}"></p>
+                                </td>
+                                <td>
+                                    <input th:id="${'bonusInput' + workerDTO.id}"
+                                           style="width: 100px"
+                                           class="form-control"
+                                           type="number"
+                                           oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                                           th:onblur="'changeBonusWorker(\'' + ${workerDTO.id} + '\');'"
+                                           placeholder="Бонус"
+                                           th:value="${workerDTO.paidBonus}"/>
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger"
+                                            th:onclick="'deleteWorker(\'' + ${workerDTO.id} + '\');'">Удалить</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5">
+                                    <select id="selectWorker" class="form-control" style="width: 80%; float: left">
+                                        <option th:each="worker : ${workers}"
+                                                th:value="${worker.id}"
+                                                th:text="${worker.firstName + ' ' + worker.lastName}"></option>
+                                    </select>
+                                    <button id="addWorkerButton"
+                                            class="btn btn-primary"
+                                            style="float: right">Добавить</button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
 
+            <div class="row" style="margin-top: 50px;">
+                <div id="salaryContainer" class="col-md-6 col-md-offset-3">
+                    <h3 align="center">Зарплаты выданы:</h3>
+                    <table class="table table-striped table-bordered table-hover">
+                        <tr>
+                            <th><p th:align="center">#</p></th>
+                            <th><p th:align="center">Имя</p></th>
+                            <th><p th:align="center">Зарплата</p></th>
+                            <th style="width: 30px"></th>
+                        </tr>
+                        <tbody id="salaryTable" class="searchable">
+                        <tr th:each="userDTO, iter : ${usersDTO}">
+                            <td>
+                                <p align="center" th:text="${iter.count}"></p>
+                            </td>
+                            <td>
+                                <p align="center" th:text="${userDTO.firstName + ' ' + userDTO.lastName}"></p>
+                            </td>
+                            <td>
+                                <p align="center" th:text="${userDTO.shiftSalary + userDTO.paidBonus}"></p>
+                            </td>
+                            <td>
+                                <input th:if="${userDTO.salary}"
+                                       th:id="${'salaryBox' + userDTO.id}"
+                                       style="width: 20px;height: 20px;margin-top: 5px"
+                                       type="checkbox"
+                                       checked="checked"
+                                       th:onchange="'changeSalaryState(\'' + ${userDTO.id} + '\');'"/>
+                                <input th:unless="${userDTO.salary}"
+                                       th:id="${'salaryBox' + userDTO.id}"
+                                       style="width: 20px;height: 20px;margin-top: 5px"
+                                       type="checkbox"
+                                       th:onchange="'changeSalaryState(\'' + ${userDTO.id} + '\');'"/>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
 
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 50px;">
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="col-md-4">
+                        <h4 align="center">Грязными</h4>
+                        <input id="dirtyPriceInput"
+                               style="width: 100%"
+                               class="form-control"
+                               type="number"
+                               oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                               placeholder="Грязными"/>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h4 align="center">Наличными</h4>
+                        <input id="cashBoxInput"
+                               style="width: 100%"
+                               class="form-control"
+                               type="number"
+                               oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                               placeholder="Наличными"/>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h4 align="center">На карте</h4>
+                        <input id="bankCashBoxInput"
+                               style="width: 100%"
+                               class="form-control"
+                               type="number"
+                               oninput="this.value = Math.abs(this.value)" min="0" step="1"
+                               placeholder="На карте"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin: 50px 0 10px 0;">
+                <div style="text-align: center">
+                    <button th:onclick="'deleteShift(\'' + ${shift.id} + '\');'"
+                            class="btn btn-lg btn-danger">Удалить смену</button>
+                    <button id="closeMissingShiftButton" class="btn btn-lg btn-success">Сохранить смену</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<div id="closeShiftModal" class="modal fade">
+    <div class="modal-dialog" role="document" style="width: 400px; margin: 100px auto;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Подтвердите действие</h4>
+                <div id="salaryErrorMessage"></div>
+            </div>
+            <div class="modal-body">
+                <div id="closeShiftDataContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeShift" type="button" class="btn btn-primary">Сохранить смену</button>
+                <button data-dismiss="modal" type="button" class="btn btn-danger">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script th:src="@{/js/shift/missingShift.js}"></script>
 </body>

@@ -2,6 +2,8 @@ package com.cafe.crm.models.cost;
 
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.utils.annotation.Dateable;
+import com.cafe.crm.utils.annotation.SelfDate;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Dateable
 public class Cost extends BaseEntity {
 	@Id
 	@GeneratedValue
@@ -23,12 +26,13 @@ public class Cost extends BaseEntity {
 
 	@NotNull(message = "Поле \"Цена\" не может быть пустым")
 	private double price;
-    //todo количество не может быть дробным
+
 	@NotNull(message = "Поле \"Коливество\" не может быть пустым")
-	private double quantity;
+	private int quantity;
 
 	@NotNull(message = "Поле \"Дата\" не может быть пустым")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@SelfDate
 	private LocalDate date;
 
 	@Valid
@@ -46,7 +50,7 @@ public class Cost extends BaseEntity {
 	public Cost() {
 	}
 
-	public Cost(String name, double price, double quantity, CostCategory category, LocalDate date) {
+	public Cost(String name, double price, int quantity, CostCategory category, LocalDate date) {
 		this.name = name;
 		this.price = price;
 		this.quantity = quantity;
@@ -54,7 +58,7 @@ public class Cost extends BaseEntity {
 		this.date = date;
 	}
 
-    public Cost(String name, double price, double quantity, CostCategory category, Shift shift, LocalDate date) {
+    public Cost(String name, double price, int quantity, CostCategory category, Shift shift, LocalDate date) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
@@ -95,11 +99,11 @@ public class Cost extends BaseEntity {
 		this.price = price;
 	}
 
-	public double getQuantity() {
+	public int getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(double quantity) {
+	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
 

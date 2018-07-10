@@ -1,6 +1,7 @@
 package com.cafe.crm.repositories.user;
 
 
+import com.cafe.crm.models.shift.Shift;
 import com.cafe.crm.models.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,9 +21,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	List<User> findByRolesIdAndEnabledIsTrue(Long roleId);
 
-	List<User> findByPositionsIdAndCompanyId(Long positionId, Long companyId);
+	//List<User> findByPositionsIdAndEnabledIsTrueAndCompanyId(Long positionId, Long companyId);
+
+	List<User> findByPositionsIdIsNotAndEnabledIsTrueAndCompanyId(Long positionId, Long companyId);
 
 	List<User> findByRolesNameAndCompanyId(String roleName, Long companyId);
+
+	List<User> findByShiftsAndPositionsIdAndEnabledIsTrueAndCompanyId(Shift shift, Long positionId, Long companyId);
+
+	List<User> findByShiftsAndPositionsIdIsNotAndEnabledIsTrueAndCompanyId(Shift shift, Long positionId, Long companyId);
 
 	List<User> findByEmailOrPhoneAndCompanyId(String email, String phone, Long companyId);
 

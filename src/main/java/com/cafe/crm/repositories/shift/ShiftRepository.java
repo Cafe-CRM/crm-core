@@ -1,6 +1,7 @@
 package com.cafe.crm.repositories.shift;
 
 import com.cafe.crm.models.shift.Shift;
+import com.cafe.crm.repositories.customRepository.DateableRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,7 +27,19 @@ public interface ShiftRepository extends JpaRepository<Shift, Long> {
 
 	Shift findByShiftDateAndCompanyId(LocalDate date, Long companyId);
 
+	List<Shift> findAllByShiftDateAndCompanyId(LocalDate date, Long companyId);
+
 	List<Shift> findByCompanyId(Long companyId);
 
+	long countAllByShiftDateAndMissingShiftIsFalseAndCompanyId(LocalDate date, Long companyId);
+
+	long countAllByMissingShiftIsTrueAndOpenedIsTrue();
+
+	long countAllByShiftDate(LocalDate date);
+
 	Shift findById(Long id);
+
+	List<Shift> findByIdIn(long[] ids);
+
+	void deleteAllByIdIn(long[] ids);
 }

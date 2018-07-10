@@ -1,6 +1,7 @@
 package com.cafe.crm.repositories.note;
 
 import com.cafe.crm.models.note.Note;
+import com.cafe.crm.repositories.customRepository.CommonRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

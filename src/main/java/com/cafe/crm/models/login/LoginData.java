@@ -4,11 +4,12 @@ package com.cafe.crm.models.login;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "login_data")
-public class LoginData {
+public class LoginData implements Serializable {
 
 	@Id
 	private String remoteAddress;

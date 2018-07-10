@@ -13,7 +13,7 @@ import java.util.Set;
 
 public interface ShiftService {
 
-	void saveAndFlush(Shift shift);
+	Shift saveAndFlush(Shift shift);
 
 	Shift createNewShiftWithAlteredCashAmount(Double cashBox, Double bankCashBox, long... usersIdsOnShift);
 
@@ -39,11 +39,23 @@ public interface ShiftService {
 
 	Shift closeShift(Map<Long, Integer> mapOfUsersIdsAndBonuses, Double allPrice, Double shortage, Double bankCashBox, String comment, Map<String, String> mapOfNoteNameAndValue);
 
+	void deleteShifts(String password, long... shiftId);
+
+	void deleteMissingShift(Long shiftId);
+
  	LocalDate getLastShiftDate();
 
-	Set<Shift> findByDates(LocalDate start, LocalDate end);
+	List<Shift> findByDates(LocalDate start, LocalDate end);
 
 	Shift findByDate(LocalDate start);
 
+	List<Shift> findAllByDate(LocalDate start);
+
 	Shift getLastMissingShift();
+
+	long countingByDate(LocalDate date);
+
+	long countingByDateWithoutMissing(LocalDate date);
+
+	long countingByMissing();
 }

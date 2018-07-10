@@ -58,15 +58,18 @@ public class ReceiptServiceImpl implements ReceiptService {
     @Override
     public List<Receipt> findByDateBetween(LocalDate from, LocalDate to) {
         return receiptRepository.findByDateBetween(from, to);
+        //return receiptRepository.findAllBySelfDateBetween(from, to);
     }
 
     @Override
     public List<Receipt> findByReceiptCommentAndDateBetween(String receiptComment, LocalDate from, LocalDate to){
         return receiptRepository.findByReceiptCommentAndDateBetween(receiptComment, from, to);
+        //return receiptRepository.findAllByFieldAndSelfDateBetween("receiptComment", receiptComment, from, to);
     }
 
     @Override
     public List<Receipt> findByShiftId(Long shiftId) {
         return receiptRepository.findByShiftId(shiftId);
+        //return receiptRepository.findAllByField()
     }
 }
