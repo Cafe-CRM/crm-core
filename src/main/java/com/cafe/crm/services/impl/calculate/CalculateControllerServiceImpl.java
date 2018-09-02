@@ -449,10 +449,15 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	}
 
 	@Override
-	public void deleteClients(long[] clientsId, Long calculateId) {
+	public void deleteClients(long[] clientsId, Long calculateId, String password) {
 		if (clientsId == null) {
 			return;
 		}
+
+		if (!confirmTokenService.confirm(password, Target.DELETE_CLIENT)) {
+			throw new PasswordException("Пароль не действителен!");
+		}
+
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		Set<LayerProduct> products = new HashSet<>();
 

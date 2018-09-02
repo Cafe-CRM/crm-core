@@ -234,6 +234,7 @@ public class CalculateController {
 
 	@RequestMapping(value = {"/delete-clients"}, method = RequestMethod.POST)
 	public String deleteClients(@RequestParam(name = "clientsId", required = false) long[] clientsId,
+	                            @RequestParam(name = "password") String password,
 	                            @RequestParam("calculateId") Long calculateId) {
 
 		if (clientsId != null) {
@@ -253,7 +254,7 @@ public class CalculateController {
 			logger.info(deletedClientsInfo.toString());
 		}
 
-		calculateControllerService.deleteClients(clientsId, calculateId);
+		calculateControllerService.deleteClients(clientsId, calculateId, password);
 
 		return "redirect:/manager";
 	}
@@ -519,6 +520,35 @@ public class CalculateController {
 				"\" с текущей общей суммой " + currentPrice + "р: ";
 
 		vkService.sendConfirmToken(prefix, Target.DELETE_CALC);
+		return ResponseEntity.ok("Пароль послан");
+	}
+
+	@RequestMapping(value = {"/send-delete-client-pass"}, method = RequestMethod.POST)
+	public ResponseEntity sendDeleteClientPassword(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
+												   @RequestParam(name = "calcId") Long calcId) {
+
+		Calculate calculate = calculateService.getOne(calcId);
+
+		if (calculate == null) {
+			throw new ClientDataException("Выбран несуществующий счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов на удаление!");
+		}
+
+		double selectedClientsPrice = 0;
+		StringBuilder prefix = new StringBuilder("Одноразовый пароль для удаления клиентов со стола " + calculate.getDescription() + "\n");
+		List<Client> selectedClients = clientService.findByIdIn(clientsId);
+
+		for (Client client : selectedClients) {
+			prefix.append("id: " + client.getId() + " - описание: " + client.getDescription() + "\n");
+			selectedClientsPrice += client.getAllPrice();
+		}
+
+		prefix.append("Общей суммой заказа: " + selectedClientsPrice + "\n");
+
+		vkService.sendConfirmToken(prefix.toString(), Target.DELETE_CLIENT);
 		return ResponseEntity.ok("Пароль послан");
 	}
 

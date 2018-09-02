@@ -96,7 +96,8 @@
                                 </th>
 
                                 <form th:id="'formTest' + ${calculate.id}"
-                                      method="post" action="/manager/delete-clients">
+                                      method="post" action="">
+                                      <!--action="/manager/delete-clients"-->
                                     <input type="hidden" name="calculateId" th:value="${calculate.id}"/>
                                 </form>
                             </tr>
@@ -212,15 +213,54 @@
 
                         </table>
                         <button style="float: left;margin-left: 23px" class="btn btn-primary" data-toggle="modal"
-                                th:href="'#deleteModal' + ${calculate.id}">
+                                th:href="'#deleteModal' + ${calculate.id}"
+                                th:onclick="'sendDeleteClientToken(\'' + ${calculate.id} + '\')'">
                             Удалить
                         </button>
 
-                        <div th:id="'deleteModal' + ${calculate.id}" class="modal fade" th:onshow="'deleteClients();'">
+
+
+                        <div th:if="${bossFunctional}" th:id="'deleteModal' + ${calculate.id}" th:onshow="'deleteClients();'" class="modal fade" role="dialog">
+                            <div class="modal-dialog" style="top: 120px; width: 550px;">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="padding-bottom: 0px;">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <p class="deleteClientError" style="display: none;"></p>
+                                        <h3 style="font-size: 19px; font-weight: 600;">В админ-конференцию был послан короткий код.</h3>
+                                        <h3 style="font-size: 19px; font-weight: 600;">Используйте его для подтверждения операции.</h3>
+                                    </div>
+                                    <div class="modal-body" style="height: 65px;">
+                                        <form class="form-horizontal" role="form">
+                                            <div class="form-group">
+                                                <div class="col-md-6">
+                                                    <input class="form-control" th:form="'formTest' + ${calculate.id}" name="password" required="" placeholder="Введите полученный код" type="password"/>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button"
+                                                th:onclick="'sendDeleteClientToken(\'' + ${calculate.id} + '\')'"
+                                                style="font-size:16px;" class="btn btn-primary">Отправить код повторно
+                                        </button>
+                                        <!--<button th:form="'formTest' + ${calculate.id}" class="btn btn-danger">Подтвердить</button>-->
+                                        <button th:onclick="'sendDeleteClients(\'' + ${calculate.id} + '\')'" class="btn btn-danger">Подтвердить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!--<div th:id="'deleteModal' + ${calculate.id}" class="modal fade" th:onshow="'deleteClients();'">
                             <div class="modal-dialog " style="width: 250px;margin-top: 150px" roles="document">
                                 <div class="modal-content">
                                     <div class="modal-body">
                                         <div class="clientDel">
+
+                                            <input th:form="'formTest' + ${calculate.id}" name="password"/>
+
+
                                         <p style="font-size: 20px">Вы желаете удалить клиента/тов ?</p>
                                         <button th:form="'formTest' + ${calculate.id}" class="btn btn-danger">Да
                                         </button>
@@ -229,7 +269,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
 
 
                         <button style="float: left;margin-left: 470px;" class="btn btn-primary"
