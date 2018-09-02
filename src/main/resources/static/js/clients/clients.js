@@ -744,6 +744,56 @@ function sendRecalculateToken(calcId) {
     });
 }
 
+function sendDeleteClientToken(calcId) {
+
+    var checkedValue = document.getElementsByClassName('class' + calcId);
+    var arrayID = [];
+    for(var i = 0 ; i < checkedValue.length ; i++) {
+        if(checkedValue[i].checked){
+            arrayID.push(checkedValue[i].value);
+        }
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/send-delete-client-pass",
+        data: {clientsId: arrayID, calcId: calcId},
+
+        success: function (data) {
+            $('#newAmount' + calcId).prop('disabled',true);
+            $('#sendCode' + calcId).html('Отправить код повторно');
+            $('#promptText' + calcId).html('В админ-конференцию был послан короткий код. \n Используйте его для подтверждения действия.');
+            $('#confirmPassword' + calcId).removeClass('hidden');
+            $('.confirmButton').removeClass('hidden');
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+
+}
+
+
+function sendDeleteClients(calcId) {
+
+    $.ajax({
+        url: "/manager/delete-clients",
+        type: "POST",
+        dataType: "html",
+        data: $("#formTest" + calcId).serialize(),
+        success: function(response) {
+            location.reload();
+        },
+        error: function(error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.deleteClientError').html(errorMessage).show();
+        }
+    });
+
+}
+
+
 function closeClientWithNewAmount(calculateId) {
     var checkedValue = document.getElementsByClassName('class' + calculateId);
     var arrayID = [];

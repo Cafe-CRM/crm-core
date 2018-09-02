@@ -255,6 +255,7 @@ function checkWorkers() {
 }
 
 function ajaxModal() {
+
     $.ajax({
         type: "POST",
         url: "/boss/user/get-salary-clients",
