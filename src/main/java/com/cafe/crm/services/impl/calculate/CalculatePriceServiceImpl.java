@@ -38,6 +38,9 @@ public class CalculatePriceServiceImpl implements CalculatePriceService {
 	@Override
 	public void calculatePriceTimeIfWasPause(Client client) {
 		TimerOfPause timer = timerOfPauseService.findTimerOfPauseByIdOfClient(client.getId());
+		if (timer == null) {
+			System.out.println("this is ass");
+		}
 		Long timeOfPause = timer.getWholeTimePause();
 		LocalTime timeStart = client.getTimeStart().toLocalTime().withSecond(0).withNano(0);
 		LocalTime timeNow = timeManager.getTime().withSecond(0).withNano(0);

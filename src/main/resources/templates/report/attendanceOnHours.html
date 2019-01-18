@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+    <link rel="stylesheet" th:href="@{/css/costs.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/statisticTabs.css}" type="text/css"/>
+</head>
+<body>
+<div th:replace="bossnavbar :: bossNavbar">
+</div>
+<!--/.navbar -->
+<div class="container" style="margin-top:5%">
+    <div class="row">
+        <h1 th:align="center" style="color: #5bc0de;">Посещаемость по часам</h1>
+    </div>
+    <div class="row">
+        <hr/>
+        <form roles="form" th:method="post" action="/reports/attendance/clientsonhours">
+            <div class="col-md-3" style="margin-left: 20%">
+                <p style="color: #5bc0de; font-size: 150%">
+                    Дата начала отчета :
+                    <input name="start" th:value="${start}" th:type="date" id="start" class="form-control" placeholder="Введите дату"
+                                required=""/>
+                    <!--<input name="start" th:value="${date}" th:type="date" id="start" class="form-control" placeholder="Введите дату"-->
+                                <!--required=""/>-->
+            </p></div>
+
+            <div class="col-md-3 ">
+                <p style="color: #5bc0de; font-size: 150%">Дата окончания :
+                    <input name="end" th:value="${end}" th:type="date" id="end" class="form-control" placeholder="Введите дату" required=""/>
+                </p>
+            </div>
+            <div class="col-md-3" style="margin-left: 20%">
+                <p style="color: #5bc0de; font-size: 150%">
+                    Интервал часов с :
+                    <input name="fromHour" th:value="${fromHour}" th:type="number" id="fromHour" class="form-control" placeholder="Введите час"
+                           required=""/>
+                </p></div>
+            <div class="col-md-3 ">
+                <p style="color: #5bc0de; font-size: 150%">по :
+                    <input name="toHour" th:value="${toHour}" th:type="number" id="toHour" class="form-control" placeholder="Введите час" required=""/>
+                </p>
+            </div>
+
+            <!--<div class="col-md-9" style="margin-left: 20%; color: #5bc0de">-->
+                <!--<label class='checkbox-inline soc-network-box' th:each="weekDay : ${weekDays}">-->
+                    <!--<input th:text="${weekDay.name}" type='checkbox' value='1' checked="checked" name='weekday1' th:id="weekday + ${weekDay.number}"  class='my-checkbox-soc'/></label>-->
+            <!--</div>-->
+
+            <div class="col-md-9" style="margin-left: 20%; color: #5bc0de">
+                <label class='checkbox-inline soc-network-box'>
+                    <input type='checkbox' value='1' checked="checked" name='weekday1' id="weekday1"  class='my-checkbox-soc'/>Понедельник</label>
+                <label class='checkbox-inline soc-network-box'>
+                    <input type='checkbox' value='1' checked="checked" name='weekday2' id="weekday2" class='my-checkbox-soc'/>Вторник</label>
+                <label class='checkbox-inline soc-network-box'>
+                    <input type='checkbox' value='1' checked="checked" name='weekday3' id="weekday3" class='my-checkbox-soc'/>Среда</label>
+                <label class='checkbox-inline soc-network-box'>
+                    <input type='checkbox' value='1' checked="checked" name='weekday4' id="weekday4" class='my-checkbox-soc'/>Четверг</label>
+                <label class='checkbox-inline soc-network-box'>
+                    <input type='checkbox' value='1' checked="checked" name='weekday5' id="weekday5" class='my-checkbox-soc'/>Пятница</label>
+                <label class='checkbox-inline soc-network-box'>
+                    <input type='checkbox' value='1' checked="checked" name='weekday6' id="weekday6" class='my-checkbox-soc'/>Суббота</label>
+                <label class='checkbox-inline soc-network-box'>
+                    <input type='checkbox' value='1' checked="checked" name='weekday7' id="weekday7" class='my-checkbox-soc'/>Воскресенье</label>
+            </div>
+            <div class="col-md-2 col-md-offset-5">
+            <!--<div class="col-md-3 col-md-offset-0 centered">-->
+                <button class="btn btn-default btn-lg" style="margin-top: 25px" name="del" th:type="submit">
+                    Сформировать
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        <hr/>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Интервал</th>
+                <th>Наполнение (чел.)</th>
+                <th>Среднее наполнение (чел.)</th>
+            </tr>
+            </thead>
+            <tbody class="searchable" th:each="intervalHour, iter : ${clientsOnHours}">
+            <tr>
+                <!--<td><p th:text="${iter.count}"></p></td>-->
+                <td><p th:text="${intervalHour}"></p></td>
+                <td><p th:text="${intervalHour.clientsNumber}"></p></td>
+                <td><p th:text="${intervalHour.clientsNumberPerDay}"></p></td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div th:replace="fragments/bossChangePassword :: BossChangePassword"></div>
+<div th:replace="media/advertisingDispatch :: advertising"></div>
+<script th:src="@{/js/boss/changePassword.js}"></script>
+<script th:src="@{/js/mail.js}"></script>
+<script th:src="@{/js/filter.js}"></script>
+
+</body>
+</html>
