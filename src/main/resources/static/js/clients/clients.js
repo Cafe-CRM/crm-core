@@ -578,6 +578,13 @@ function getOpenClientsOnCalculateAjax(calcId) {
 
 //2 снизу это скрипты поиска по продуктам/категориям
 $(document).ready(function () {
+    var inputTest = localStorage.getItem('objectToPass');
+    if(inputTest == 'true') {
+        var appBanners = document.getElementsByClassName('close-without-recepient'), i;
+        for (var i = 0; i < appBanners.length; i ++) {
+            appBanners[i].style.display = 'none';
+        }
+    }
     $("#search").keyup(function () {
         _this = this;
 
@@ -592,6 +599,17 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
+
+    var inputTest = localStorage.getItem('objectToPass');
+    if(inputTest == 'true') {
+        var appBanners = document.getElementsByClassName('close-without-recepient'), i;
+        for (var i = 0; i < appBanners.length; i ++) {
+            appBanners[i].style.display = 'none';
+        }
+    }
+
+
+
     $("#searchPr").keyup(function () {
         _this = this;
 
@@ -639,23 +657,77 @@ function closeClientDebt(calculateId) {
             debtorName : $('#debtorName' + calculateId).val(),
             paidAmount : $('#paidAmount' + calculateId).val()
         };
-        $.ajax({
-            type: 'POST',
-            url: url,
-            data: formData,
-            success: function (data) {
-                var successMessage = '<h4 style="color:green;" align="center">' + data + '</h4>';
-                $('.messageAd').html(successMessage).show();
-                window.setTimeout(function () {
-                    location.reload()
-                }, 1000);
-            },
-            error: function (error) {
-                var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
-                $('.messageAd').html(errorMessage).show();
 
+        $.ajax({
+            type: "GET",
+            url: "/boss/settings/close-client/get-setting-client",
+            success: function (data) {
+                if (data.enabled === true) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/manager/precheck",
+                        data: { calculateId : calculateId
+                        },
+
+                        success: function (data) {
+                            $.ajax({
+                                type: 'POST',
+                                url: 'http://localhost:8081/',
+                                data: {
+                                    preCheckForTime : data[0],
+                                    totalAmount : data[1],
+                                    preCheckForFood : data[2]
+                                },
+                                success: function () {
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: url,
+                                        data: formData,
+                                        success: function (data) {
+                                            var successMessage = '<h4 style="color:green;" align="center">Клиенты расчитаны!</h4>';
+                                            $('.messageAd').html(successMessage).show();
+                                            window.setTimeout(function () {
+                                                location.reload()
+                                            }, 1000);
+                                        },
+                                        error: function (error) {
+                                            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                                            $('.messageAd').html(errorMessage).show();
+
+                                        }
+                                    });
+                                }
+                            });
+                        },
+                        error: function (error) {
+                            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                            $('.newAmountError').html(errorMessage).show();
+                        }
+                    });
+                }
+                else if (data.enabled === false) {
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: formData,
+                        success: function (data) {
+                            var successMessage = '<h4 style="color:green;" align="center">Клиенты расчитаны!</h4>';
+                            $('.messageAd').html(successMessage).show();
+                            window.setTimeout(function () {
+                                location.reload()
+                            }, 1000);
+                        },
+                        error: function (error) {
+                            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                            $('.messageAd').html(errorMessage).show();
+
+                        }
+                    });
+                }
             }
-        });
+        })
+
     }
 }
 
@@ -810,18 +882,73 @@ function closeClientWithNewAmount(calculateId) {
     };
 
     $.ajax({
-        type: "POST",
-        url: "/manager/close-new-sum-client",
-        data: formData,
-
+        type: "GET",
+        url: "/boss/settings/close-client/get-setting-client",
         success: function (data) {
-            location.reload();
-        },
-        error: function (error) {
-            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
-            $('.newAmountError').html(errorMessage).show();
+            if (data.enabled === true) {
+                $.ajax({
+                    type: "POST",
+                    url: "/manager/precheck-with-new-sum",
+                    data: {
+                        calculateId: calculateId,
+                        newAmount : $('#newAmount' + calculateId).val()
+                    },
+
+                    success: function (data) {
+                        //location.reload();
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://localhost:8081/',
+                            data: {
+                                preCheckForTime: data[0],
+                                totalAmount: data[1],
+                                preCheckForFood: data[2]
+                            },
+                            success: function () {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/manager/close-new-sum-client",
+                                    data: formData,
+
+                                    success: function (data) {
+                                        location.reload();
+                                    },
+                                    error: function (error) {
+                                        var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                                        $('.newAmountError').html(errorMessage).show();
+                                    }
+                                });
+
+                            },
+                            error: function (error) {
+                                var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                                $('.newAmountError').html(errorMessage).show();
+                            }
+                        });
+                    },
+                    error: function (error) {
+                        var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                        $('.newAmountError').html(errorMessage).show();
+                    }
+                });
+            }
+            else if (data.enabled === false) {
+                $.ajax({
+                    type: "POST",
+                    url: "/manager/close-new-sum-client",
+                    data: formData,
+
+                    success: function (data) {
+                        location.reload();
+                    },
+                    error: function (error) {
+                        var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                        $('.newAmountError').html(errorMessage).show();
+                    }
+                });
+            }
         }
-    });
+    })
 }
 
 function closeClient(calculateId) {
@@ -840,17 +967,68 @@ function closeClient(calculateId) {
 
     $.ajax({
         type: "POST",
-        url: "/manager/close-client",
-        data: formData,
+        url: "/manager/precheck",
+        data: { calculateId : calculateId
+        },
 
         success: function (data) {
-            location.reload();
+            //location.reload();
+            formDataPrint = {
+                preCheckForTime : data[0],
+                totalAmount : data[1],
+                preCheckForFood : data[2]
+            }
+            $.ajax({
+                type: 'POST',
+                url: '/http://localhost:8081/',
+                data: formDataPrint,
+                success : function (data) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/manager/close-client",
+                        data: formData,
+
+                        success: function (data) {
+                            location.reload();
+                        },
+                        error: function (error) {
+                            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                            $('.errorMessage').html(errorMessage).show();
+                        }
+                    });
+                }
+            });
         },
         error: function (error) {
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
-            $('.errorMessage').html(errorMessage).show();
+            $('.newAmountError').html(errorMessage).show();
         }
     });
+
+    // $.ajax({
+    //     type: "POST",
+    //     url: "/manager/close-client",
+    //     data: formData,
+    //
+    //     success: function (data) {
+    //         //location.reload();
+    //         $.ajax({
+    //             type: 'POST',
+    //             url: 'http://localhost:8081/',
+    //             data: {
+    //                 preCheckForTime : data[0],
+    //                 totalAmount : data[1],
+    //                 preCheckForFood : data[2]
+    //             }, success: function (data) {
+    //                 location.reload()
+    //             }
+    //         });
+    //     },
+    //     error: function (error) {
+    //         var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+    //         $('.errorMessage').html(errorMessage).show();
+    //     }
+    // });
 }
 
 function editDescription(calculateId, description) {
@@ -900,6 +1078,8 @@ function changeButton(calculateId) {
 }
 
 function changeCalcDesc(calculateId, description) {
+
+
     var  formData = {
         calculateId : calculateId,
         description : description
@@ -955,6 +1135,133 @@ function sendNewCalc(boardId, number, description) {
             $('#calcDescError').modal('show');
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
             $('#calcModalErrorMessage').html(errorMessage);
+        }
+    });
+}
+function preCheck(calculateId) {
+    var checkedValue = document.getElementsByClassName('class' + calculateId);
+    var arrayID = [];
+    for(var i = 0 ; i < checkedValue.length ; i++) {
+        if(checkedValue[i].checked){
+            arrayID.push(checkedValue[i].value);
+        }
+    }
+
+    var  formData = {
+        clientsId : arrayID,
+        calculateId : calculateId
+    };
+
+    $.ajax({
+        type: "GET",
+        url: "/boss/settings/close-client/get-setting-client",
+        success: function (data) {
+            if (data.enabled === true) {
+                $.ajax({
+                    type: "POST",
+                    url: "/manager/precheck",
+                    data: {
+                        calculateId: calculateId
+                    },
+
+                    success: function (data) {
+                        //location.reload();
+                        $.ajax({
+                            type: 'POST',
+                            url: 'http://localhost:8081/',
+                            data: {
+                                preCheckForTime: data[0],
+                                totalAmount: data[1],
+                                preCheckForFood: data[2]
+                            },
+                            success: function () {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/manager/close-client",
+                                    data: formData,
+
+                                    success: function (data) {
+                                        location.reload();
+                                    },
+                                    error: function (error) {
+                                        var errorMessage = '<h4 style="color:red;" align="center">' + error.statusText + '</h4>';
+                                        $('.errorMessage').html(errorMessage).show();
+                                    }
+                                });
+
+                            },
+                            error: function (error) {
+                                var errorMessage = '<h4 style="color:red;" align="center">' + error.statusText + '</h4>';
+                                $('.errorMessage').html(errorMessage).show();
+                            }
+                        });
+                    },
+                    error: function (error) {
+                        var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                        $('.errorMessage').html(errorMessage).show();
+                    }
+                });
+            }
+            else if (data.enabled === false) {
+                $("#close-without-recepient").hide()
+                $.ajax({
+                    type: "POST",
+                    url: "/manager/close-client",
+                    data: formData,
+
+                    success: function (data) {
+                        location.reload();
+                    },
+                    error: function (error) {
+                        var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+                        $('.errorMessage').html(errorMessage).show();
+                    }
+                });
+            }
+        }
+    })
+
+}
+
+function closeClientWithouPrecheck(calculateId) {
+
+    var checkedValue = document.getElementsByClassName('class' + calculateId);
+    var arrayID = [];
+    for(var i = 0 ; i < checkedValue.length ; i++) {
+        if(checkedValue[i].checked){
+            arrayID.push(checkedValue[i].value);
+        }
+    }
+    var  formData = {
+        password : $('#passwordClient' + calculateId).val(),
+        clientsId : arrayID,
+        calculateId : calculateId
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/close-client-without-precheck",
+        data: formData,
+
+        success: function (data) {
+            location.reload();
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+}
+
+function sendToken(calculateId) {
+    $.ajax({
+        type: "POST",
+        url: "/manager/send-close-client-pass",
+        data: {calculateId : calculateId},
+
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.Error').html(errorMessage).show();
         }
     });
 }

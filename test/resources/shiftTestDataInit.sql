@@ -1,14 +1,14 @@
 INSERT INTO users
-(id, first_name, last_name, email, phone, password, shift_salary, salary, bonus, activated, enabled, company_id)
+(id, first_name, last_name, email, phone, password, shift_salary, bonus, activated, enabled, company_id)
 VALUES
   (1, 'Герман', 'Севостьянов', 'boss@mail.ru', '89123456789',
-      '$2a$10$Rqc3K45Z8GYbklMvy3640uj/XY4supJ2XmWmS4t1zjBlXiVh3h4aC', 2000, 0, 0, TRUE, TRUE, 1),
+      '$2a$10$Rqc3K45Z8GYbklMvy3640uj/XY4supJ2XmWmS4t1zjBlXiVh3h4aC', 2000, 0, TRUE, TRUE, 1),
   (2, 'Anna', 'Jons', 'manager@mail.ru', '89233456789',
-      '$2a$10$OHs.TsEaLmklqTwStaTHLeW3Y/k8fJO5kXklV0nO3ad2b5QbmeVua', 1500, 0, 0, TRUE, TRUE, 1),
+      '$2a$10$OHs.TsEaLmklqTwStaTHLeW3Y/k8fJO5kXklV0nO3ad2b5QbmeVua', 1500,  0, TRUE, TRUE, 1),
   (3, 'Ахмад', 'Чай', 'worker@mail.ru', '89111111111',
-      '$2a$10$ffBOimLAaDY5o6jU62oecuKgSgcYAY3FpAS3okZHQw0tHRxV39Oa.', 0, 0, 0, TRUE, TRUE, 1),
+      '$2a$10$ffBOimLAaDY5o6jU62oecuKgSgcYAY3FpAS3okZHQw0tHRxV39Oa.', 0,  0, TRUE, TRUE, 1),
   (4, 'Намрег', 'Инверг', 'boss2@mail.ru', '89123456780',
-      '$2a$10$ufhLqzo3wbuWKIuQjPnyrOYplalLZsJ8X2NXufOycc/IT2qZKB4m6', 2000, 0, 0, TRUE, TRUE, 2);
+      '$2a$10$ufhLqzo3wbuWKIuQjPnyrOYplalLZsJ8X2NXufOycc/IT2qZKB4m6', 2000, 0, TRUE, TRUE, 2);
 
 insert into users_roles
 (user_id, role_id)

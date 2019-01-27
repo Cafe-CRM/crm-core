@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:include="fragments/headTag :: bootstrap" th:remove="tag"></div>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/navSetting.css}"/>
+</head>
+<body>
+<div th:replace="bossnavbar :: bossNavbar"></div>
+<div th:replace="settingPages/navSetting :: navSetting"></div>
+<div th:replace="media/advertisingDispatch :: advertising"></div>
+
+
+
+<div class="container" style="padding-top: 50px">
+    <div class="col-md-8 col-md-offset-2">
+        <h1 th:align="center" style="color: #5bc0de;margin-bottom: 85px;">Настройки расчетов</h1>
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4>Печатать чеков при расчете клиентов</h4>
+                </div>
+                <div class="panel-body">
+                    <th:block  th:each="clientSetting : ${clientSetting}">
+                        <input id = "SettingEnable" type="checkbox" data-toggle="toggle" data-on="Вкл" data-off="Выкл"
+                               th:attrappend="checked=${clientSetting.enabled} ? checked " th:value="${clientSetting.enabled}"
+                               name="enable" th:attr="data-id=${clientSetting.id}" class="checkboxSettingEnable" style="margin-left:140px; width:19px; height: 19px;"/>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script  th:src="@{/js/clients/clients.js}"></script>
+<script type="text/javascript" th:src="@{/js/setting/page/nav-setting.js}"></script>
+<script type="text/javascript" th:src="@{/js/setting/page/setting-client.js}"></script>
+
+</body>
+</html>
