@@ -458,3 +458,31 @@ function recalculate(calculateId) {
         }
     });
 }
+
+function preCheck(calculateId) {
+
+    $.ajax({
+        type: "POST",
+        url: "/manager/precheck",
+        data: { calculateId : calculateId
+        },
+
+        success: function (data) {
+            //location.reload();
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8081/',
+                data: {
+                    preCheckForTime : data[0],
+                    totalAmount : data[1],
+                    preCheckForFood : data[2]
+                },
+            });
+        },
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.newAmountError').html(errorMessage).show();
+        }
+    });
+
+}

@@ -204,6 +204,9 @@
                                                 th:attr="data-target='#changePriceAmount' + ${calculate.id}" type="button">
                                             Изменить сумму
                                         </button>
+                                        <button th:onclick="'preCheck(\'' + ${calculate.id} + '\')'" class="btn btn-success">
+                                            Повторная печать чека
+                                        </button>
                                     </td>
                                     <div th:if="${calculate.state}" th:id="'promptCloseCalc' + ${calculate.id}" class="modal fade" role="dialog">
                                         <div class="modal-dialog" style="top: 170px; width: 304px;">

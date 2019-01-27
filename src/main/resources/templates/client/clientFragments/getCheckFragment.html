@@ -1,5 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
 
@@ -23,7 +24,7 @@
                         type="button" data-dismiss="modal">
                     <i class="fa fa-times" aria-hidden="true" style="font-size: 30px"></i>
                 </button>
-                <div class="errorMessage"></div>
+                <div id="errorMessage"></div>
                 <p th:id="'head' + ${calculate.id}" style="font-size: 30px;margin-left: 10px;margin-top: 20px">
                     Пусто </p>
                 <div class="modal-body">
@@ -55,14 +56,16 @@
                             <div class="col-md-8" style="margin-right: 7px;">
                                 <button type="button" data-toggle="modal"
                                         th:attr="data-target='#enterDebtorName'+${calculate.id }"
-                                        style="font-size:20px;" class="btn btn-warning">Рассчитать в долг
+                                        style="font-size:20px;" class="btn btn-warning" id="dolg" >Рассчитать в долг
                                 </button>
                                 <button th:if="${bossFunctional}" type="button" data-toggle="modal"
                                         th:attr="data-target='#changePriceAmount'+${calculate.id }"
                                         style="font-size:20px; float: right; margin-right: 160px;"
-                                        class="btn btn btn-primary changeSumButton">Изменить итоговую сумму
+                                        class="btn btn btn-primary changeSumButton" id="changeSumm" >Изменить итоговую сумму
                                 </button>
+
                             </div>
+
 
                             <div class="col-md-1">
                                 <th:block th:if="${cardEnable}">
@@ -79,10 +82,22 @@
                             </div>
 
                             <div class="col-md-1">
-                                <button type="button" th:onclick="'closeClient(\'' + ${calculate.id} + '\')'"
-                                        style="font-size:20px;" class="btn btn-danger">Рассчитать
+                                <!--<button type="button" th:onclick="'closeClient(\'' + ${calculate.id} + '\')'"-->
+                                        <!--style="font-size:20px;" class="btn btn-danger" id="closeClient">Рассчитать-->
+                                <!--</button>-->
+                                <button id ="precheck" style="font-size:20px;"
+                                        class="btn btn btn-danger " th:onclick="'preCheck(\'' + ${calculate.id} + '\')'">Рассчитать
                                 </button>
                             </div>
+                        </div>
+                        <div class="row">
+                        <div class="col-md-8" style="margin-right: 7px;">
+                        <button  data-toggle="modal"
+                                th:attr="data-target='#closeClientWithouPrecheck'+${calculate.id }"
+                                style="font-size:20px; float: right; margin-right: 160px;"
+                                class="btn btn btn-danger close-without-recepient" th:onclick="'sendToken(\'' + ${calculate.id} + '\')'">Рассчитать без чека
+                        </button>
+                        </div>
                         </div>
                     </div>
                     <!--Error modal when trying close calculate with paused client-->
@@ -214,7 +229,44 @@
             </div>
         </div>
     </div>
-</div>
 
+    <div th:id="'closeClientWithouPrecheck'+${calculate.id}" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="top: 120px; width: 550px;">
+            <div class="modal-content">
+                <div class="modal-header" style="padding-bottom: 0px;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <p class="receiptError" style="display: none;" th:id="'Error' +${calculate.id}"></p>
+                    <h3 style="font-size: 19px; font-weight: 600;">В админ-конференцию был послан короткий код.</h3>
+                    <h3 style="font-size: 19px; font-weight: 600;">Используйте его для подтверждения операции.</h3>
+                </div>
+
+                <div class="modal-body" style="height: 65px;">
+                    <form class="form-horizontal" role="form">
+
+                        <div class="form-group">
+                            <div class="col-md-6">
+                                <input class="form-control" th:id="'passwordClient' +${calculate.id}"
+                                       name="password" required="" placeholder="Введите полученный код" type="password"/>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            th:onclick="'sendToken(\'' + ${calculate.id} + '\')'"
+                            style="font-size:16px;" class="btn btn-primary">Отправить код повторно
+                    </button>
+                    <button type="button"
+                            th:onclick="'closeClientWithouPrecheck(\'' + ${calculate.id} + '\')'"
+                            style="font-size:16px;" class="btn btn-primary">Подтвердить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" th:src="@{/js/clients/clients.js}"></script>
 </body>
 </html>
