@@ -21,6 +21,7 @@ import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
 import com.cafe.crm.utils.Target;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -580,9 +582,8 @@ public class CalculateController {
 			allPrice += client.getAllPrice();
 		}
 		totalAmount.append(allPrice);
-		recipient.add(preCheckForTime(clients));
+		recipient.add(mainPreCheck(clients));
 		recipient.add(totalAmount.toString());
-		recipient.add(preCheckForFood(clients));
 		return ResponseEntity.ok(recipient);
 	}
 
@@ -612,55 +613,62 @@ public class CalculateController {
 		StringBuilder totalAmount = new StringBuilder();
 		List<String> recipient = new ArrayList<>();
 		totalAmount.append(newAmount);
-		recipient.add(preCheckForTime(clients));
+		recipient.add(mainPreCheck(clients));
 		recipient.add(totalAmount.toString());
-		recipient.add(preCheckForFood(clients));
 		return ResponseEntity.ok(recipient);
 	}
 
-	private String preCheckForTime(List<Client> clients) {
-		int priceTime = 0;
-		StringBuilder preCheckForTime = new StringBuilder();
-		Map<LocalTime, List<Client>> timeListMap = new HashMap<>();
+	private String mainPreCheck(List<Client> clients) {
+		StringBuilder mainPreCheck = new StringBuilder();
+		int hour = 0;
+		int minute = 0;
+		int passedHour = 0;
+		int passedMinute = 0;
+		int hourForOut = 0;
+		int minuteForOut = 0;
+		int numClient = 1;
 		for (Client client : clients) {
-			LocalTime timeStart = client.getPassedTime();
-			if (timeListMap.containsKey(timeStart)) {
-				List<Client> list = timeListMap.get(timeStart);
-				list.add(client);
-			} else {
-				List<Client> list = new ArrayList<>();
-				list.add(client);
-				timeListMap.put(timeStart, list);
+			hour = client.getTimeStart().getHour();
+			minute = client.getTimeStart().getMinute();
+			passedHour = client.getPassedTime().getHour();
+			passedMinute = client.getPassedTime().getMinute();
+			hourForOut = client.getTimeStart().plusHours(passedHour).getHour();
+			minuteForOut = client.getTimeStart().plusMinutes(passedMinute).getMinute();
+			mainPreCheck.append(numClient + ".");
+			if (client.getDescription().equals("")) {
+				mainPreCheck.append("Гость ");
+			} else if (client.getDescription().length() > 6) {
+			    mainPreCheck.append(client.getDescription() + "\n");
+            } else {
+				mainPreCheck.append(client.getDescription() + " ");
 			}
-		}
-		for (Map.Entry<LocalTime, List<Client>> localTimeListEntry : timeListMap.entrySet()) {
-			for (int i = 0; i < localTimeListEntry.getValue().size(); i++) {
-				priceTime += localTimeListEntry.getValue().get(i).getPriceTime();
-			}
-			preCheckForTime.append((localTimeListEntry.getValue().size() == 2 | localTimeListEntry.getValue().size() == 3 | localTimeListEntry.getValue().size() == 4 ? localTimeListEntry.getValue().size() + " человека Х " : localTimeListEntry.getValue().size() + " человек Х ") + (localTimeListEntry.getKey().getHour() < 10 ? "0" + localTimeListEntry.getKey().getHour() : localTimeListEntry.getKey().getHour()) + ":" +
-					(localTimeListEntry.getKey().getMinute() < 10 ? "0" + localTimeListEntry.getKey().getMinute() : localTimeListEntry.getKey().getMinute()) +
-					(localTimeListEntry.getValue().size() == 2 | localTimeListEntry.getValue().size() == 3 | localTimeListEntry.getValue().size() == 4 ? " - " : "  - ") + priceTime + "\n\n");
-			priceTime = 0;
-		}
-		return preCheckForTime.toString();
-	}
+			mainPreCheck.append((hour < 10 ? "0" + hour : hour) + ":" +
+					(minute < 10 ? "0" + minute : minute));
+			mainPreCheck.append("-" + (hourForOut < 10 ? "0" + hourForOut : hourForOut)
+					+ ":" + (minuteForOut < 10 ? "0" + minuteForOut : minuteForOut));
+			if (client.getDescription().length() > 6) {
+                mainPreCheck.append("         " + client.getPriceTime().intValue() + "\n");
+            } else {
+                mainPreCheck.append(" " + client.getPriceTime().intValue() + "\n");
+            }
 
-	private String preCheckForFood(List<Client> clients) {
-		StringBuilder preCheckForFood = new StringBuilder();
-		for (Client client : clients) {
-			for (Map.Entry<Long, Double> productOnPrice : client.getProductOnPrice().entrySet()) {
-				preCheckForFood.append(" ")
-						.append(productService.findOne(productOnPrice.getKey()).getName());
-				int j = 19 - productService.findOne(productOnPrice.getKey()).getName().length();
-				for (int i = j; i > 0; i--) {
-					preCheckForFood.append(" ");
+			if (!client.getProductOnPrice().isEmpty()) {
+				for (Map.Entry<Long, Double> productOnPrice : client.getProductOnPrice().entrySet()) {
+					mainPreCheck
+							.append(productService.findOne(productOnPrice.getKey()).getName());
+					int j = 20 - productService.findOne(productOnPrice.getKey()).getName().length();
+					for (int i = j; i > 0; i--) {
+						mainPreCheck.append(" ");
+					}
+					mainPreCheck.append(productOnPrice.getValue().intValue())
+							.append("  ")
+							.append("\n");
 				}
-				preCheckForFood.append(productOnPrice.getValue())
-						.append("  ")
-						.append("\n");
 			}
+			mainPreCheck.append("\n");
+			numClient++;
 		}
-		return preCheckForFood.toString();
+		return mainPreCheck.toString();
 	}
 }
 
