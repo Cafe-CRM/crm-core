@@ -30,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -619,8 +620,20 @@ public class CalculateController {
 
 	private String mainPreCheck(List<Client> clients) {
 		StringBuilder mainPreCheck = new StringBuilder();
+		int hour = 0;
+		int minute = 0;
+		int passedHour = 0;
+		int passedMinute = 0;
+		int hourForOut = 0;
+		int minuteForOut = 0;
 		int numClient = 1;
 		for (Client client : clients) {
+			hour = client.getTimeStart().getHour();
+			minute = client.getTimeStart().getMinute();
+			passedHour = client.getPassedTime().getHour();
+			passedMinute = client.getPassedTime().getMinute();
+			hourForOut = client.getTimeStart().plusHours(passedHour).getHour();
+			minuteForOut = client.getTimeStart().plusMinutes(passedMinute).getMinute();
 			mainPreCheck.append(numClient + ".");
 			if (client.getDescription().equals("")) {
 				mainPreCheck.append("Гость ");
@@ -629,10 +642,10 @@ public class CalculateController {
             } else {
 				mainPreCheck.append(client.getDescription() + " ");
 			}
-			mainPreCheck.append((client.getTimeStart().getHour() < 10 ? "0" + client.getTimeStart().getHour() : client.getTimeStart().getHour()) + ":" +
-					(client.getTimeStart().getMinute() < 10 ? "0" + client.getTimeStart().getMinute() : client.getTimeStart().getMinute()));
-			mainPreCheck.append("-" + (client.getTimeStart().plusHours(client.getPassedTime().getHour()).getHour() < 10 ? "0" + client.getTimeStart().plusHours(client.getPassedTime().getHour()).getHour() : client.getTimeStart().plusHours(client.getPassedTime().getHour()).getHour())
-					+ ":" + (client.getTimeStart().plusMinutes(client.getPassedTime().getMinute()).getMinute() < 10 ? "0" + client.getTimeStart().plusMinutes(client.getPassedTime().getMinute()).getMinute() : client.getTimeStart().plusMinutes(client.getPassedTime().getMinute()).getMinute()));
+			mainPreCheck.append((hour < 10 ? "0" + hour : hour) + ":" +
+					(minute < 10 ? "0" + minute : minute));
+			mainPreCheck.append("-" + (hourForOut < 10 ? "0" + hourForOut : hourForOut)
+					+ ":" + (minuteForOut < 10 ? "0" + minuteForOut : minuteForOut));
 			if (client.getDescription().length() > 6) {
                 mainPreCheck.append("         " + client.getPriceTime().intValue() + "\n");
             } else {
