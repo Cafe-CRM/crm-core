@@ -666,7 +666,8 @@ function closeClientDebt(calculateId) {
                     $.ajax({
                         type: "POST",
                         url: "/manager/precheck",
-                        data: { calculateId : calculateId
+                        data: {
+                            clientsId : arrayID
                         },
 
                         success: function (data) {
@@ -890,7 +891,7 @@ function closeClientWithNewAmount(calculateId) {
                     type: "POST",
                     url: "/manager/precheck-with-new-sum",
                     data: {
-                        calculateId: calculateId,
+                        clientsId : arrayID,
                         newAmount : $('#newAmount' + calculateId).val()
                     },
 
@@ -1161,7 +1162,7 @@ function preCheck(calculateId) {
                     type: "POST",
                     url: "/manager/precheck",
                     data: {
-                        calculateId: calculateId
+                        clientsId : arrayID
                     },
 
                     success: function (data) {
