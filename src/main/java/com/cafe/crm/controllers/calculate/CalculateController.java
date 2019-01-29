@@ -572,9 +572,8 @@ public class CalculateController {
 	}
 
 	@RequestMapping(value = {"/precheck"}, method = RequestMethod.POST)
-	public ResponseEntity<List<String>> preCheck(@RequestParam(name = "calculateId") Long calculateId) {
-		Calculate calculate = calculateService.getOne(calculateId);
-		List<Client> clients = calculate.getClient();
+	public ResponseEntity<List<String>> preCheck(@RequestParam(name = "clientsId[]", required = false) long[] clientsId) {
+		List<Client> clients = clientService.findByIdIn(clientsId);
 		List<String> recipient = new ArrayList<>();
 		StringBuilder totalAmount = new StringBuilder();
 		int allPrice = 0;
@@ -606,10 +605,9 @@ public class CalculateController {
 	}
 
 	@RequestMapping(value = {"/precheck-with-new-sum"}, method = RequestMethod.POST)
-	public ResponseEntity<List<String>> preCheckWithNewSum(@RequestParam(name = "calculateId") Long calculateId,
+	public ResponseEntity<List<String>> preCheckWithNewSum(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
 														   @RequestParam(name = "newAmount") int newAmount) {
-		Calculate calculate = calculateService.getOne(calculateId);
-		List<Client> clients = calculate.getClient();
+		List<Client> clients = clientService.findByIdIn(clientsId);
 		StringBuilder totalAmount = new StringBuilder();
 		List<String> recipient = new ArrayList<>();
 		totalAmount.append(newAmount);
