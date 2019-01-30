@@ -45,7 +45,6 @@ $('#drawChart').click(function (event) {
                 type: 'line',
                 bezierCurve : false,
                 data: {
-                    // labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
                     labels: coord,
                     datasets: [{
                         data: values,
@@ -71,7 +70,6 @@ $('#drawChart').click(function (event) {
                             },
                             gridLines: {
                                 display: true,
-                                // color: 'white'
                             }
 
                         }],
@@ -90,16 +88,6 @@ $('#drawChart').click(function (event) {
     } else {
         document.getElementById("line-chart").style.display = "none";
     }
-    // document.getElementById("line-chart").setAttribute("hidden", !Boolean(document.getElementById("line-chart").getAttribute("hidden")))
-
-    // var url = "/rest/reports/createClientsData";
-    // var period = {
-    //     "startDate": $("#start").val(),
-    //     "endDate": $("#end").val()
-    // };
-
-
-
 });
 
 $('#drawProductChart').click(function (event) {
