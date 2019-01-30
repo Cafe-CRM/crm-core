@@ -7,9 +7,9 @@ public class HourIntervalClientAmount {
     private int hourStart;
     private int hourEnd;
     private int clientsNumber;
-    private int clientsNumberPerDay;
+    private double clientsNumberPerDay;
 
-    public HourIntervalClientAmount(int hourStart, int hourEnd, int clientsNumber, int clientsNumberPerDay) {
+    public HourIntervalClientAmount(int hourStart, int hourEnd, int clientsNumber, double clientsNumberPerDay) {
         this.hourStart = hourStart;
         this.hourEnd = hourEnd;
         this.clientsNumber = clientsNumber;
@@ -33,7 +33,7 @@ public class HourIntervalClientAmount {
         return clientsNumber;
     }
 
-    public int getClientsNumberPerDay() {
+    public double getClientsNumberPerDay() {
         return clientsNumberPerDay;
     }
 
@@ -49,7 +49,7 @@ public class HourIntervalClientAmount {
         this.clientsNumber = clientsNumber;
     }
 
-    public void setClientsNumberPerDay(int clientsNumberPerDay) {
+    public void setClientsNumberPerDay(double clientsNumberPerDay) {
         this.clientsNumberPerDay = clientsNumberPerDay;
     }
 

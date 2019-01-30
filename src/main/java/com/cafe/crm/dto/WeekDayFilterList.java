@@ -1,18 +1,44 @@
 package com.cafe.crm.dto;
 
+import com.cafe.crm.controllers.report.EnumWeekDay;
+
 import java.util.List;
+import java.util.Objects;
 
 public class WeekDayFilterList {
-    private List<WeekDayFilter> weekDays;
+//    private String filterName;
+//    private List<WeekDayFilter> checkedWeekDays;
+    private List<EnumWeekDay> selectedWeekDays;
 
     public WeekDayFilterList() {
     }
 
-    public List<WeekDayFilter> getWeekDays() {
-        return weekDays;
+//    public String getFilterName() {
+//        return filterName;
+//    }
+
+    public List<EnumWeekDay> getSelectedWeekDays() {
+        return selectedWeekDays;
     }
 
-    public void setWeekDays(List<WeekDayFilter> weekDays) {
-        this.weekDays = weekDays;
+    public void setSelectedWeekDays(List<EnumWeekDay> selectedWeekDays) {
+        this.selectedWeekDays = selectedWeekDays;
+    }
+
+//    public void setFilterName(String filterName) {
+//        this.filterName = filterName;
+//    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WeekDayFilterList that = (WeekDayFilterList) o;
+        return Objects.equals(selectedWeekDays, that.selectedWeekDays);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(selectedWeekDays);
     }
 }

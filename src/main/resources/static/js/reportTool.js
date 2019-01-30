@@ -1,23 +1,17 @@
 $('#datesClientdownload').click(function (event) {
     event.preventDefault();
     var url = "/rest/reports/createClientsData";
-    var period = {
-        "startDate": $("#start").val(),
-        "endDate": $("#end").val()
-    };
-
+    var selectedWeekDays = [];
+    $("input:checkbox[name=selectedWeekDays]:checked").each(function(){
+        selectedWeekDays.push($(this).val());
+    });
     $.ajax({
         type: 'POST',
         url: url,
-        datatype: 'application/json',
-        // data: JSON.stringify(period),
-        // data: {
-        //     start: $("#start").val(),
-        //     end: $("#end").val()
-        // },
         data: {
             startDate: $("#start").val(),
-            endDate: $("#end").val()
+            endDate: $("#end").val(),
+            weekDays: selectedWeekDays
         },
         success: function () {
             window.location.replace("/rest/reports/getClientsData")
@@ -29,9 +23,14 @@ $('#drawChart').click(function (event) {
     event.preventDefault();
     if (document.getElementById("line-chart").style.display != "block") {
         let url = '/rest/reports/getDataForChart';
+        let selectedWeekDays = [];
+        $("input:checkbox[name=selectedWeekDays]:checked").each(function(){
+            selectedWeekDays.push($(this).val());
+        })
         let params = {
             "startDate": $("#start").val(),
-            "endDate": $("#end").val()
+            "endDate": $("#end").val(),
+            "weekDays": selectedWeekDays
         };
         var coord = [];
         var values = [];
@@ -86,6 +85,105 @@ $('#drawChart').click(function (event) {
                 },
             });
 
+        });
+        document.getElementById("line-chart").style.display = "block";
+    } else {
+        document.getElementById("line-chart").style.display = "none";
+    }
+    // document.getElementById("line-chart").setAttribute("hidden", !Boolean(document.getElementById("line-chart").getAttribute("hidden")))
+
+    // var url = "/rest/reports/createClientsData";
+    // var period = {
+    //     "startDate": $("#start").val(),
+    //     "endDate": $("#end").val()
+    // };
+
+
+
+});
+
+$('#drawProductChart').click(function (event) {
+    event.preventDefault();
+    if (document.getElementById("line-chart").style.display != "block") {
+        let url = '/rest/reports/getDataForChartProducts';
+        let selectedProducts = [];
+        $("input:checkbox[name=productId]:checked").each(function(){
+            selectedProducts.push($(this).val());
+        });
+        let selectedWeekDays = [];
+        $("input:checkbox[name=selectedWeekDays]:checked").each(function(){
+            selectedWeekDays.push($(this).val());
+        })
+
+        // let selectedWeekDays = [];
+        // $("input:checkbox[name=selectedWeekDays]:checked").each(function(){
+        //     selectedWeekDays.push($(this).val());
+        // })
+
+        let params = {
+            "startDate": $("#start").val(),
+            "endDate": $("#end").val(),
+            "weekDays": selectedWeekDays,
+            "products": selectedProducts
+        };
+        var coord = [];
+        var values = [];
+        $.get(url, params, function get(list) {
+        }).done(function (productsReport) {
+            for (let i = 0; i < productsReport.length; i++) {
+                let product = productsReport[i].key;
+
+                let list = productsReport[i].value;
+                for (let k = 0; k < list.length; k++) {
+                    coord.push(list[k].date.dayOfMonth + "." + list[k].date.monthValue + "." + list[k].date.year);
+                    values.push(list[k].count);
+                }
+
+                new Chart(document.getElementById("line-chart"), {
+                    type: 'line',
+                    bezierCurve : false,
+                    data: {
+                        // labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
+                        labels: coord,
+                        datasets: [{
+                            data: values,
+                            // label: "Attendance",
+                            borderColor: "#3e95cd",
+                            fill: true,
+                            lineTension: 0
+                        }
+                        ]
+                    },
+                    options: {
+                        title: {
+                            display: false,
+                            // text: 'Посещаемость по дням'
+                        },
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            xAxes: [{
+                                ticks: {
+                                    fontColor: '#5bc0de'
+                                },
+                                gridLines: {
+                                    display: true,
+                                    // color: 'white'
+                                }
+
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    fontColor: '#5bc0de'
+                                }
+                            }]
+
+                        }
+                    },
+                });
+
+            }
         });
         document.getElementById("line-chart").style.display = "block";
     } else {

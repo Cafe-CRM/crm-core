@@ -3,38 +3,28 @@ package com.cafe.crm.dto;
 import java.util.Objects;
 
 public class WeekDayFilter {
-    private int number;
+    private int id;
     private String name;
-    private boolean check;
 
-    public WeekDayFilter(int number, String name, boolean check) {
-        this.number = number;
+    public WeekDayFilter(int id, String name) {
+        this.id = id;
         this.name = name;
-        this.check = check;
     }
 
-    public int getNumber() {
-        return number;
+    public int getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
-    public boolean isCheck() {
-        return check;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setCheck(boolean check) {
-        this.check = check;
     }
 
     @Override
@@ -42,23 +32,21 @@ public class WeekDayFilter {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WeekDayFilter that = (WeekDayFilter) o;
-        return number == that.number &&
-                check == that.check &&
+        return id == that.id &&
                 Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(number, name, check);
+        return Objects.hash(id, name);
     }
 
     @Override
     public String toString() {
         return "WeekDayFilter{" +
-                "number=" + number +
+                "number=" + id +
                 ", name='" + name + '\'' +
-                ", check=" + check +
                 '}';
     }
 }

@@ -1,50 +1,8 @@
 package com.cafe.crm.dto;
 
 import com.cafe.crm.models.menu.Product;
-import org.hibernate.annotations.NamedNativeQuery;
 
-import javax.persistence.ColumnResult;
-import javax.persistence.ConstructorResult;
-import javax.persistence.Entity;
-import javax.persistence.SqlResultSetMapping;
 import java.util.Objects;
-
-//@NamedNativeQuery(
-//        name = "getMenuSales",
-//        query =
-//                "select new MenuSale(product.id as product_id, product.name, ifnull(layer_products.cost,0), sum(1)," +
-//                        "sum(ifnull(layer_products.cost,0)), sum(ifnull(product.self_cost,0))," +
-//                        "(ifnull(layer_products.cost,0)*ifnull(product_staff_percent.percent,0)/100)," +
-//                        "(sum(ifnull(layer_products.cost,0)) " +
-//                        "- sum(ifnull(product.self_cost,0)) " +
-//                        "- (ifnull(layer_products.cost,0)*ifnull(product_staff_percent.percent,0)/100)) ) " +
-//                        "from (select * from shifts where shift_date >= :startDate and shift_date <= :endDate) as shiftForPeriod " +
-//                        "left join shifts_clients on shiftForPeriod.id = shifts_clients.shift_id " +
-//                        "left join client_layer_product on shifts_clients.clients_id = client_layer_product.client_id " +
-//                        "left join layer_products on client_layer_product.layer_product_id = layer_products.id " +
-//                        "left join product on layer_products.product_id = product.id " +
-//                        "left join product_staff_percent on product.id = product_staff_percent.product_id " +
-//                        "where ifnull(layer_products.cost,0) > 0 " +
-//                        " group by product.id, product.name, ifnull(layer_products.cost,0)",
-//        resultSetMapping = "MenuSale"
-//)
-
-//@SqlResultSetMapping(
-//        name = "getMenuSales",
-//        classes = @ConstructorResult(
-//                targetClass = MenuSale.class,
-//                columns = {
-//                        @ColumnResult(name = "productId"),
-//                        @ColumnResult(name = "productName"),
-//                        @ColumnResult(name = "price"),
-//                        @ColumnResult(name = "count"),
-//                        @ColumnResult(name = "sumSale"),
-//                        @ColumnResult(name = "costSale"),
-//                        @ColumnResult(name = "sumPercentStuff"),
-//                        @ColumnResult(name = "sumProfit")
-//                }
-//        )
-//)
 
 public class MenuSale {
     private Long productId;
@@ -158,7 +116,7 @@ public class MenuSale {
     @Override
     public String toString() {
         return "MenuSale{" +
-                "ProductId=" + productId +
+                "productId=" + productId +
                 ", productName='" + productName + '\'' +
                 ", price=" + price +
                 ", count=" + count +

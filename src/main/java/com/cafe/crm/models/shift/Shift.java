@@ -5,6 +5,7 @@ import com.cafe.crm.dto.MenuSale;
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
+import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.models.note.NoteRecord;
 import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.models.user.User;
@@ -33,6 +34,7 @@ import java.util.*;
 				)
 		}
 )
+
 
 @Entity
 @Table(name = "shifts")

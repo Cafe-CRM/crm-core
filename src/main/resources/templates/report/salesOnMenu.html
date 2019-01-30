@@ -15,7 +15,7 @@
     </div>
     <div class="row">
         <hr/>
-        <form roles="form" th:method="post" action="/reports/menusales">
+        <form roles="form" th:method="post" action="/reports/menusales" th:object="${weekDaysWrap}">
             <div class="col-md-3" style="margin-left: 20%">
                 <p style="color: #5bc0de; font-size: 150%">
                     Дата начала отчета :
@@ -28,35 +28,46 @@
                     <input name="end" th:value="${end}" th:type="date" id="end" class="form-control" placeholder="Введите дату" required=""/>
                 </p>
             </div>
+
             <div class="col-md-9" style="margin-left: 20%; color: #5bc0de">
-                <label class='checkbox-inline soc-network-box'>
-                    <input type='checkbox' value='1' checked="checked" name='weekday1' id="weekday1"  class='my-checkbox-soc'/>Понедельник</label>
-                <label class='checkbox-inline soc-network-box'>
-                    <input type='checkbox' value='1' checked="checked" name='weekday2' id="weekday2" class='my-checkbox-soc'/>Вторник</label>
-                <label class='checkbox-inline soc-network-box'>
-                    <input type='checkbox' value='1' checked="checked" name='weekday3' id="weekday3" class='my-checkbox-soc'/>Среда</label>
-                <label class='checkbox-inline soc-network-box'>
-                    <input type='checkbox' value='1' checked="checked" name='weekday4' id="weekday4" class='my-checkbox-soc'/>Четверг</label>
-                <label class='checkbox-inline soc-network-box'>
-                    <input type='checkbox' value='1' checked="checked" name='weekday5' id="weekday5" class='my-checkbox-soc'/>Пятница</label>
-                <label class='checkbox-inline soc-network-box'>
-                    <input type='checkbox' value='1' checked="checked" name='weekday6' id="weekday6" class='my-checkbox-soc'/>Суббота</label>
-                <label class='checkbox-inline soc-network-box'>
-                    <input type='checkbox' value='1' checked="checked" name='weekday7' id="weekday7" class='my-checkbox-soc'/>Воскресенье</label>
+                <label class='checkbox-inline soc-network-box' th:each="weekDay : ${weekDays}">
+                    <input type="checkbox" th:field="*{selectedWeekDays}" th:value="${weekDay}" th:text="${weekDay.description}" class='my-checkbox-soc'/></label>
             </div>
+            <!--<div class="col-md-9" style="margin-left: 20%; color: #5bc0de">-->
+                <!--<label class='checkbox-inline soc-network-box'>-->
+                    <!--<input type='checkbox' value='1' checked="checked" name='weekday1' id="weekday1"  class='my-checkbox-soc'/>Понедельник</label>-->
+                <!--<label class='checkbox-inline soc-network-box'>-->
+                    <!--<input type='checkbox' value='1' checked="checked" name='weekday2' id="weekday2" class='my-checkbox-soc'/>Вторник</label>-->
+                <!--<label class='checkbox-inline soc-network-box'>-->
+                    <!--<input type='checkbox' value='1' checked="checked" name='weekday3' id="weekday3" class='my-checkbox-soc'/>Среда</label>-->
+                <!--<label class='checkbox-inline soc-network-box'>-->
+                    <!--<input type='checkbox' value='1' checked="checked" name='weekday4' id="weekday4" class='my-checkbox-soc'/>Четверг</label>-->
+                <!--<label class='checkbox-inline soc-network-box'>-->
+                    <!--<input type='checkbox' value='1' checked="checked" name='weekday5' id="weekday5" class='my-checkbox-soc'/>Пятница</label>-->
+                <!--<label class='checkbox-inline soc-network-box'>-->
+                    <!--<input type='checkbox' value='1' checked="checked" name='weekday6' id="weekday6" class='my-checkbox-soc'/>Суббота</label>-->
+                <!--<label class='checkbox-inline soc-network-box'>-->
+                    <!--<input type='checkbox' value='1' checked="checked" name='weekday7' id="weekday7" class='my-checkbox-soc'/>Воскресенье</label>-->
+            <!--</div>-->
             <div class="col-md-2 col-md-offset-0">
                 <button class="btn btn-default btn-lg" style="margin-top: 25px" name="del" th:type="submit">
                     Сформировать
                 </button>
             </div>
+            <div class="col-md-2 col-md-offset-0">
+                <button class="btn btn-default btn-lg" style="margin-top: 25px" id="drawProductChart" type="button">
+                    График
+                </button>
+            </div>
         </form>
     </div>
-
+    <canvas id="line-chart" width="800" height="450" hidden="true" style="display: none"></canvas>
     <div class="row">
         <hr/>
         <table class="table table-striped">
             <thead>
             <tr>
+                <th></th>
                 <th>Номер строки</th>
                 <th>Блюдо</th>
                 <th>Цена (руб.)</th>
@@ -67,6 +78,12 @@
             </thead>
             <tbody class="searchable" th:each="saleUnit,iter:${menuSales}">
             <tr>
+                <td>
+                    <input th:form="'formTest' + ${saleUnit.productId}" th:class="'class' + ${saleUnit.productId} + ' selectedRow'"
+                           th:id="'test' + ${saleUnit.productId}" type="checkbox" class="form-control"
+                           style="width: 20px;height: 20px;margin-top: 5px" th:value="${saleUnit.productId}"
+                           name="productId"/>
+                </td>
                 <td><p th:text="${iter.count}"></p></td>
                 <td><p th:text="${saleUnit.productName}"></p></td>
                 <td><p th:text="${saleUnit.price}"></p></td>
@@ -77,6 +94,7 @@
             </tbody>
             <tfoot>
             <tr align="center" style="font-weight: bold">
+                <td></td>
                 <td><p th:if="${menuSalesTotal} != null" th:text="${menuSalesTotal.productName}"></p></td>
                 <td></td>
                 <td></td>
@@ -93,6 +111,8 @@
 <script th:src="@{/js/boss/changePassword.js}"></script>
 <script th:src="@{/js/mail.js}"></script>
 <script th:src="@{/js/filter.js}"></script>
+<script th:src="@{/js/reportTool.js}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 
 </body>
 </html>
