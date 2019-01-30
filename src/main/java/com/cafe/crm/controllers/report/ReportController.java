@@ -2,6 +2,7 @@ package com.cafe.crm.controllers.report;
 
 import com.cafe.crm.dto.*;
 import com.cafe.crm.services.interfaces.report.ReportService;
+import com.cafe.crm.utils.EnumWeekDay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,8 +18,6 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +27,6 @@ import java.util.List;
 @RequestMapping("/reports")
 public class ReportController {
     private final Logger logger = LoggerFactory.getLogger(ReportController.class);
-
     private final ReportService reportService;
 
     @Autowired
@@ -40,7 +37,7 @@ public class ReportController {
     @RequestMapping(value = "/attendance/clientsondays", method = RequestMethod.GET)
     public ModelAndView getClientsOnDays() {
         ModelAndView mv = new ModelAndView("report/attendanceOnDays");
-        WeekDayFilterList weekDaysWrap = new WeekDayFilterList();
+        WeekDayList weekDaysWrap = new WeekDayList();
         weekDaysWrap.setSelectedWeekDays(Arrays.asList(EnumWeekDay.values()));
         mv.addObject("weekDaysWrap", weekDaysWrap);
         mv.addObject("weekDays", weekDaysWrap.getSelectedWeekDays());
@@ -49,7 +46,7 @@ public class ReportController {
 
     @RequestMapping(value = "/attendance/clientsondays", method = RequestMethod.POST)
     public ModelAndView showClientsOnDays(@Param("start") String start, @Param("end") String end,
-                                          @ModelAttribute(value = "weekDaysWrap") WeekDayFilterList weekDaysWrap) {
+                                          @ModelAttribute(value = "weekDaysWrap") WeekDayList weekDaysWrap) {
         List<Integer> weekDays = new ArrayList<>();
         for (EnumWeekDay weekDay : weekDaysWrap.getSelectedWeekDays()) {
             weekDays.add(weekDay.ordinal());
@@ -57,6 +54,8 @@ public class ReportController {
 
         ModelAndView mv = new ModelAndView("report/attendanceOnDays");
         List<DateClientAmount> clientsOnDays = reportService.getClientCount(LocalDate.parse(start), LocalDate.parse(end), weekDays);
+        mv.addObject("weekDaysWrap", weekDaysWrap);
+        mv.addObject("weekDays", Arrays.asList(EnumWeekDay.values()));
         mv.addObject("clientsOnDays", clientsOnDays);
         mv.addObject("start", start);
         mv.addObject("end", end);
@@ -86,7 +85,7 @@ public class ReportController {
     public @ModelAttribute("weekDays")
     ModelAndView getClientsOnHours() {
         ModelAndView mv = new ModelAndView("report/attendanceOnHours");
-        WeekDayFilterList weekDaysWrap = new WeekDayFilterList();
+        WeekDayList weekDaysWrap = new WeekDayList();
         weekDaysWrap.setSelectedWeekDays(Arrays.asList(EnumWeekDay.values()));
         mv.addObject("weekDaysWrap", weekDaysWrap);
         mv.addObject("weekDays", weekDaysWrap.getSelectedWeekDays());
@@ -96,13 +95,11 @@ public class ReportController {
     @RequestMapping(value = "/attendance/clientsonhours", method = RequestMethod.POST)
     public ModelAndView showClientsOnHours(@Param("start") String start, @Param("end") String end,
                                            @Param("fromHour") String fromHour, @Param("toHour") String toHour,
-                                           @ModelAttribute(value = "weekDaysWrap") WeekDayFilterList weekDaysWrap) {
-
+                                           @ModelAttribute(value = "weekDaysWrap") WeekDayList weekDaysWrap) {
         List<Integer> weekDays = new ArrayList<>();
         for (EnumWeekDay weekDay : weekDaysWrap.getSelectedWeekDays()) {
             weekDays.add(weekDay.ordinal());
         }
-
         ModelAndView mv = new ModelAndView("report/attendanceOnHours");
         List<HourIntervalClientAmount> clientsOnHours = reportService.getHourIntervalClientCount(LocalDate.parse(start), LocalDate.parse(end), Integer.parseInt(fromHour), Integer.parseInt(toHour), weekDays);
         mv.addObject("weekDaysWrap", weekDaysWrap);
@@ -118,7 +115,7 @@ public class ReportController {
     @RequestMapping(value = "/menusales", method = RequestMethod.GET)
     public ModelAndView getMenuSales() {
         ModelAndView mv = new ModelAndView("report/salesOnMenu");
-        WeekDayFilterList weekDaysWrap = new WeekDayFilterList();
+        WeekDayList weekDaysWrap = new WeekDayList();
         weekDaysWrap.setSelectedWeekDays(Arrays.asList(EnumWeekDay.values()));
         mv.addObject("weekDaysWrap", weekDaysWrap);
         mv.addObject("weekDays", weekDaysWrap.getSelectedWeekDays());
@@ -127,16 +124,14 @@ public class ReportController {
 
     @RequestMapping(value = "/menusales", method = RequestMethod.POST)
     public ModelAndView showMenuSales(@Param("start") String start, @Param("end") String end,
-                                      @ModelAttribute(value = "weekDaysWrap") WeekDayFilterList weekDaysWrap) {
-
-        String weekDaysTemplate = "";
+                                      @ModelAttribute(value = "weekDaysWrap") WeekDayList weekDaysWrap) {
+        StringBuilder weekDaysTemplate = new StringBuilder();
         for (EnumWeekDay weekDay : weekDaysWrap.getSelectedWeekDays()) {
-            weekDaysTemplate = weekDaysTemplate + (weekDaysTemplate.isEmpty() ? "" : ",") + weekDay.ordinal();
+            weekDaysTemplate.append((weekDaysTemplate.length() == 0) ? "" : ",").append(weekDay.ordinal());
         }
-        weekDaysTemplate = "(" + weekDaysTemplate + ")";
-
+        weekDaysTemplate = new StringBuilder("(" + weekDaysTemplate + ")");
         ModelAndView mv = new ModelAndView("report/salesOnMenu");
-        List<MenuSale> menuSales = reportService.getMenuSales(LocalDate.parse(start), LocalDate.parse(end), weekDaysTemplate);
+        List<MenuSale> menuSales = reportService.getMenuSales(LocalDate.parse(start), LocalDate.parse(end), weekDaysTemplate.toString());
         MenuSale menuSaleTotal = reportService.getMenuSalesTotal(menuSales);
         mv.addObject("weekDaysWrap", weekDaysWrap);
         mv.addObject("weekDays", Arrays.asList(EnumWeekDay.values()));
@@ -146,6 +141,5 @@ public class ReportController {
         mv.addObject("end", end);
         return mv;
     }
-
 }
 

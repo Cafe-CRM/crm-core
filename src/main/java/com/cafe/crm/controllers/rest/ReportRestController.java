@@ -1,24 +1,17 @@
 package com.cafe.crm.controllers.rest;
 
-import com.cafe.crm.controllers.report.EnumWeekDay;
+import com.cafe.crm.utils.EnumWeekDay;
 import com.cafe.crm.controllers.report.ReportController;
 import com.cafe.crm.dto.DateClientAmount;
 import com.cafe.crm.dto.SaleProductOnDay;
-import com.cafe.crm.dto.WeekDayFilter;
-import com.cafe.crm.dto.WeekDayFilterList;
-import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.services.interfaces.report.ReportService;
-import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
@@ -28,14 +21,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/rest/reports")
-public class ReportFilesController {
+public class ReportRestController {
     private final Logger logger = LoggerFactory.getLogger(ReportController.class);
     private final String clientDataName = "clientsData.xlsx";
-
     private final ReportService reportService;
 
     @Autowired
-    public ReportFilesController(ReportService reportService) {
+    public ReportRestController(ReportService reportService) {
         this.reportService = reportService;
     }
 
@@ -48,7 +40,6 @@ public class ReportFilesController {
             weekDaysNumer.add(EnumWeekDay.valueOf(weekDay).ordinal());
         }
         reportService.createDateClientData(clientDataName, LocalDate.parse(start), LocalDate.parse(end), weekDaysNumer);
-
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -63,9 +54,7 @@ public class ReportFilesController {
             logger.error("File not found! ", e);
         }
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment;filename=" + file.getName())
-//                .contentType(MediaType.ALL).contentLength(file.length())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
                 .contentLength(file.length())
                 .body(resource);
     }
@@ -83,23 +72,19 @@ public class ReportFilesController {
 
     @GetMapping("/getDataForChartProducts")
     public ResponseEntity getDataForChartProduct(@RequestParam("startDate") String start, @RequestParam("endDate") String end,
-//                                                 @ModelAttribute(value = "weekDaysWrap") WeekDayFilterList weekDaysWrap
                                            @RequestParam("weekDays[]") String[] weekDays,
                                            @RequestParam("products[]") String[] products) {
-        String weekDaysTemplate = "";
+        StringBuilder weekDaysTemplate = new StringBuilder();
         for (String weekDay : weekDays) {
-            weekDaysTemplate = weekDaysTemplate + (weekDaysTemplate.isEmpty() ? "" : ",") + EnumWeekDay.valueOf(weekDay).ordinal();
+            weekDaysTemplate.append((weekDaysTemplate.length() == 0) ? "" : ",").append(EnumWeekDay.valueOf(weekDay).ordinal());
         }
-        weekDaysTemplate = "(" + weekDaysTemplate + ")";
-
-        String productsTemplate = "";
+        weekDaysTemplate = new StringBuilder("(" + weekDaysTemplate + ")");
+        StringBuilder productsTemplate = new StringBuilder();
         for (String product : products) {
-            productsTemplate = productsTemplate + (productsTemplate.isEmpty() ? "" : ",") + product;
+            productsTemplate.append((productsTemplate.length() == 0) ? "" : ",").append(product);
         }
-        productsTemplate = "(" + productsTemplate + ")";
-
-        List<Pair<Product,List<SaleProductOnDay>>> salesProductsOnDays = reportService.getProductOnDays(LocalDate.parse(start), LocalDate.parse(end), weekDaysTemplate, productsTemplate);
-
+        productsTemplate = new StringBuilder("(" + productsTemplate + ")");
+        List<SaleProductOnDay> salesProductsOnDays = reportService.getProductOnDays(LocalDate.parse(start), LocalDate.parse(end), weekDaysTemplate.toString(), productsTemplate.toString());
         return ResponseEntity.ok(salesProductsOnDays);
     }
 }

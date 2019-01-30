@@ -91,7 +91,7 @@
                 <!--<td><p th:text="${iter.count}"></p></td>-->
                 <td><p th:text="${intervalHour}"></p></td>
                 <td><p th:text="${intervalHour.clientsNumber}"></p></td>
-                <td><p th:text="${intervalHour.clientsNumberPerDay}"></p></td>
+                <td><p th:text="${#numbers.formatDecimal(intervalHour.clientsNumberPerDay, 0, 'DEFAULT', 2, 'POINT')}"></p></td>
             </tr>
             </tbody>
             <tfoot>

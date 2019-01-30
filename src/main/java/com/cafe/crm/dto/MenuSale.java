@@ -1,7 +1,5 @@
 package com.cafe.crm.dto;
 
-import com.cafe.crm.models.menu.Product;
-
 import java.util.Objects;
 
 public class MenuSale {

@@ -1,4 +1,4 @@
-package com.cafe.crm.controllers.report;
+package com.cafe.crm.utils;
 
 public enum EnumWeekDay {
     Monday("Понедельник"),

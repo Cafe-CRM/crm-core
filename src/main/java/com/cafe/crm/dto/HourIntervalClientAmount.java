@@ -1,6 +1,5 @@
 package com.cafe.crm.dto;
 
-import java.util.Date;
 import java.util.Objects;
 
 public class HourIntervalClientAmount {

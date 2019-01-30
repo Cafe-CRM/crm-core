@@ -35,7 +35,6 @@ import java.util.*;
 		}
 )
 
-
 @Entity
 @Table(name = "shifts")
 @Dateable

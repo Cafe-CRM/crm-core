@@ -33,28 +33,10 @@
                 <label class='checkbox-inline soc-network-box' th:each="weekDay : ${weekDays}">
                     <input type="checkbox" th:field="*{selectedWeekDays}" th:value="${weekDay}" th:text="${weekDay.description}" class='my-checkbox-soc'/></label>
             </div>
-            <!--<div class="col-md-9" style="margin-left: 20%; color: #5bc0de">-->
-                <!--<label class='checkbox-inline soc-network-box'>-->
-                    <!--<input type='checkbox' value='1' checked="checked" name='weekday1' id="weekday1"  class='my-checkbox-soc'/>Понедельник</label>-->
-                <!--<label class='checkbox-inline soc-network-box'>-->
-                    <!--<input type='checkbox' value='1' checked="checked" name='weekday2' id="weekday2" class='my-checkbox-soc'/>Вторник</label>-->
-                <!--<label class='checkbox-inline soc-network-box'>-->
-                    <!--<input type='checkbox' value='1' checked="checked" name='weekday3' id="weekday3" class='my-checkbox-soc'/>Среда</label>-->
-                <!--<label class='checkbox-inline soc-network-box'>-->
-                    <!--<input type='checkbox' value='1' checked="checked" name='weekday4' id="weekday4" class='my-checkbox-soc'/>Четверг</label>-->
-                <!--<label class='checkbox-inline soc-network-box'>-->
-                    <!--<input type='checkbox' value='1' checked="checked" name='weekday5' id="weekday5" class='my-checkbox-soc'/>Пятница</label>-->
-                <!--<label class='checkbox-inline soc-network-box'>-->
-                    <!--<input type='checkbox' value='1' checked="checked" name='weekday6' id="weekday6" class='my-checkbox-soc'/>Суббота</label>-->
-                <!--<label class='checkbox-inline soc-network-box'>-->
-                    <!--<input type='checkbox' value='1' checked="checked" name='weekday7' id="weekday7" class='my-checkbox-soc'/>Воскресенье</label>-->
-            <!--</div>-->
-            <div class="col-md-2 col-md-offset-0">
+            <div class="col-md-3 col-md-offset-3 btn-group">
                 <button class="btn btn-default btn-lg" style="margin-top: 25px" name="del" th:type="submit">
                     Сформировать
                 </button>
-            </div>
-            <div class="col-md-2 col-md-offset-0">
                 <button class="btn btn-default btn-lg" style="margin-top: 25px" id="drawProductChart" type="button">
                     График
                 </button>
@@ -113,6 +95,5 @@
 <script th:src="@{/js/filter.js}"></script>
 <script th:src="@{/js/reportTool.js}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-
 </body>
 </html>
