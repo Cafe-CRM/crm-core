@@ -31,7 +31,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
 	@Query(value =  "SELECT * FROM clients WHERE (clients.time_start BETWEEN :startDate AND :endDate " +
 			"OR addtime(clients.time_start, clients.passed_time) BETWEEN :startDate AND :endDate) AND clients.company_id = :companyId", nativeQuery = true)
-//	@Query(value =  "select id from clients where clients.company_id = :companyId", nativeQuery = true)
 	List<Client> findByDatesAndCompanyId(
 			@Param("startDate") LocalDateTime startDate,
 			@Param("endDate") LocalDateTime endDate,
