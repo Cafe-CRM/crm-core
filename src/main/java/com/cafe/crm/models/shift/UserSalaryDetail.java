@@ -1,26 +1,8 @@
 package com.cafe.crm.models.shift;
 
-import com.cafe.crm.dto.SaleProductOnDay;
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.user.User;
 import javax.persistence.*;
-import java.io.Serializable;
-import java.time.LocalDate;
-
-@SqlResultSetMapping(
-		name = "SaleProductOnDayMapping",
-		classes = {
-				@ConstructorResult(
-						targetClass = SaleProductOnDay.class,
-						columns = {
-								@ColumnResult(name = "productId", type = Long.class),
-								@ColumnResult(name = "productName", type = String.class),
-								@ColumnResult(name = "date", type = LocalDate.class),
-								@ColumnResult(name = "count", type = Long.class),
-						}
-				)
-		}
-)
 
 @Entity
 public class UserSalaryDetail extends BaseEntity {
