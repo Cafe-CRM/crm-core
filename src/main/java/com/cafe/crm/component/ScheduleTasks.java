@@ -27,7 +27,7 @@ public class ScheduleTasks {
         managerNumber = infoConfig.getManagerNumber();
     }
 
-    @Scheduled(cron = "30 * * * * *")
+    @Scheduled(cron = "* 7 * * * *")
     private void getClientCall() {
         try {
             ClientCall clientCall = clientCallService.checkClientRequest();
