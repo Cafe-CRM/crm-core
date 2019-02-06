@@ -63,7 +63,7 @@ public class ClientCallServiceImpl implements ClientCallService {
                 return null;
             }
         } catch (MessagingException e) {
-            e.printStackTrace();
+            logger.error("Can't get message", e);
             return null;
         } catch (IOException e) {
             logger.error("Don't get info about client", e);
