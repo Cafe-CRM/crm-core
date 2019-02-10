@@ -27,13 +27,21 @@ public class ScheduleTasks {
         managerNumber = infoConfig.getManagerNumber();
     }
 
-    @Scheduled(cron = "* 7 * * * *")
+    @Scheduled(cron = "10 * * * * *")
     private void getClientCall() {
         try {
             ClientCall clientCall = clientCallService.checkClientRequest();
             ipService.call(managerNumber, clientCall.getClientNumber(), clientCall.getId());
+            Thread.sleep(300000);
         } catch (NullPointerException e) {
             logger.info("Нет новых заявок");
+        } catch (InterruptedException e) {
+            logger.error("Thread no sleep");
         }
+    }
+
+    @Scheduled(cron = "10 * * * * *")
+    private void getClient() {
+        System.out.println("dfssdf");
     }
 }

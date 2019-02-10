@@ -11,6 +11,7 @@ import java.util.concurrent.Executor;
 
 @Configuration
 public class AppContext extends WebMvcConfigurationSupport {
+
     @Bean
     public TaskScheduler taskScheduler() {
         return new ConcurrentTaskScheduler();
