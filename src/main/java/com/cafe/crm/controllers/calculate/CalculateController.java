@@ -1,18 +1,21 @@
 package com.cafe.crm.controllers.calculate;
 
+import com.cafe.crm.exceptions.check.CheckException;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.exceptions.password.PasswordException;
 import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
-import com.cafe.crm.models.client.LayerProduct;
 import com.cafe.crm.models.discount.Discount;
 import com.cafe.crm.services.interfaces.board.BoardService;
 import com.cafe.crm.services.interfaces.calculate.CalculateControllerService;
 import com.cafe.crm.services.interfaces.calculate.CalculateService;
+import com.cafe.crm.services.interfaces.calculate.MenuCalculateControllerService;
+import com.cafe.crm.services.interfaces.check.CheckService;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.client.ClientService;
+import com.cafe.crm.services.interfaces.client.SettingClientService;
 import com.cafe.crm.services.interfaces.discount.DiscountService;
 import com.cafe.crm.services.interfaces.menu.CategoriesService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
@@ -21,7 +24,6 @@ import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
 import com.cafe.crm.utils.Target;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,8 +32,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -51,6 +51,9 @@ public class CalculateController {
 	private final ChecklistService checklistService;
 	private final VkService vkService;
 	private final ConfirmTokenService confirmTokenService;
+	private final MenuCalculateControllerService menuCalculateControllerService;
+	private final SettingClientService settingClientService;
+	private final CheckService checkService;
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalculateController.class);
 
@@ -58,7 +61,8 @@ public class CalculateController {
 	public CalculateController(ProductService productService, ClientService clientService, CategoriesService categoriesService,
 							   CalculateService calculateService, BoardService boardService,
 							   DiscountService discountService, CalculateControllerService calculateControllerService,
-							   ChecklistService checklistService, VkService vkService, ConfirmTokenService confirmTokenService) {
+							   ChecklistService checklistService, VkService vkService, ConfirmTokenService confirmTokenService,
+							   MenuCalculateControllerService menuCalculateControllerService, SettingClientService settingClientService, CheckService checkService) {
 		this.productService = productService;
 		this.clientService = clientService;
 		this.categoriesService = categoriesService;
@@ -69,6 +73,9 @@ public class CalculateController {
 		this.checklistService = checklistService;
 		this.vkService = vkService;
 		this.confirmTokenService = confirmTokenService;
+		this.menuCalculateControllerService = menuCalculateControllerService;
+		this.settingClientService = settingClientService;
+		this.checkService = checkService;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -278,32 +285,14 @@ public class CalculateController {
 
 	@RequestMapping(value = {"/close-client"}, method = RequestMethod.POST)
 	public ResponseEntity<String> closeClient(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
-											  @RequestParam("calculateId") Long calculateId) {
-		Calculate calculate = calculateService.getOne(calculateId);
-		List<Client> clients = calculateControllerService.closeClient(clientsId, calculateId);
-		double allPrice = 0;
+											  @RequestParam(name = "calculateId", required = false) Long calculateId) {
 
-		for (Client client : clients) {
-			allPrice += client.getAllPrice();
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
 		}
 
-		StringBuilder deletedClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
-				"\" и id: " + calculateId + " были рассчитаны клиенты с id и описанием:\n");
-
-		deletedClientsInfo.append("Уплаченая сумма: ").append(allPrice);
-		logger.info(deletedClientsInfo.toString());
-		return ResponseEntity.ok("Клиенты рассчитаны!");
-	}
-
-	@RequestMapping(value = {"/close-client-without-precheck"}, method = RequestMethod.POST)
-	public ResponseEntity<String> closeClient(@RequestParam(name = "password") String password,
-											  @RequestParam(name = "clientsId[]", required = false) long[] clientsId,
-											  @RequestParam("calculateId") Long calculateId) {
-		if (password.equals("")) {
-			throw new PasswordException("Заполните поле пароля перед отправкой!");
-		}
-		if (!confirmTokenService.confirm(password, Target.CLOSE_CLIENT_WITHOUT_PRECHECK)) {
-			throw new PasswordException("Пароль не действителен!");
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);
@@ -314,11 +303,23 @@ public class CalculateController {
 			allPrice += client.getAllPrice();
 		}
 
-		StringBuilder deletedClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
+		StringBuilder closeClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
 				"\" и id: " + calculateId + " были рассчитаны клиенты с id и описанием:\n");
 
-		deletedClientsInfo.append("Уплаченая сумма: ").append(allPrice);
-		logger.info(deletedClientsInfo.toString());
+		for (Client client : clients) {
+			closeClientsInfo.append(client.getId())
+					.append(" - ")
+					.append(client.getDescription())
+					.append("\n");
+		}
+
+		closeClientsInfo.append("Уплаченая сумма: ").append(allPrice);
+		logger.info(closeClientsInfo.toString());
+
+		//Если печать чеков включена в настройках
+		if(settingClientService.getById(1L).getEnabled()) {
+			checkService.printCheck(clients);
+		}
 
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
@@ -350,6 +351,11 @@ public class CalculateController {
 		}
 
 		logger.info(closeClientsInfo.toString());
+
+		//Если печать чеков включена в настройках
+		if(settingClientService.getById(1L).getEnabled()) {
+			checkService.printCheckWithNewAmount(clients, modifiedAmount);
+		}
 
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
@@ -432,6 +438,11 @@ public class CalculateController {
 				.append(debtAmount);
 
 		logger.info(closeClientsInfo.toString());
+
+		//Если печать чеков включена в настройках
+		if(settingClientService.getById(1L).getEnabled()) {
+			checkService.printCheck(clients);
+		}
 
 		return ResponseEntity.ok("Долг добавлен!");
 	}
@@ -571,19 +582,294 @@ public class CalculateController {
 		return ResponseEntity.ok("Пароль послан");
 	}
 
-	@RequestMapping(value = {"/precheck"}, method = RequestMethod.POST)
-	public ResponseEntity<List<String>> preCheck(@RequestParam(name = "clientsId[]", required = false) long[] clientsId) {
-		List<Client> clients = clientService.findByIdIn(clientsId);
-		List<String> recipient = new ArrayList<>();
-		StringBuilder totalAmount = new StringBuilder();
-		int allPrice = 0;
+	@RequestMapping(value = "/send-without-check-pass", method = RequestMethod.POST)
+	public ResponseEntity sendWithoutCheckPass(@RequestParam(name = "calculateId", required = false) Long calculateId) {
+
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
+		}
+
+		Calculate calculate = calculateService.getOne(calculateId);
+
+		String prefix = "Одноразовый пароль для подтверждения расчета клиентов \"" + calculate.getDescription() + "\" без чека\n";
+		vkService.sendConfirmToken(prefix, Target.WITHOUT_CHECK);
+		return ResponseEntity.ok("Пароль послан");
+	}
+
+	@RequestMapping(value = "/close-client-without-check", method = RequestMethod.POST)
+	public ResponseEntity closeClientWithoutCheck(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
+												  @RequestParam(name = "calculateId", required = false) Long calculateId,
+												  @RequestParam(name = "password", required = false) String password) {
+
+
+
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
+		}
+
+		if (password == null || password.equals("")) {
+			throw new PasswordException("Заполните поле пароля перед отправкой!");
+		}
+		if (!confirmTokenService.confirm(password, Target.WITHOUT_CHECK)) {
+			throw new PasswordException("Пароль не действителен!");
+		}
+
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = calculateControllerService.closeClient(clientsId, calculateId);
+
+		double allPrice = 0;
+
 		for (Client client : clients) {
 			allPrice += client.getAllPrice();
 		}
-		totalAmount.append(allPrice);
-		recipient.add(mainPreCheck(clients));
-		recipient.add(totalAmount.toString());
-		return ResponseEntity.ok(recipient);
+
+		StringBuilder closeClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
+				"\" и id: " + calculateId + " были рассчитаны клиенты без чека с id и описанием:\n");
+
+		for (Client client : clients) {
+			closeClientsInfo.append(client.getId())
+					.append(" - ")
+					.append(client.getDescription())
+					.append("\n");
+		}
+
+		closeClientsInfo.append("Уплаченая сумма: ").append(allPrice);
+		logger.info(closeClientsInfo.toString());
+
+		return ResponseEntity.ok("Клиенты рассчитаны!");
+	}
+
+	@RequestMapping(value = {"/send-cost-price-menu-pass"}, method = RequestMethod.POST)
+	public ResponseEntity sendCostPricePass(@RequestParam(name = "calculateId", required = false) Long calculateId,
+											@RequestParam("newTotalCache") Long newTotalCache,
+											@RequestParam(name = "costPriceClientsId[]", required = false) long[] costPriceClientsId,
+											@RequestParam(name = "clientsId[]", required = false) long[] clientsId) {
+
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
+		}
+
+		if (costPriceClientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета по себестоимости!");
+		}
+
+
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> costPriceClients = clientService.findByIdIn(costPriceClientsId);
+		List<Client> clients = clientService.findByIdIn(clientsId);
+
+		long oldTotalCache = 0;
+
+		for (Client client : clients) {
+			oldTotalCache += client.getAllPrice();
+		}
+
+		StringBuilder prefix = new StringBuilder("Одноразовый пароль для расчета клиентов по себестоимости c:\n");
+
+		for (Client client : costPriceClients) {
+			prefix.append("id: ").append(client.getId()).append(" - описание: ").append(client.getDescription()).append("\n");
+		}
+
+		prefix.append("Со стола с описанием: \"").append(calculate.getDescription())
+				.append(" и id: ").append(calculateId).append("\n")
+				.append("Изменение общей суммы заказа с ").append(oldTotalCache)
+				.append(" на ").append(newTotalCache).append("\n");
+
+		vkService.sendConfirmToken(prefix.toString(), Target.WITH_COST_PRICE);
+
+		return ResponseEntity.ok("Пароль послан");
+	}
+
+	@RequestMapping(value = {"/close-cost-price-client"}, method = RequestMethod.POST)
+	public ResponseEntity closeCostPriceClient(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
+											   @RequestParam(name = "calculateId", required = false) Long calculateId,
+											   @RequestParam(name = "costPriceClientsId[]",required = false) long[] costPriceClientsId,
+											   @RequestParam(name = "password", required = false) String password) {
+
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
+		}
+
+		if (costPriceClientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета по себестоимости!");
+		}
+
+		if (password == null || password.equals("")) {
+			throw new PasswordException("Заполните поле пароля перед отправкой!");
+		}
+
+		if (!confirmTokenService.confirm(password, Target.WITH_COST_PRICE)) {
+			throw new PasswordException("Неверный код!");
+		}
+
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = clientService.findByIdIn(clientsId);
+		List<Client> costPriceClients = clientService.findByIdIn(costPriceClientsId);
+
+		double[] totalCache = calculateControllerService.getOldAndPriceCostTotal(clients, costPriceClients);
+
+		double oldTotalCache = totalCache[0];
+		double newTotalCache = totalCache[1];
+
+		calculateControllerService.closeCostPriceClient(newTotalCache, clientsId, calculateId);
+
+		StringBuilder closeClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
+				" и id: " + calculateId + "\" были рассчитаны клиенты c:\n");
+
+		closeClientsInfo.append(costPriceClientsLogInfo(clients, costPriceClients));
+
+		closeClientsInfo.append("Изменение общей суммы заказа с ").append(oldTotalCache)
+				.append(" на ").append(newTotalCache).append("\n");
+
+		logger.info(closeClientsInfo.toString());
+
+		//Если печать чеков включена в настройках
+		if(settingClientService.getById(1L).getEnabled()) {
+			checkService.printCheckWithCostPrice(clients, costPriceClients);
+		}
+
+		return ResponseEntity.ok("Клиенты рассчитаны!");
+	}
+
+	@RequestMapping(value = {"/close-cost-price-client-without-check"}, method = RequestMethod.POST)
+	public ResponseEntity closeCostPriceClientWithoutCheck(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
+														@RequestParam(value = "calculateId", required = false) Long calculateId,
+														@RequestParam(name = "costPriceClientsId[]", required = false) long[] costPriceClientsId,
+														@RequestParam(name = "password", required = false) String password) {
+
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
+		}
+
+		if (costPriceClientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета по себестоимости!");
+		}
+
+		if (password == null || password.equals("")) {
+			throw new PasswordException("Заполните поле пароля перед отправкой!");
+		}
+
+		if (!confirmTokenService.confirm(password, Target.WITHOUT_CHECK)) {
+			throw new PasswordException("Неверный код!");
+		}
+
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = clientService.findByIdIn(clientsId);
+		List<Client> costPriceClients = clientService.findByIdIn(costPriceClientsId);
+
+		double[] totalCache = calculateControllerService.getOldAndPriceCostTotal(clients, costPriceClients);
+
+		double oldTotalCache = totalCache[0];
+		double newTotalCache = totalCache[1];
+
+		calculateControllerService.closeCostPriceClient(newTotalCache, clientsId, calculateId);
+
+		StringBuilder closeClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
+				" и id: " + calculateId + "\" были рассчитаны клиенты без чека c:\n");
+
+		closeClientsInfo.append(costPriceClientsLogInfo(clients, costPriceClients));
+
+		closeClientsInfo.append("Изменение общей суммы заказа с ").append(oldTotalCache)
+				.append(" на ").append(newTotalCache).append("\n");
+
+		logger.info(closeClientsInfo.toString());
+
+		return ResponseEntity.ok("Клиенты рассчитаны!");
+	}
+
+	@RequestMapping(value = {"/close-client-debt-with-cost-price"}, method = RequestMethod.POST)
+	public ResponseEntity closeClientDebtWithCostPrice(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
+										  @RequestParam(name = "calculateId", required = false) Long calculateId,
+										  @RequestParam(name = "costPriceClientsId[]", required = false) long[] costPriceClientsId,
+										  @RequestParam(name = "debtorName", required = false) String debtorName,
+										  @RequestParam(name = "paidAmount", required = false) Double paidAmount) {
+
+		if (paidAmount == null) {
+			throw new ClientDataException("Укажите уплаченную сумму!");
+		}
+
+		if (debtorName == null || debtorName.equals("")) {
+			throw new ClientDataException("Укажите имя должника!");
+		}
+
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
+		}
+
+		if (costPriceClientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета по себестоимости!");
+		}
+
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = clientService.findByIdIn(clientsId);
+		List<Client> costPriceClients = clientService.findByIdIn(costPriceClientsId);
+
+		double[] totalCache = calculateControllerService.getOldAndPriceCostTotal(clients, costPriceClients);
+
+		double oldTotalCache = totalCache[0];
+		double newTotalCache = totalCache[1];
+
+		calculateControllerService.closeClientDebtWithCostPrice(debtorName, clients, calculate, paidAmount, newTotalCache);
+
+
+		double debtAmount = newTotalCache - paidAmount;
+
+		StringBuilder closeClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
+				"\" и id: " + calculateId + " были рассчитаны в долг клиенты с id и описанием: \n");
+
+		closeClientsInfo.append(costPriceClientsLogInfo(clients, costPriceClients));
+
+		closeClientsInfo.append("Изменение общей суммы заказа с ").append(oldTotalCache)
+				.append(" на ").append(newTotalCache).append("\n");
+
+		closeClientsInfo.append("Имя должника: \"").append(debtorName)
+				.append("\". Уплаченная сумма: ")
+				.append(paidAmount)
+				.append(". Сумма долга: ")
+				.append(debtAmount);
+
+		logger.info(closeClientsInfo.toString());
+
+		//Если печать чеков включена в настройках
+		if(settingClientService.getById(1L).getEnabled()) {
+			checkService.printCheckWithCostPrice(clients, costPriceClients);
+		}
+
+		return ResponseEntity.ok("Долг добавлен!");
+	}
+
+	private String costPriceClientsLogInfo(List<Client> clients, List<Client> costPriceClients) {
+		StringBuilder clientsInfo = new StringBuilder();
+
+		for (Client client : clients) {
+			clientsInfo.append("id: ").append(client.getId()).append(" - описание: ").append(client.getDescription());
+			if (costPriceClients.contains(client)) {
+				clientsInfo.append(" - по себестоимости");
+			}
+			clientsInfo.append("\n");
+		}
+
+		return clientsInfo.toString();
 	}
 
 	@ExceptionHandler(value = {DebtDataException.class, ClientDataException.class})
@@ -596,77 +882,9 @@ public class CalculateController {
 		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 
-	@RequestMapping(value = "/send-close-client-pass", method = RequestMethod.POST)
-	public ResponseEntity sendDeleteDebtPass(@RequestParam(name = "calculateId") Long calculateId) {
-		Calculate calculate = calculateService.getOne(calculateId);
-		String prefix = "Одноразовый пароль для подтверждения расчета клиента \"" + calculate.getDescription() + " ";
-		vkService.sendConfirmToken(prefix, Target.CLOSE_CLIENT_WITHOUT_PRECHECK);
-		return ResponseEntity.ok("Пароль послан");
-	}
-
-	@RequestMapping(value = {"/precheck-with-new-sum"}, method = RequestMethod.POST)
-	public ResponseEntity<List<String>> preCheckWithNewSum(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
-														   @RequestParam(name = "newAmount") int newAmount) {
-		List<Client> clients = clientService.findByIdIn(clientsId);
-		StringBuilder totalAmount = new StringBuilder();
-		List<String> recipient = new ArrayList<>();
-		totalAmount.append(newAmount);
-		recipient.add(mainPreCheck(clients));
-		recipient.add(totalAmount.toString());
-		return ResponseEntity.ok(recipient);
-	}
-
-	private String mainPreCheck(List<Client> clients) {
-		StringBuilder mainPreCheck = new StringBuilder();
-		int hour = 0;
-		int minute = 0;
-		int passedHour = 0;
-		int passedMinute = 0;
-		int hourForOut = 0;
-		int minuteForOut = 0;
-		int numClient = 1;
-		for (Client client : clients) {
-			hour = client.getTimeStart().getHour();
-			minute = client.getTimeStart().getMinute();
-			passedHour = client.getPassedTime().getHour();
-			passedMinute = client.getPassedTime().getMinute();
-			hourForOut = client.getTimeStart().plusHours(passedHour).getHour();
-			minuteForOut = client.getTimeStart().plusMinutes(passedMinute).getMinute();
-			mainPreCheck.append(numClient + ".");
-			if (client.getDescription().equals("")) {
-				mainPreCheck.append("Гость ");
-			} else if (client.getDescription().length() > 6) {
-			    mainPreCheck.append(client.getDescription() + "\n");
-            } else {
-				mainPreCheck.append(client.getDescription() + " ");
-			}
-			mainPreCheck.append((hour < 10 ? "0" + hour : hour) + ":" +
-					(minute < 10 ? "0" + minute : minute));
-			mainPreCheck.append("-" + (hourForOut < 10 ? "0" + hourForOut : hourForOut)
-					+ ":" + (minuteForOut < 10 ? "0" + minuteForOut : minuteForOut));
-			if (client.getDescription().length() > 6) {
-                mainPreCheck.append("         " + client.getPriceTime().intValue() + "\n");
-            } else {
-                mainPreCheck.append(" " + client.getPriceTime().intValue() + "\n");
-            }
-
-			if (!client.getProductOnPrice().isEmpty()) {
-				for (Map.Entry<Long, Double> productOnPrice : client.getProductOnPrice().entrySet()) {
-					mainPreCheck
-							.append(productService.findOne(productOnPrice.getKey()).getName());
-					int j = 20 - productService.findOne(productOnPrice.getKey()).getName().length();
-					for (int i = j; i > 0; i--) {
-						mainPreCheck.append(" ");
-					}
-					mainPreCheck.append(productOnPrice.getValue().intValue())
-							.append("  ")
-							.append("\n");
-				}
-			}
-			mainPreCheck.append("\n");
-			numClient++;
-		}
-		return mainPreCheck.toString();
+	@ExceptionHandler(value = CheckException.class)
+	public ResponseEntity<?> handleCheckException(CheckException ex) {
+		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ex.getMessage());
 	}
 }
 

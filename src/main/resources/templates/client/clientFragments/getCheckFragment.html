@@ -19,14 +19,16 @@
     <br/><br/>
     <div th:id="'checkModal' + ${calculate.id}" class="modal"><!--class="modal "-->
         <div class="modal-dialog " style="width: 1000px;margin-top: 50px">
-            <div class="modal-content" style="height:630px;">
-                <button style="background: rgba(170,170,170,0);border: none;float: right;margin-top: 10px;margin-right: 10px"
-                        type="button" data-dismiss="modal">
-                    <i class="fa fa-times" aria-hidden="true" style="font-size: 30px"></i>
-                </button>
-                <div id="errorMessage"></div>
-                <p th:id="'head' + ${calculate.id}" style="font-size: 30px;margin-left: 10px;margin-top: 20px">
-                    Пусто </p>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button style="background: rgba(170,170,170,0);border: none;float: right;margin-top: 10px;margin-right: 10px"
+                            type="button" data-dismiss="modal">
+                        <i class="fa fa-times" aria-hidden="true" style="font-size: 30px"></i>
+                    </button>
+                    <p th:id="'head' + ${calculate.id}" style="font-size: 30px;margin-left: 10px;margin-top: 20px; text-align: center">
+                        Пусто </p>
+                    <div th:id="'errorMessageCheckModal' + ${calculate.id}"></div>
+                </div>
                 <div class="modal-body">
                     <div style="width: 968px; height: 400px;border-radius:5px;box-shadow: 0px 0px 2px 1px; overflow: auto; margin-bottom: 2%">
 
@@ -39,6 +41,7 @@
                                 <th class="cent">Время</th>
                                 <th class="cent">₽ за время</th>
                                 <th class="cent">Заказ</th>
+                                <th class="cent">По себестоимости</th>
                                 <th class="cent">Скидка</th>
                                 <th class="cent" th:if="${cardEnable}">С карты</th>
                                 <th class="cent">Кэш</th>
@@ -82,22 +85,19 @@
                             </div>
 
                             <div class="col-md-1">
-                                <!--<button type="button" th:onclick="'closeClient(\'' + ${calculate.id} + '\')'"-->
-                                        <!--style="font-size:20px;" class="btn btn-danger" id="closeClient">Рассчитать-->
-                                <!--</button>-->
-                                <button id ="precheck" style="font-size:20px;"
-                                        class="btn btn btn-danger " th:onclick="'preCheck(\'' + ${calculate.id} + '\')'">Рассчитать
+                                <button th:id="'closeClientButton' + ${calculate.id}" style="font-size:20px;"
+                                        class="btn btn btn-danger " th:onclick="'closeClient(\'' + ${calculate.id} + '\')'">Рассчитать
                                 </button>
                             </div>
                         </div>
                         <div class="row">
-                        <div class="col-md-8" style="margin-right: 7px;">
-                        <button  data-toggle="modal"
-                                th:attr="data-target='#closeClientWithouPrecheck'+${calculate.id }"
-                                style="font-size:20px; float: right; margin-right: 160px;"
-                                class="btn btn btn-danger close-without-recepient" th:onclick="'sendToken(\'' + ${calculate.id} + '\')'">Рассчитать без чека
-                        </button>
-                        </div>
+                            <div class="col-md-8" style="margin-right: 7px;">
+                                <button  data-toggle="modal"
+                                         th:attr="data-target='#withoutCheckModal'+${calculate.id }"
+                                         style="font-size:20px; float: right; margin-right: 160px;"
+                                         class="btn btn btn-danger">Рассчитать без чека
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <!--Error modal when trying close calculate with paused client-->
@@ -112,8 +112,8 @@
             <div class="modal-content">
                 <div class="modal-header" style="padding-bottom: 0px;">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <p class="newAmountError" style="display: none;" th:id="'newAmountError' + ${calculate.id}"></p>
                     <h3 th:id="'promptText' + ${calculate.id}" style="font-size: 19px; font-weight: 600;">Введите новую сумму заказа и отправьте код подверждения.</h3>
+                    <p style="display: none;" th:id="'newAmountError' + ${calculate.id}"></p>
                 </div>
 
                 <div class="modal-body" style="height: 110px;">
@@ -230,23 +230,27 @@
         </div>
     </div>
 
-    <div th:id="'closeClientWithouPrecheck'+${calculate.id}" class="modal fade" role="dialog">
+    <div th:id="'withoutCheckModal'+${calculate.id}" class="modal fade" role="dialog">
         <div class="modal-dialog" style="top: 120px; width: 550px;">
             <div class="modal-content">
                 <div class="modal-header" style="padding-bottom: 0px;">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <p class="receiptError" style="display: none;" th:id="'Error' +${calculate.id}"></p>
-                    <h3 style="font-size: 19px; font-weight: 600;">В админ-конференцию был послан короткий код.</h3>
-                    <h3 style="font-size: 19px; font-weight: 600;">Используйте его для подтверждения операции.</h3>
+                    <h3 th:id="'headerTextWithoutCheckModal' + ${calculate.id}" style="font-size: 19px; font-weight: 600;">Отправьте код подтверждения.</h3>
+                    <p style="display: none" th:id="'withoutCheckErrorMessage' +${calculate.id}"></p>
                 </div>
 
-                <div class="modal-body" style="height: 65px;">
+                <div class="modal-body">
                     <form class="form-horizontal" role="form">
-
-                        <div class="form-group">
-                            <div class="col-md-6">
-                                <input class="form-control" th:id="'passwordClient' +${calculate.id}"
-                                       name="password" required="" placeholder="Введите полученный код" type="password"/>
+                        <div class="form-group" style="text-align: center" th:id="'bodyTextWithoutCheckModal' + ${calculate.id}">
+                            <p style="font-size: 18px">Будет отправлен код в админ-конферению
+                                для подтверждения рассчета без чека!</p>
+                        </div>
+                        <div class="form-group hidden" th:id="'tokenFormWithoutCheckModal' + ${calculate.id}">
+                            <label th:for="'passWithoutCheck' + ${calculate.id}" class="col-md-4 control-label">Код</label>
+                            <div class="col-md-5">
+                                <input class="form-control" th:onfocus="'cleanWithoutCheckModal(\'' + ${calculate.id} + '\')'"
+                                       th:id="'passWithoutCheck' + ${calculate.id}"
+                                       name="password" required="" type="password"/>
                             </div>
                         </div>
                     </form>
@@ -254,12 +258,53 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button"
-                            th:onclick="'sendToken(\'' + ${calculate.id} + '\')'"
-                            style="font-size:16px;" class="btn btn-primary">Отправить код повторно
+                            th:onclick="'sendWithoutCheckToken(\'' + ${calculate.id} + '\')'"
+                            style="font-size:20px;" class="btn btn-primary"
+                            th:id="'sendTokenButtonWithoutCheckModal' + ${calculate.id}">Отправить код
                     </button>
                     <button type="button"
-                            th:onclick="'closeClientWithouPrecheck(\'' + ${calculate.id} + '\')'"
-                            style="font-size:16px;" class="btn btn-primary">Подтвердить
+                            th:onclick="'closeClientWithoutCheck(\'' + ${calculate.id} + '\')'"
+                            style="font-size:20px;" class="btn btn-danger confirmButton hidden"
+                            th:id="'closeClientWithoutCheckButtonModal' + ${calculate.id}">Рассчитать
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:id="'confirmCostPriceMenuModal' + ${calculate.id}" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="top: 120px; width: 550px;">
+            <div class="modal-content">
+                <div class="modal-header" style="padding-bottom: 0px">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="font-size: 19px; font-weight: 600;">В админ-конференцию был послан короткий код.
+                        Используйте его для подтверждения действия.</h3>
+                    <p style="display: none;" th:id="'costPriceErrorMessage' + ${calculate.id}"></p>
+                </div>
+
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group" style="text-align: center">
+                            <b>Один или более клиентов будут рассчитаны по себестоимости.</b>
+                        </div>
+                        <div class="form-group">
+                            <label th:for="'passCostPriceMenu' + ${calculate.id}" class="col-md-4 control-label">Код</label>
+                            <div class="col-md-5">
+                                <input class="form-control" th:id="'passCostPriceMenu' + ${calculate.id}"
+                                       name="password" required="" type="password"/>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            th:onclick="'sendCostPriceMenuToken(\'' + ${calculate.id} + '\')'"
+                            style="font-size:20px;" class="btn btn-primary">Отправить код повторно
+                    </button>
+                    <button type="button"
+                            th:onclick="'closeCostPriceClient(\'' + ${calculate.id} + '\')'"
+                            style="font-size:20px;" class="btn btn-danger confirmButton">Рассчитать
                     </button>
                 </div>
             </div>

@@ -1,8 +1,6 @@
 package com.cafe.crm.services.impl.calculate;
 
-import ch.qos.logback.classic.Logger;
 import com.cafe.crm.configs.property.PriceNameProperties;
-import com.cafe.crm.controllers.card.CardProfileController;
 import com.cafe.crm.exceptions.client.ClientDataException;
 import com.cafe.crm.exceptions.debt.DebtDataException;
 import com.cafe.crm.exceptions.password.PasswordException;
@@ -13,7 +11,6 @@ import com.cafe.crm.models.menu.Ingredients;
 import com.cafe.crm.models.menu.Product;
 import com.cafe.crm.models.property.Property;
 import com.cafe.crm.models.shift.Shift;
-import com.cafe.crm.models.user.Receipt;
 import com.cafe.crm.services.interfaces.board.BoardService;
 import com.cafe.crm.services.interfaces.calculate.*;
 import com.cafe.crm.services.interfaces.card.CardService;
@@ -27,13 +24,7 @@ import com.cafe.crm.services.interfaces.shift.ShiftService;
 import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.utils.Target;
 import com.cafe.crm.utils.TimeManager;
-import org.codehaus.groovy.util.StringUtil;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +51,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	private final ProductService productService;
 	private final IngredientsService ingredientsService;
 	private final ConfirmTokenService confirmTokenService;
+	private final MenuCalculateControllerService menuCalculateControllerService;
 
 
 	@Autowired
@@ -77,7 +69,8 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 										  PriceNameProperties priceNameProperties,
 										  ProductService productService,
 										  IngredientsService ingredientsService,
-										  ConfirmTokenService confirmTokenService) {
+										  ConfirmTokenService confirmTokenService,
+										  MenuCalculateControllerService menuCalculateControllerService) {
 		this.debtService = debtService;
 		this.calculatePriceService = calculatePriceService;
 		this.emailService = emailService;
@@ -93,6 +86,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		this.productService = productService;
 		this.ingredientsService = ingredientsService;
 		this.confirmTokenService = confirmTokenService;
+		this.menuCalculateControllerService = menuCalculateControllerService;
 	}
 
 	@Override
@@ -414,23 +408,16 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		Shift lastShift = shiftService.getLast();
 		Calculate calculate = calculateService.getOne(calculateId);
-		double totalDebtAmount = 0.0D;
+		double totalCache = 0.0D;
 
 		if (clients != null && !clients.isEmpty()) {
 			for (Client client : clients) {
-				totalDebtAmount += client.getAllPrice();
+				totalCache += client.getAllPrice();
 				client.setState(false);
 			}
 
-			if (paidAmount < 0) {
-				throw new DebtDataException("Нельзя указывать отрицательную сумму!");
-			} else if (paidAmount > totalDebtAmount) {
-				throw new DebtDataException("Вы возвращаете сумму большую чем долг");
-			} else if (paidAmount != 0 && paidAmount < totalDebtAmount) {
-				totalDebtAmount = totalDebtAmount - paidAmount;
-			} else if (paidAmount == totalDebtAmount) {
-				throw new DebtDataException("Сумма долга равна уплаченной сумме!");
-			}
+			double totalDebtAmount = calculateTotalDebt(paidAmount, totalCache);
+
 			Debt debt = new Debt();
 			debt.setGivenDate(lastShift.getShiftDate());
 			debt.setDebtor(debtorName);
@@ -673,5 +660,91 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		return text;
 	}
 
+	@Override
+	public List<Client> closeCostPriceClient(double newTotalCache, long[] clientsId, long calculateId) {
 
+		double oldTotalCache = 0;
+		Calculate calculate = calculateService.getOne(calculateId);
+		List<Client> clients = clientService.findByIdIn(clientsId);
+
+		for (Client client : clients) {
+			oldTotalCache += client.getAllPrice();
+		}
+
+		double difference = oldTotalCache - newTotalCache;
+		double lossRecalculation = calculate.getLossRecalculation();
+		calculate.setLossRecalculation(difference + lossRecalculation);
+
+		calculateService.save(calculate);
+		return closeClient(clientsId, calculateId);
+	}
+
+	@Override
+	public double[] getOldAndPriceCostTotal(List<Client> clients, List<Client> costPriceClients) {
+
+		double oldTotalCache = 0;
+		double newTotalCache = 0;
+
+		for (Client client : clients) {
+			if (costPriceClients.contains(client)) {
+				long costPrice = menuCalculateControllerService.getCostPriceMenu(client.getId());
+				newTotalCache += client.getPriceTime() + costPrice;
+			} else {
+				newTotalCache += client.getAllPrice();
+			}
+			oldTotalCache += client.getAllPrice();
+		}
+
+		return new double[]{oldTotalCache, newTotalCache};
+	}
+
+	@Override
+	public void closeClientDebtWithCostPrice(String debtorName, List<Client> clients, Calculate calculate,
+											 double paidAmount, double newTotalCache) {
+
+		Shift lastShift = shiftService.getLast();
+
+		for(Client client : clients) {
+			client.setState(false);
+		}
+
+		double oldTotalCache = 0D;
+
+		for (Client client : clients) {
+			oldTotalCache += client.getAllPrice();
+		}
+
+		double totalDebtAmount = calculateTotalDebt(paidAmount, newTotalCache);
+
+		double difference = oldTotalCache - newTotalCache;
+		double lossRecalculation = calculate.getLossRecalculation();
+		calculate.setLossRecalculation(difference + lossRecalculation);
+
+		Debt debt = new Debt();
+		debt.setGivenDate(lastShift.getShiftDate());
+		debt.setDebtor(debtorName);
+		debt.setDebtAmount(totalDebtAmount);
+		debt.setGivenShift(lastShift);
+		debt.setCalculate(calculate);
+		calculate.addGivenDebtToSet(debt);
+		debtService.save(debt);
+
+		findLeastOneOpenClientAndCloseCalculation(calculate.getId());
+	}
+
+	private double calculateTotalDebt(double paidAmount, double totalAmount) {
+		double totalDebtAmount = 0D;
+
+		if (paidAmount < 0) {
+			throw new DebtDataException("Нельзя указывать отрицательную сумму!");
+		} else if (paidAmount > totalAmount) {
+			throw new DebtDataException("Вы возвращаете сумму большую чем долг");
+		} else if (paidAmount != 0 && paidAmount < totalAmount) {
+			totalDebtAmount = totalAmount - paidAmount;
+		} else if (paidAmount == totalAmount) {
+			throw new DebtDataException("Сумма долга равна уплаченной сумме!");
+		}
+
+		return totalDebtAmount;
+	}
 }

@@ -98,3 +98,6 @@ property:
 
 mail:
   default-smtp: smtp.gmail.com
+
+check:
+  url: http://localhost:8081/
