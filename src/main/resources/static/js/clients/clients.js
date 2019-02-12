@@ -692,10 +692,6 @@ function closeClientDebt(calculateId) {
                     }, 1000);
                 },
                 error: function (error) {
-                    if(error.status === 503) {
-                        alert(error.responseText);
-                        location.reload();
-                    }
                     var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
                     $('.messageAd').html(errorMessage).show();
 
@@ -722,10 +718,6 @@ function closeClientDebt(calculateId) {
                     }, 1000);
                 },
                 error: function (error) {
-                    if(error.status === 503) {
-                        alert(error.responseText);
-                        location.reload();
-                    }
                     var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
                     $('.messageAd').html(errorMessage).show();
 
@@ -895,10 +887,6 @@ function closeClientWithNewAmount(calculateId) {
         },
         
         error: function (error) {
-            if(error.status === 503) {
-                alert(error.responseText);
-                location.reload();
-            }
             var errorMessage = '<h4 style="color:red" align="center">' + error.responseText + '</h4>';
             $('#newAmountError' + calculateId).html(errorMessage).show();
         }
@@ -1200,10 +1188,6 @@ function closeClient(calculateId) {
             location.reload();
         },
         error: function (error) {
-            if(error.status === 503) {
-                alert(error.responseText);
-                location.reload();
-            }
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
             $('#errorMessageCheckModal' + calculateId).html(errorMessage).show();
         }
@@ -1239,10 +1223,6 @@ function closeCostPriceClient(calculateId) {
             location.reload();
         },
         error: function (error) {
-            if(error.status === 503) {
-                alert(error.responseText);
-                location.reload();
-            }
             var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
             $('#costPriceErrorMessage' + calculateId).html(errorMessage).show();
         }

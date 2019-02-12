@@ -12,13 +12,13 @@ import com.cafe.crm.services.interfaces.board.BoardService;
 import com.cafe.crm.services.interfaces.calculate.CalculateControllerService;
 import com.cafe.crm.services.interfaces.calculate.CalculateService;
 import com.cafe.crm.services.interfaces.calculate.MenuCalculateControllerService;
-import com.cafe.crm.services.interfaces.check.CheckService;
+import com.cafe.crm.services.interfaces.check.PrintCheckService;
 import com.cafe.crm.services.interfaces.checklist.ChecklistService;
 import com.cafe.crm.services.interfaces.client.ClientService;
-import com.cafe.crm.services.interfaces.client.SettingClientService;
 import com.cafe.crm.services.interfaces.discount.DiscountService;
 import com.cafe.crm.services.interfaces.menu.CategoriesService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
+import com.cafe.crm.services.interfaces.property.PropertyService;
 import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
@@ -26,6 +26,7 @@ import com.cafe.crm.utils.Target;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -52,8 +53,11 @@ public class CalculateController {
 	private final VkService vkService;
 	private final ConfirmTokenService confirmTokenService;
 	private final MenuCalculateControllerService menuCalculateControllerService;
-	private final SettingClientService settingClientService;
-	private final CheckService checkService;
+	private final PrintCheckService printCheckService;
+	private final PropertyService propertyService;
+
+	@Value("${property.name.check.propertyName}")
+	private String checkPropertyName;
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalculateController.class);
 
@@ -62,7 +66,8 @@ public class CalculateController {
 							   CalculateService calculateService, BoardService boardService,
 							   DiscountService discountService, CalculateControllerService calculateControllerService,
 							   ChecklistService checklistService, VkService vkService, ConfirmTokenService confirmTokenService,
-							   MenuCalculateControllerService menuCalculateControllerService, SettingClientService settingClientService, CheckService checkService) {
+							   MenuCalculateControllerService menuCalculateControllerService, PrintCheckService printCheckService,
+							   PropertyService propertyService) {
 		this.productService = productService;
 		this.clientService = clientService;
 		this.categoriesService = categoriesService;
@@ -74,8 +79,8 @@ public class CalculateController {
 		this.vkService = vkService;
 		this.confirmTokenService = confirmTokenService;
 		this.menuCalculateControllerService = menuCalculateControllerService;
-		this.settingClientService = settingClientService;
-		this.checkService = checkService;
+		this.printCheckService = printCheckService;
+		this.propertyService = propertyService;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -295,6 +300,10 @@ public class CalculateController {
 			throw new ClientDataException("Выберите клиентов для расчета!");
 		}
 
+		if (propertyService.findByName(checkPropertyName).getValue().equals("true")) {
+			printCheckService.printCheck(clientsId);
+		}
+
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients = calculateControllerService.closeClient(clientsId, calculateId);
 		double allPrice = 0;
@@ -316,19 +325,37 @@ public class CalculateController {
 		closeClientsInfo.append("Уплаченая сумма: ").append(allPrice);
 		logger.info(closeClientsInfo.toString());
 
-		//Если печать чеков включена в настройках
-		if(settingClientService.getById(1L).getEnabled()) {
-			checkService.printCheck(clients);
-		}
 
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
 
 	@RequestMapping(value = {"/close-new-sum-client"}, method = RequestMethod.POST)
-	public ResponseEntity closeNewSumClient(@RequestParam(name = "newAmount") Double modifiedAmount,
-											@RequestParam(name = "password") String password,
+	public ResponseEntity closeNewSumClient(@RequestParam(name = "newAmount", required = false) Double newAmount,
+											@RequestParam(name = "password", required = false) String password,
 											@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
-											@RequestParam("calculateId") Long calculateId) {
+											@RequestParam(name = "calculateId", required = false) Long calculateId) {
+
+		if (newAmount == null) {
+			throw new ClientDataException("Укажите новую сумму!");
+		}
+
+		if (password == null) {
+			throw new ClientDataException("Укажите пароль!");
+		}
+
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
+		}
+
+
+		if (propertyService.findByName(checkPropertyName).getValue().equals("true")) {
+			printCheckService.printCheck(clientsId);
+		}
+
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients = clientService.findByIdIn(clientsId);
 
@@ -337,11 +364,11 @@ public class CalculateController {
 			currentPrice += client.getAllPrice();
 		}
 
-		calculateControllerService.closeNewSumClient(modifiedAmount, password, clientsId, calculateId);
+		calculateControllerService.closeNewSumClient(newAmount, password, clientsId, calculateId);
 
 		StringBuilder closeClientsInfo = new StringBuilder("На счёте с описанием: \"" + calculate.getDescription() +
 				" и id: " + calculateId + "\" были рассчитаны клиенты с изменением итоговой суммы " +
-				currentPrice + " -> " + modifiedAmount + ". id и описание клиентов: \n");
+				currentPrice + " -> " + newAmount + ". id и описание клиентов: \n");
 
 		for (Client client : clients) {
 			closeClientsInfo.append(client.getId())
@@ -351,11 +378,6 @@ public class CalculateController {
 		}
 
 		logger.info(closeClientsInfo.toString());
-
-		//Если печать чеков включена в настройках
-		if(settingClientService.getById(1L).getEnabled()) {
-			checkService.printCheckWithNewAmount(clients, modifiedAmount);
-		}
 
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
@@ -403,13 +425,30 @@ public class CalculateController {
 	}
 
 	@RequestMapping(value = {"/close-client-debt"}, method = RequestMethod.POST)
-	public ResponseEntity closeClientDebt(@RequestParam(name = "clientsId[]") long[] clientsId,
-										  @RequestParam("calculateId") Long calculateId,
-										  @RequestParam("debtorName") String debtorName,
+	public ResponseEntity closeClientDebt(@RequestParam(name = "clientsId[]", required = false) long[] clientsId,
+										  @RequestParam(name = "calculateId", required = false) Long calculateId,
+										  @RequestParam(name = "debtorName", required = false) String debtorName,
 										  @RequestParam(value = "paidAmount", required = false) Double paidAmount) {
+
+
+		if (debtorName == null) {
+			throw new ClientDataException("Укажите имя должника!");
+		}
+
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите счёт!");
+		}
+
+		if (clientsId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
+		}
 
 		if (paidAmount == null) {
 			throw new ClientDataException("Укажите уплаченную сумму!");
+		}
+
+		if (propertyService.findByName(checkPropertyName).getValue().equals("true")) {
+			printCheckService.printCheck(clientsId);
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);
@@ -438,11 +477,6 @@ public class CalculateController {
 				.append(debtAmount);
 
 		logger.info(closeClientsInfo.toString());
-
-		//Если печать чеков включена в настройках
-		if(settingClientService.getById(1L).getEnabled()) {
-			checkService.printCheck(clients);
-		}
 
 		return ResponseEntity.ok("Долг добавлен!");
 	}
@@ -590,9 +624,10 @@ public class CalculateController {
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);
+		String prefix = "Одноразовый пароль для подтверждения расчета клиентов на счете \"" + calculate.getDescription() + "\" без чека\n";
 
-		String prefix = "Одноразовый пароль для подтверждения расчета клиентов \"" + calculate.getDescription() + "\" без чека\n";
 		vkService.sendConfirmToken(prefix, Target.WITHOUT_CHECK);
+
 		return ResponseEntity.ok("Пароль послан");
 	}
 
@@ -614,6 +649,7 @@ public class CalculateController {
 		if (password == null || password.equals("")) {
 			throw new PasswordException("Заполните поле пароля перед отправкой!");
 		}
+
 		if (!confirmTokenService.confirm(password, Target.WITHOUT_CHECK)) {
 			throw new PasswordException("Пароль не действителен!");
 		}
@@ -714,6 +750,10 @@ public class CalculateController {
 			throw new PasswordException("Неверный код!");
 		}
 
+		if (propertyService.findByName(checkPropertyName).getValue().equals("true")) {
+			printCheckService.printCheck(clientsId);
+		}
+
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		List<Client> costPriceClients = clientService.findByIdIn(costPriceClientsId);
@@ -734,11 +774,6 @@ public class CalculateController {
 				.append(" на ").append(newTotalCache).append("\n");
 
 		logger.info(closeClientsInfo.toString());
-
-		//Если печать чеков включена в настройках
-		if(settingClientService.getById(1L).getEnabled()) {
-			checkService.printCheckWithCostPrice(clients, costPriceClients);
-		}
 
 		return ResponseEntity.ok("Клиенты рассчитаны!");
 	}
@@ -820,6 +855,10 @@ public class CalculateController {
 			throw new ClientDataException("Выберите клиентов для расчета по себестоимости!");
 		}
 
+		if (propertyService.findByName(checkPropertyName).getValue().equals("true")) {
+			printCheckService.printCheck(clientsId);
+		}
+
 		Calculate calculate = calculateService.getOne(calculateId);
 		List<Client> clients = clientService.findByIdIn(clientsId);
 		List<Client> costPriceClients = clientService.findByIdIn(costPriceClientsId);
@@ -850,12 +889,24 @@ public class CalculateController {
 
 		logger.info(closeClientsInfo.toString());
 
-		//Если печать чеков включена в настройках
-		if(settingClientService.getById(1L).getEnabled()) {
-			checkService.printCheckWithCostPrice(clients, costPriceClients);
+		return ResponseEntity.ok("Долг добавлен!");
+	}
+
+	@RequestMapping(value = "/repeat-print-check", method = RequestMethod.POST)
+	public ResponseEntity repeatPrintCheck(@RequestParam(name = "calculateId") Long calculateId) {
+		if (calculateId == null) {
+			throw new ClientDataException("Выберите клиентов для расчета!");
 		}
 
-		return ResponseEntity.ok("Долг добавлен!");
+		if (propertyService.findByName(checkPropertyName).getValue().equals("false")) {
+			throw new CheckException("Печать чеков отключена в настройках!");
+		}
+
+		printCheckService.repeatPrintCheck(calculateId);
+
+		logger.info("Был повторно напечатан чек на счете с id: " + calculateId);
+
+		return ResponseEntity.ok("Чек напечатан!");
 	}
 
 	private String costPriceClientsLogInfo(List<Client> clients, List<Client> costPriceClients) {
@@ -884,7 +935,7 @@ public class CalculateController {
 
 	@ExceptionHandler(value = CheckException.class)
 	public ResponseEntity<?> handleCheckException(CheckException ex) {
-		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ex.getMessage());
+		return ResponseEntity.badRequest().body(ex.getMessage());
 	}
 }
 

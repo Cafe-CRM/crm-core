@@ -95,9 +95,11 @@ property:
       nextHours: Цена за последующие часы
       refBonus: Реферальный бонус
     vk: vk
+    check:
+      url: http://localhost:8081/
+      propertyName: check
+
 
 mail:
   default-smtp: smtp.gmail.com
 
-check:
-  url: http://localhost:8081/

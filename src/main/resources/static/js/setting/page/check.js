@@ -1,15 +1,9 @@
 $(document).ready(function () {
 
-    $('.checkboxSettingEnable').on('click', function () {
-        var url = '/boss/settings/close-client/changeStatus';
-        var id = $(this).data('id');
-        var enable = $(this).val();
-        localStorage.setItem( 'objectToPass', $(this).val());
-        var data = {id : id, enable : enable};
+    $('#checkCheckbox').on('click', function () {
         $.ajax({
-            type: 'post',
-            url: url,
-            data: data,
+            type: 'GET',
+            url: '/boss/settings/check-setting/changeStatus',
             success: function () {
                 location.reload();
             },

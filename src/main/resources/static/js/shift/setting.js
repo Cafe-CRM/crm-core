@@ -459,29 +459,19 @@ function recalculate(calculateId) {
     });
 }
 
-function preCheck(calculateId) {
+function repeatPrintCheck(calculateId) {
 
     $.ajax({
         type: "POST",
-        url: "/manager/precheck",
+        url: "/manager/repeat-print-check",
         data: { calculateId : calculateId
         },
 
         success: function (data) {
-            //location.reload();
-            $.ajax({
-                type: 'POST',
-                url: 'http://localhost:8081/',
-                data: {
-                    preCheckForTime : data[0],
-                    totalAmount : data[1],
-                    preCheckForFood : data[2]
-                },
-            });
+            location.reload();
         },
         error: function (error) {
-            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
-            $('.newAmountError').html(errorMessage).show();
+            alert(error.responseText);
         }
     });
 

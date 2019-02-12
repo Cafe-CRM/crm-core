@@ -1,11 +1,12 @@
 package com.cafe.crm.services.impl.check;
 
 import com.cafe.crm.exceptions.check.CheckException;
+import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 import com.cafe.crm.models.client.LayerProduct;
-import com.cafe.crm.models.menu.Product;
-import com.cafe.crm.services.interfaces.check.CheckService;
-import com.cafe.crm.services.interfaces.menu.ProductService;
+import com.cafe.crm.services.interfaces.calculate.CalculateService;
+import com.cafe.crm.services.interfaces.check.PrintCheckService;
+import com.cafe.crm.services.interfaces.client.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,53 +15,54 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
-public class CheckServiceImpl implements CheckService {
+public class PrintCheckServiceImpl implements PrintCheckService {
 
-    private final ProductService productService;
     private final RestTemplate restTemplate;
+    private final ClientService clientService;
+    private final CalculateService calculateService;
 
-    @Value("${check.url}")
+    @Value("${property.name.check.url}")
     private String url;
 
     @Autowired
-    public CheckServiceImpl(ProductService productService, RestTemplateBuilder restTemplateBuilder) {
-        this.productService = productService;
+    public PrintCheckServiceImpl(RestTemplateBuilder restTemplateBuilder, ClientService clientService,
+                                 CalculateService calculateService) {
         restTemplate = restTemplateBuilder.build();
+        this.clientService = clientService;
+        this.calculateService = calculateService;
     }
 
     @Override
-    public void printCheck(List<Client> clients) {
-        Map<String, String> check = createCheck(clients, Collections.EMPTY_LIST);
+    public void printCheck(long[] clientsId) {
+        List<Client> clients = clientService.findByIdIn(clientsId);
+        Map<String, String> check = createCheck(clients);
         printCheck(check);
     }
 
     @Override
-    public void printCheckWithCostPrice(List<Client> clients, List<Client> costPriceClients) {
-        Map<String, String> check = createCheck(clients, costPriceClients);
+    public void repeatPrintCheck(Long calculateId) {
+        Calculate calculate = calculateService.getOne(calculateId);
+        List<Client> clients = calculate.getClient();
+        List<Client> closedClients = new LinkedList<>();
+
+        for (Client client : clients) {
+            if (!client.isState()) {
+                closedClients.add(client);
+            }
+        }
+        if (closedClients.isEmpty()) {
+            throw new CheckException("Нет рассчитаных клиентов на этом счете!");
+        }
+
+        Map<String, String> check = createCheck(closedClients);
         printCheck(check);
+
     }
 
-    @Override
-    public void printCheckWithNewAmount(List<Client> clients, Double modifiedAmount) {
-        Map<String, String> check = createCheck(clients, Collections.EMPTY_LIST);
-
-        StringBuilder totalAmount = new StringBuilder();
-        totalAmount.append(check.get("totalAmount"));
-        totalAmount.append(" -> ");
-        totalAmount.append(modifiedAmount);
-
-        check.put("totalAmount", totalAmount.toString());
-
-        printCheck(check);
-    }
-
-    private Map<String, String> createCheck(List<Client> clients, List<Client> costPriceClients) {
+    private Map<String, String> createCheck(List<Client> clients) {
         StringBuilder bodyCheck = new StringBuilder();
         Long totalAmount = 0L;
         Map<String, String> check = new LinkedHashMap<>();
@@ -110,34 +112,14 @@ public class CheckServiceImpl implements CheckService {
                         bodyCheck.append(" ");
                     }
 
-                    if(costPriceClients.contains(client)) {
-                        Product product = productService.findOne(layerProduct.getProductId());
+                    Double costProduct = layerProduct.getCost();
+                    Long costForClient = Math.round(costProduct / clientCount);
 
-                        Long selfCostForClient;
+                    totalAmount += costForClient;
 
-                        if (product.getCost().equals(0D)) {
-                            selfCostForClient = Math.round(layerProduct.getCost() / clientCount);
-                        } else {
-                            selfCostForClient = Math.round(product.getSelfCost() / clientCount);
-                        }
-
-                        totalAmount += selfCostForClient;
-
-                        bodyCheck.append(selfCostForClient)
-                                .append("  ")
-                                .append("\n");
-                    } else {
-
-                        Double costProduct = layerProduct.getCost();
-                        Long costForClient = Math.round(costProduct / clientCount);
-
-                        totalAmount += costForClient;
-
-                        bodyCheck.append(costForClient)
-                                .append("  ")
-                                .append("\n");
-                    }
-
+                    bodyCheck.append(costForClient)
+                            .append("  ")
+                            .append("\n");
                 }
             }
             bodyCheck.append("\n");
