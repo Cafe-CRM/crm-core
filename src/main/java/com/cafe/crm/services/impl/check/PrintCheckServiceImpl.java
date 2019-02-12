@@ -11,7 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,8 +42,8 @@ public class PrintCheckServiceImpl implements PrintCheckService {
     @Override
     public void printCheck(long[] clientsId) {
         List<Client> clients = clientService.findByIdIn(clientsId);
-        Map<String, String> check = createCheck(clients);
-        printCheck(check);
+        MultiValueMap<String, String> check = createCheck(clients);
+        sendCheck(check);
     }
 
     @Override
@@ -57,15 +61,15 @@ public class PrintCheckServiceImpl implements PrintCheckService {
             throw new CheckException("Нет рассчитаных клиентов на этом счете!");
         }
 
-        Map<String, String> check = createCheck(closedClients);
-        printCheck(check);
+        MultiValueMap<String, String> check = createCheck(closedClients);
+        sendCheck(check);
 
     }
 
-    private Map<String, String> createCheck(List<Client> clients) {
+    private MultiValueMap<String, String> createCheck(List<Client> clients) {
         StringBuilder bodyCheck = new StringBuilder();
         Long totalAmount = 0L;
-        Map<String, String> check = new LinkedHashMap<>();
+        MultiValueMap<String, String> check = new LinkedMultiValueMap<>();
 
         int hour = 0;
         int minute = 0;
@@ -126,14 +130,17 @@ public class PrintCheckServiceImpl implements PrintCheckService {
             numClient++;
         }
 
-        check.put("bodyCheck", bodyCheck.toString());
-        check.put("totalAmount", totalAmount.toString());
+        check.add("bodyCheck", bodyCheck.toString());
+        check.add("totalAmount", totalAmount.toString());
 
         return check;
     }
 
-    private void printCheck(Map<String, String> check) {
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(check);
+    private void sendCheck(MultiValueMap<String, String> check) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(check, headers);
 
         System.out.println(check.get("bodyCheck"));
         System.out.println(check.get("totalAmount"));
