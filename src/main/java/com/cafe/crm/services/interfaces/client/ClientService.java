@@ -4,6 +4,7 @@ package com.cafe.crm.services.interfaces.client;
 import com.cafe.crm.models.card.Card;
 import com.cafe.crm.models.client.Client;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,8 @@ public interface ClientService {
 	Set<Card> findCardByClientIdIn(long[] clientsIds);
 
 	Client getLast();
+
+	List<Client> findByDates(LocalDate start, LocalDate end);
 
 	boolean updateClientTime(Long id, int hours, int minutes);
 

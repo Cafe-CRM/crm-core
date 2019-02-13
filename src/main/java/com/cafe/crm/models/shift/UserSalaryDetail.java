@@ -5,7 +5,6 @@ import com.cafe.crm.models.user.User;
 import javax.persistence.*;
 import java.io.Serializable;
 
-
 @Entity
 public class UserSalaryDetail extends BaseEntity {
 	@Id

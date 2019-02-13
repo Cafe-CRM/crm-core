@@ -1,6 +1,8 @@
 package com.cafe.crm.models.shift;
 
 
+import com.cafe.crm.dto.MenuSale;
+import com.cafe.crm.dto.SaleProductOnDay;
 import com.cafe.crm.models.BaseEntity;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
@@ -14,6 +16,38 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.*;
 
+@SqlResultSetMappings({
+		@SqlResultSetMapping(
+		name = "MenuSaleMapping",
+		classes = {
+				@ConstructorResult(
+						targetClass = MenuSale.class,
+						columns = {
+								@ColumnResult(name = "productId", type = Long.class),
+								@ColumnResult(name = "productName", type = String.class),
+								@ColumnResult(name = "price", type = Double.class),
+								@ColumnResult(name = "count", type = Long.class),
+								@ColumnResult(name = "sumSale", type = Double.class),
+								@ColumnResult(name = "costSale", type = Double.class),
+								@ColumnResult(name = "sumPercentStuff", type = Double.class),
+								@ColumnResult(name = "sumProfit", type = Double.class)
+						}
+				)
+		}),
+		@SqlResultSetMapping(
+		name = "SaleProductOnDayMapping",
+		classes = {
+				@ConstructorResult(
+						targetClass = SaleProductOnDay.class,
+						columns = {
+								@ColumnResult(name = "productId", type = Long.class),
+								@ColumnResult(name = "productName", type = String.class),
+								@ColumnResult(name = "date", type = LocalDate.class),
+								@ColumnResult(name = "count", type = Long.class),
+						}
+				)
+		})
+})
 
 @Entity
 @Table(name = "shifts")
