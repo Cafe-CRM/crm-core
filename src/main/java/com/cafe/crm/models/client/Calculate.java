@@ -6,8 +6,6 @@ import com.cafe.crm.models.board.Board;
 import com.cafe.crm.models.card.Card;
 import com.yc.easytransformer.annotations.NotTransform;
 import com.yc.easytransformer.annotations.Transform;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

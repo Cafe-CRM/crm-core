@@ -20,11 +20,8 @@
                     <h4>Печатать чеков при расчете клиентов</h4>
                 </div>
                 <div class="panel-body">
-                    <th:block  th:each="clientSetting : ${clientSetting}">
-                        <input id = "SettingEnable" type="checkbox" data-toggle="toggle" data-on="Вкл" data-off="Выкл"
-                               th:attrappend="checked=${clientSetting.enabled} ? checked " th:value="${clientSetting.enabled}"
-                               name="enable" th:attr="data-id=${clientSetting.id}" class="checkboxSettingEnable" style="margin-left:140px; width:19px; height: 19px;"/>
-                    </th:block>
+                        <input id = "checkCheckbox" type="checkbox" th:attrappend="checked=${checkSetting.value.equals('true')} ? checked "
+                               style="margin-left:140px; width:19px; height: 19px;"/>
                 </div>
             </div>
         </div>
@@ -36,7 +33,7 @@
 
 <script  th:src="@{/js/clients/clients.js}"></script>
 <script type="text/javascript" th:src="@{/js/setting/page/nav-setting.js}"></script>
-<script type="text/javascript" th:src="@{/js/setting/page/setting-client.js}"></script>
+<script type="text/javascript" th:src="@{/js/setting/page/check.js}"></script>
 
 </body>
 </html>

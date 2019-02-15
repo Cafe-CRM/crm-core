@@ -15,6 +15,7 @@
 
     <div class="container" style=" box-shadow: 0 3px 6px 0; border-radius: 10px;
      background: #ffffff; width:950px; ">
+
         <div th:replace="client/clientFragments/addCalculateFragment :: calculateModal"></div>
 
 
@@ -226,7 +227,7 @@
                                 <div class="modal-content">
                                     <div class="modal-header" style="padding-bottom: 0px;">
                                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                        <p class="deleteClientError" style="display: none;"></p>
+                                        <p th:id="'deleteClientError' + ${calculate.id}" style="display: none;"></p>
                                         <h3 style="font-size: 19px; font-weight: 600;">В админ-конференцию был послан короткий код.</h3>
                                         <h3 style="font-size: 19px; font-weight: 600;">Используйте его для подтверждения операции.</h3>
                                     </div>

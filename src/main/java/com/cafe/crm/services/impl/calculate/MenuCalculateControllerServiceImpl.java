@@ -11,8 +11,6 @@ import com.cafe.crm.services.interfaces.client.ClientService;
 import com.cafe.crm.services.interfaces.layerproduct.LayerProductService;
 import com.cafe.crm.services.interfaces.menu.IngredientsService;
 import com.cafe.crm.services.interfaces.menu.ProductService;
-import com.cafe.crm.services.interfaces.shift.ShiftService;
-import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -216,5 +214,25 @@ public class MenuCalculateControllerServiceImpl implements MenuCalculateControll
 			client.setProductOnPrice(prodOnPrice);
 		}
 		clientService.saveAll(clients);
+	}
+
+	@Override
+	public long getCostPriceMenu(long clientId) {
+		long costPriceMenu = 0;
+
+		List<LayerProduct> layerProducts = clientService.getOne(clientId).getLayerProducts();
+
+		for (LayerProduct layerProduct : layerProducts) {
+			Product product = productService.findOne(layerProduct.getProductId());
+			int clientCount = layerProduct.getClients().size();
+
+			if (product.getCost().equals(0D)) {
+				costPriceMenu += Math.round(layerProduct.getCost() / clientCount);
+			} else {
+				costPriceMenu += Math.round(product.getSelfCost() / clientCount);
+			}
+		}
+
+		return costPriceMenu;
 	}
 }

@@ -45,4 +45,10 @@ public interface CalculateControllerService {
 
 	String getClientsAndDesc();
 
+	List<Client> closeCostPriceClient(double newTotalCache, long[] clientsId, long calculateId);
+
+	double[] getOldAndPriceCostTotal(List<Client> clients, List<Client> costPriceClients);
+
+	void closeClientDebtWithCostPrice(String debtorName, List<Client> clients, Calculate calculate,
+									  double paidAmount, double newTotalCache);
 }

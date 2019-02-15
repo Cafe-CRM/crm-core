@@ -169,6 +169,12 @@ public class MenuCalculateController {
 		return ResponseEntity.ok("Описание стола изменено");
 	}
 
+	@RequestMapping(value = {"/get-cost-price-menu"})
+	@ResponseBody
+	public long getCostPriceMenu(@RequestParam("clientId") long clientId) {
+		return menuCalculateService.getCostPriceMenu(clientId);
+	}
+
 	@ExceptionHandler(value = ClientDataException.class)
 	public ResponseEntity<?> handleTransferException(ClientDataException ex) {
 		return ResponseEntity.badRequest().body(ex.getMessage());

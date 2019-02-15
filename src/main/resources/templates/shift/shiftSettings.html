@@ -204,7 +204,7 @@
                                                 th:attr="data-target='#changePriceAmount' + ${calculate.id}" type="button">
                                             Изменить сумму
                                         </button>
-                                        <button th:onclick="'preCheck(\'' + ${calculate.id} + '\')'" class="btn btn-success">
+                                        <button th:onclick="'repeatPrintCheck(\'' + ${calculate.id} + '\')'" class="btn btn-success">
                                             Повторная печать чека
                                         </button>
                                     </td>
