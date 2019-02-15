@@ -52,7 +52,6 @@ public class CalculateController {
 	private final ChecklistService checklistService;
 	private final VkService vkService;
 	private final ConfirmTokenService confirmTokenService;
-	private final MenuCalculateControllerService menuCalculateControllerService;
 	private final PrintCheckService printCheckService;
 	private final PropertyService propertyService;
 
@@ -66,8 +65,7 @@ public class CalculateController {
 							   CalculateService calculateService, BoardService boardService,
 							   DiscountService discountService, CalculateControllerService calculateControllerService,
 							   ChecklistService checklistService, VkService vkService, ConfirmTokenService confirmTokenService,
-							   MenuCalculateControllerService menuCalculateControllerService, PrintCheckService printCheckService,
-							   PropertyService propertyService) {
+							   PrintCheckService printCheckService, PropertyService propertyService) {
 		this.productService = productService;
 		this.clientService = clientService;
 		this.categoriesService = categoriesService;
@@ -78,7 +76,6 @@ public class CalculateController {
 		this.checklistService = checklistService;
 		this.vkService = vkService;
 		this.confirmTokenService = confirmTokenService;
-		this.menuCalculateControllerService = menuCalculateControllerService;
 		this.printCheckService = printCheckService;
 		this.propertyService = propertyService;
 	}
@@ -751,7 +748,7 @@ public class CalculateController {
 		}
 
 		if (propertyService.findByName(checkPropertyName).getValue().equals("true")) {
-			printCheckService.printCheck(clientsId);
+			printCheckService.printCheckWithCostPrice(clientsId, costPriceClientsId);
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);
@@ -856,7 +853,7 @@ public class CalculateController {
 		}
 
 		if (propertyService.findByName(checkPropertyName).getValue().equals("true")) {
-			printCheckService.printCheck(clientsId);
+			printCheckService.printCheckWithCostPrice(clientsId, costPriceClientsId);
 		}
 
 		Calculate calculate = calculateService.getOne(calculateId);
