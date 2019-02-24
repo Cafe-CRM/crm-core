@@ -40,6 +40,14 @@
             <li><a href="/boss/cost/category">Категории расходов</a></li>
             <li><a href="/boss/settings/price-setting">Настройки</a></li>
             <li><a href="/boss/add-missing-shift">Добавить смену</a></li>
+            <li class="dropdown">
+                <a class="dropdown-toggle disabled" data-toggle="dropdown" href="#">Аналитика<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/reports/attendance/clientsondays">Посещаемость по дням</a></li>
+                    <li><a href="/reports/attendance/clientsonhours">Посещаемость по часам</a></li>
+                    <li><a href="/reports/menusales">Продажи меню</a></li>
+                </ul>
+            </li>
             <li th:if="${cardEnable}"><a href="/boss/card/generationPage">Генерация карт</a></li>
             <li th:if="${cardEnable}"><a data-toggle="modal" th:href="'#advertising'">Реклама</a></li>
         </ul>

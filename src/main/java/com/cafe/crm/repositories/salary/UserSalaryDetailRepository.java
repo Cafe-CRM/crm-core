@@ -42,5 +42,4 @@ public interface UserSalaryDetailRepository extends JpaRepository<UserSalaryDeta
 
     @Query("SELECT u FROM UserSalaryDetail u WHERE u.id = (SELECT max(id) FROM UserSalaryDetail usd WHERE usd.user.id = :userId AND usd.shift.id < :shiftId)")
 	UserSalaryDetail getLastShiftDetail(@Param("shiftId") Long shiftId, @Param("userId") Long userId);
-
 }
