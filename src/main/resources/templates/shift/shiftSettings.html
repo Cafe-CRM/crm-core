@@ -207,7 +207,25 @@
                                         <button th:onclick="'preCheck(\'' + ${calculate.id} + '\')'" class="btn btn-success">
                                             Повторная печать чека
                                         </button>
+                                        <button data-toggle="modal" th:onclick="'getComment(\'' + ${calculate.id} + '\')'" th:href="'#commentModalHistory' + ${calculate.id}" class="btn btn-primary">
+                                            Комментарий
+                                        </button>
                                     </td>
+
+                                    <div th:id="'commentModalHistory' + ${calculate.id}" class="modal fade">
+                                        <div class="modal-dialog ">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button class="close" type="button" data-dismiss="modal">×</button>
+                                                    <h4 style="color: black" class="modal-title">Комментарий</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <textarea th:class="'commentHistory' + ${calculate.id}"  th:id="'commentHistory' + ${calculate.id}" rows="10" cols="45" style="margin: 0px; width: 569px; height: 245px;"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div th:if="${calculate.state}" th:id="'promptCloseCalc' + ${calculate.id}" class="modal fade" role="dialog">
                                         <div class="modal-dialog" style="top: 170px; width: 304px;">
                                             <div class="modal-content">
