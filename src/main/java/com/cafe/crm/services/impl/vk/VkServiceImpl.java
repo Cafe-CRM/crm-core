@@ -77,7 +77,7 @@ import java.util.stream.Collectors;
 @Service
 public class VkServiceImpl implements VkService {
 
-	private static final String DAILY_REPORT_URL = "https://api.vk.com/method/messages.send?chat_id={chat_id}&message={message}&access_token={access_token}&v={v}";
+	private static final String DAILY_REPORT_URL = "https://api.vk.com/method/messages.send?random_id={random_id}&chat_id={chat_id}&message={message}&access_token={access_token}&v={v}";
 	private static final String EMAIL_RECIPIENT_ROLE_IN_CASE_ERROR = "BOSS";
 	private static final int ERROR_CODE_INVALID_TOKEN = 5;
 
@@ -117,6 +117,7 @@ public class VkServiceImpl implements VkService {
 		VkProperties vkProperties = getVkPropertiesFromDB();
 		String message = getReportMessage(shift);
 		Map<String, String> variables = new HashMap<>();
+        variables.put("random_id", String.valueOf(new Random().nextInt(32)));
 		variables.put("chat_id", vkProperties.getServiceChatId());
 		variables.put("message", message);
 		variables.put("access_token", vkProperties.getAccessToken());
@@ -153,6 +154,7 @@ public class VkServiceImpl implements VkService {
 		String message = prefix + tokenService.createAndGetToken(target);
 		System.out.println(message);
 		Map<String, String> variables = new HashMap<>();
+		variables.put("random_id", String.valueOf(new Random().nextInt(32)));
 		variables.put("chat_id", vkProperties.getAdminChatId());
 		variables.put("message", message);
 		variables.put("access_token", vkProperties.getAccessToken());

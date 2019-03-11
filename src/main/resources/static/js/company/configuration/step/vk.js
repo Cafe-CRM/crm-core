@@ -183,7 +183,7 @@ function sendInstructionData() {
 
 function generateVKTokenLink(appID) {
     var VKTokenLink = 'https://oauth.vk.com/authorize?client_id=' + appID +
-        '&amp;display=page&amp;redirect_uri=https://oauth.vk.com/blank.html&amp;scope=offline,messages&amp;' +
+        '&amp;display=page&amp;redirect_uri=https://oauth.vk.com/blank.html&amp;scope=offline&amp;' +
         'response_type=token&amp;v=5.68&amp;state=123456';
     document.getElementById("VKTokenLink").innerHTML = '<a href="' +
         VKTokenLink + '" target="_blank">Переходите по ссылке</a>';
