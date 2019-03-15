@@ -32,6 +32,9 @@ public class Calculate extends BaseEntity {
 
 	private boolean isPause = false;  // now is paused ?
 
+	@Column(name = "comment")
+	private String comment;
+
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private List<Client> client;
 
@@ -138,6 +141,14 @@ public class Calculate extends BaseEntity {
 		this.debts = debts;
 	}
 
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -155,4 +166,5 @@ public class Calculate extends BaseEntity {
 		result = 31 * result + (description != null ? description.hashCode() : 0);
 		return result;
 	}
+
 }

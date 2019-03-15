@@ -520,6 +520,21 @@ public class CalculateController {
 		return ResponseEntity.ok("Пароль послан");
 	}
 
+	@RequestMapping(value = {"/save-comment"}, method = RequestMethod.POST)
+	public ResponseEntity saveComment(@RequestParam("calculateId") Long calculateId,
+					  @RequestParam("comment") String comment) {
+		Calculate calculate = calculateService.getOne(calculateId);
+		calculate.setComment(comment);
+		calculateService.save(calculate);
+		return ResponseEntity.ok("Коммент сохранен");
+	}
+
+	@RequestMapping(value = {"/get-comment"}, method = RequestMethod.POST)
+	public ResponseEntity getComment(@RequestParam("calculateId") Long calculateId) {
+		Calculate calculate = calculateService.getOne(calculateId);
+		return ResponseEntity.ok(calculate.getComment());
+	}
+
 	@RequestMapping(value = {"/send-calculate-delete-pass"}, method = RequestMethod.POST)
 	public ResponseEntity sendCalculateDeletePassword(@RequestParam(name = "calcId") Long calcId) {
 		Calculate calculate = calculateService.getOne(calcId);

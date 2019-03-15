@@ -1266,3 +1266,22 @@ function sendToken(calculateId) {
         }
     });
 }
+
+function saveComment(calculateId) {
+    var comment = document.getElementsByClassName('comment' + calculateId)[0].value
+   // var comment = $('#comment' + calculateId).val();
+    $.ajax({
+        type: "POST",
+        url: "/manager/save-comment",
+        data: {calculateId : calculateId,
+               comment : comment},
+        success : function() {
+            location.reload();
+        },
+
+        error: function (error) {
+            var errorMessage = '<h4 style="color:red;" align="center">' + error.responseText + '</h4>';
+            $('.Error').html(errorMessage).show();
+        }
+    });
+}
