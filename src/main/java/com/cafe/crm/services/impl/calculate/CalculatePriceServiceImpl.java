@@ -19,7 +19,6 @@ import java.time.LocalTime;
 @Transactional
 public class CalculatePriceServiceImpl implements CalculatePriceService {
 
-	private final TimeManager timeManager;
 	private final PropertyService propertyService;
 	private final TimerOfPauseService timerOfPauseService;
 	private final PriceNameProperties priceNameProperties;
@@ -27,20 +26,18 @@ public class CalculatePriceServiceImpl implements CalculatePriceService {
 	@Autowired
 	public CalculatePriceServiceImpl(TimerOfPauseService timerOfPauseService,
 									 PropertyService propertyService,
-									 TimeManager timeManager,
 									 PriceNameProperties priceNameProperties) {
 		this.timerOfPauseService = timerOfPauseService;
 		this.propertyService = propertyService;
-		this.timeManager = timeManager;
 		this.priceNameProperties = priceNameProperties;
 	}
 
 	@Override
-	public void calculatePriceTimeIfWasPause(Client client) {
+	public void calculatePriceTimeIfWasPause(Client client, LocalTime timeNow) {
 		TimerOfPause timer = timerOfPauseService.findTimerOfPauseByIdOfClient(client.getId());
 		Long timeOfPause = timer.getWholeTimePause();
 		LocalTime timeStart = client.getTimeStart().toLocalTime().withSecond(0).withNano(0);
-		LocalTime timeNow = timeManager.getTime().withSecond(0).withNano(0);
+		//LocalTime timeNow = timeManager.getTime().withSecond(0).withNano(0);
 		LocalTime timePassed = timeNow.minusHours(timeStart.getHour()).minusMinutes(timeStart.getMinute() + timeOfPause);
 		client.setPassedTime(timePassed);
 		double priceTime;
@@ -59,9 +56,9 @@ public class CalculatePriceServiceImpl implements CalculatePriceService {
 	}
 
 	@Override
-	public void calculatePriceTime(Client client) {
+	public void calculatePriceTime(Client client, LocalTime timeNow) {
 		LocalTime timeStart = client.getTimeStart().toLocalTime().withSecond(0).withNano(0);
-		LocalTime timeNow = timeManager.getTime().withSecond(0).withNano(0);
+		//LocalTime timeNow = timeManager.getTime().withSecond(0).withNano(0);
 		LocalTime timePassed = timeNow.minusHours(timeStart.getHour()).minusMinutes(timeStart.getMinute());
 		client.setPassedTime(timePassed);
 		double priceTime;

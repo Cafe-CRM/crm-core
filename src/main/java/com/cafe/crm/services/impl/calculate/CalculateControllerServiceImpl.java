@@ -37,6 +37,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,9 +103,10 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		Board board = boardService.getOne(id);
 		Calculate calculate = new Calculate();
 		List<Client> list = new ArrayList<>();
+		LocalDateTime timeNow = timeManager.getDateTime();
 		for (int i = 0; i < number; i++) {
 			Client client = new Client();
-			client.setTimeStart(timeManager.getDateTime());
+			client.setTimeStart(timeNow);
 			list.add(client);
 		}
 		clientService.saveAll(list);
@@ -119,13 +123,14 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 		Card card = cardService.getOne(idCard);
 		List<Card> cards = new ArrayList<>();
 		cards.add(card);
-
+		LocalDateTime timeNow = timeManager.getDateTime();
 		Board board = boardService.getOne(id);
 		Calculate calculate = new Calculate();
 		List<Client> list = new ArrayList<>();
+
 		for (int i = 0; i < number; i++) {
 			Client client = new Client();
-			client.setTimeStart(timeManager.getDateTime());
+			client.setTimeStart(timeNow);
 			list.add(client);
 		}
 		clientService.saveAll(list);
@@ -150,9 +155,10 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	public void addClient(Long id, Long number, String description) {
 		Calculate calculate = calculateService.getOne(id);
 		List<Client> list = new ArrayList<>();
+		LocalDateTime timeNow = timeManager.getDateTime();
 		for (int i = 0; i < number; i++) {
 			Client client = new Client();
-			client.setTimeStart(timeManager.getDateTime());
+			client.setTimeStart(timeNow);
 			client.setDescription(description);
 			list.add(client);
 		}
@@ -165,15 +171,15 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	}
 
 	@Override
-	public List<Client> calculatePrice() {
+	public List<Client> calculatePrice(LocalTime timeNow) {
 		List<Calculate> calculates = calculateService.getAllOpen();
 		List<Client> clients = new ArrayList<>();
 		for (Calculate calculate : calculates) {
 			for (Client client : calculate.getClient()) {
 				if (client.isPausedIndex()) {
-					calculatePriceService.calculatePriceTimeIfWasPause(client);
+					calculatePriceService.calculatePriceTimeIfWasPause(client, timeNow);
 				} else {
-					calculatePriceService.calculatePriceTime(client);
+					calculatePriceService.calculatePriceTime(client, timeNow);
 				}
 				calculatePriceService.addDiscountOnPriceTime(client);
 				calculatePriceService.getAllPrice(client);
@@ -185,14 +191,14 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	}
 
 	@Override
-	public List<Client> calculatePrice(Long calculateId) {
+	public List<Client> calculatePrice(Long calculateId, LocalTime timeNow) {
 		Calculate calculate = calculateService.getAllOpenOnCalculate(calculateId);
 		List<Client> clients = calculate.getClient();
 		for (Client client : clients) {
 			if (client.isPausedIndex()) {
-				calculatePriceService.calculatePriceTimeIfWasPause(client);
+				calculatePriceService.calculatePriceTimeIfWasPause(client, timeNow);
 			} else {
-				calculatePriceService.calculatePriceTime(client);
+				calculatePriceService.calculatePriceTime(client, timeNow);
 
 			}
 			calculatePriceService.addDiscountOnPriceTime(client);
@@ -237,6 +243,9 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 	@Override
 	public List<Client> closeClientList(List<Client> listClient, Long calculateId) {
 		List<Card> listCard = new ArrayList<>();
+
+		LocalDate dateNow = timeManager.getDate();
+
 		for (Client client : listClient) {
 			if (client.isPause()) {
 				throw new ClientDataException("На форме расчёта присутствуют клиетны на паузе!");
@@ -249,7 +258,7 @@ public class CalculateControllerServiceImpl implements CalculateControllerServic
 
 			setBalanceAndSaveInvitedCard(clientCard);
 
-			clientCard.setVisitDate(timeManager.getDate());
+			clientCard.setVisitDate(dateNow);
 			cardService.save(clientCard);
 
 			clientCard.setBalance(clientCard.getBalance() - client.getPayWithCard());

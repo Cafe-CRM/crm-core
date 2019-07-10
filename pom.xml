@@ -15,6 +15,16 @@
     </parent>
 
     <dependencies>
+
+
+        <!-- https://mvnrepository.com/artifact/com.integralblue/log4jdbc-spring-boot-starter -->
+        <dependency>
+            <groupId>com.integralblue</groupId>
+            <artifactId>log4jdbc-spring-boot-starter</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
+
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time-hibernate</artifactId>
@@ -24,7 +34,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
-            <version>1.11.126</version>
+            <version>1.11.534</version>
         </dependency>
         <!-- for take time from external server -->
         <dependency>

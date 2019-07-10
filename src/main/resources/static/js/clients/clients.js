@@ -188,6 +188,32 @@ function ajax() {
     });
 }
 
+function ajaxTest() {
+    $.ajax({
+        type: "POST",
+        url: "/manager/calculate-price-test",
+        success: function (data) {
+            console.log('succes test')
+        },
+        error: function () {
+            console.log('ajax сломался? ');
+        }
+    });
+}
+
+function ajaxTestEmpty() {
+    $.ajax({
+        type: "POST",
+        url: "/manager/calculate-price-test-empty",
+        success: function (data) {
+            console.log('succes test empty');
+        },
+        error: function () {
+            console.log('ajax сломался? ');
+        }
+    });
+}
+
 function check(id) {
     if ($('#checked' + id).is(':checked')) {
         $(".class" + id).prop("checked", true);

@@ -29,7 +29,8 @@ logging:
   config: classpath:logback.xml
 
 time:
- server: ntp.xs4all.nl,ntp04.oal.ul.pt,ntp02.oal.ul.pt,time-a.nist.gov
+  server: ntp1.stratum2.ru,ntp2.stratum2.ru
+ #server: ntp.xs4all.nl,ntp04.oal.ul.pt,ntp02.oal.ul.pt,time-a.nist.gov
 
 defaultUser:
   roles: BOSS,MANAGER

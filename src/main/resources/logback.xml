@@ -187,4 +187,30 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
+
+    <!--SQL LOGGERS-->
+    <logger name="jdbc.sqlonly" level="ALL" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="jdbc.audit" level="off" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="jdbc.sqltiming" level="off" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="jdbc.resultset" level="off" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="jdbc.resultsettable" level="off" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="jdbc.connection" level="off" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
 </configuration>

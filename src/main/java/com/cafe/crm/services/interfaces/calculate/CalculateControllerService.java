@@ -3,6 +3,7 @@ package com.cafe.crm.services.interfaces.calculate;
 import com.cafe.crm.models.client.Calculate;
 import com.cafe.crm.models.client.Client;
 
+import java.time.LocalTime;
 import java.util.List;
 
 public interface CalculateControllerService {
@@ -15,9 +16,9 @@ public interface CalculateControllerService {
 
 	void addClient(Long id, Long number, String descr);
 
-	List<Client> calculatePrice();
+	List<Client> calculatePrice(LocalTime timeNow);
 
-	List<Client> calculatePrice(Long calculateId);
+	List<Client> calculatePrice(Long calculateId, LocalTime timeNow);
 
 	List<Client> outputClients(long[] clientsId);
 

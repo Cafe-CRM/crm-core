@@ -20,6 +20,7 @@ import com.cafe.crm.services.interfaces.token.ConfirmTokenService;
 import com.cafe.crm.services.interfaces.vk.VkService;
 import com.cafe.crm.utils.SecurityUtils;
 import com.cafe.crm.utils.Target;
+import com.cafe.crm.utils.TimeManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,8 @@ import java.util.*;
 @Controller
 @RequestMapping("/manager")
 public class CalculateController {
+    @Autowired
+    private TimeManager timeManager;
 
 	private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 	private final ClientService clientService;
@@ -223,13 +226,17 @@ public class CalculateController {
 	@RequestMapping(value = {"/calculate-price"}, method = RequestMethod.POST)
 	@ResponseBody
 	public List<Client> calculatePrice() {
-		return calculateControllerService.calculatePrice();
+        LocalTime timeNow = timeManager.getTime().withSecond(0).withNano(0);
+		return calculateControllerService.calculatePrice(timeNow);
 	}
+
+
 
 	@RequestMapping(value = {"/calculate-price-on-calculate"}, method = RequestMethod.POST)
 	@ResponseBody
 	public List<Client> calculatePriceOnCalculate(@RequestParam("calculateId") Long calculateId) {
-		return calculateControllerService.calculatePrice(calculateId);
+        LocalTime timeNow = timeManager.getTime().withSecond(0).withNano(0);
+		return calculateControllerService.calculatePrice(timeNow);
 	}
 
 	@RequestMapping(value = {"/delete-clients"}, method = RequestMethod.POST)
