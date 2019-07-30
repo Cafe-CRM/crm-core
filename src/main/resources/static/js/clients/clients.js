@@ -770,18 +770,25 @@ function removeDebtBoss(id) {
     });
 }
 
+let isAlreadyCalled = false;
 function setClientTimePause(clientId) {
+    if (isAlreadyCalled) return;
+    isAlreadyCalled = true;
     $.ajax({
         type: "POST",
         url: "/manager/pause",
         data: {
             clientId: clientId
         },
-
         success: function (data) {
             location.reload();
+        },
+        error: function (err) {
+            console.log(err);
+            isAlreadyCalled = false;
         }
     });
+
 }
 
 function setClientTimeUnpause(clientId) {

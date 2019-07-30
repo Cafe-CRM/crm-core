@@ -9,6 +9,7 @@ import com.cafe.crm.utils.CompanyIdCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,8 @@ public class TimerOfPauseServiceImpl implements TimerOfPauseService {
 
 	@Override
 	public TimerOfPause findTimerOfPauseByIdOfClient(Long id) {
-		return timerOfPauseRepository.findTimerOfPauseByIdOfClient(id);
+		TimerOfPause timerOfPause = timerOfPauseRepository.findTimerOfPauseByIdOfClient(id);
+		return timerOfPause;
 	}
 
 	@Override
