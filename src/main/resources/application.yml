@@ -74,7 +74,8 @@ vk:
   service-chat-id:  # id of conference
   admin-chat-id:
   access-token:
-  api-version: 5.68 # vk api version
+  access-key:
+  api-version: 5.90 # vk api version
   mail: # Notification to email
     invalid-token:
       view: db:invalid-token

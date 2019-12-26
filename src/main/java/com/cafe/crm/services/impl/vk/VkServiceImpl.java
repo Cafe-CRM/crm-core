@@ -77,7 +77,12 @@ import java.util.stream.Collectors;
 @Service
 public class VkServiceImpl implements VkService {
 
-	private static final String DAILY_REPORT_URL = "https://api.vk.com/method/messages.send?chat_id={chat_id}&message={message}&access_token={access_token}&v={v}";
+//	private static final String DAILY_REPORT_URL = "https://api.vk.com/method/messages.send?chat_id={chat_id}&random_id={random_id}&message={message}&access_token={access_token}&v={v}";
+
+//	private static final String utl = "https://api.vk.com/method/messages.send?chat_id=1&random_id=1090&message=hello&access_token=5e5fecaaf7b55113e9f0e24ea0d6a3ac2f188bae77515706e869c4dc7903cf83c3fe2f65fdbadcc0e7825&v=5.90";
+	private static final String url = "https://api.vk.com/method/messages.send?chat_id={chat_id}&random_id={random_id}&message={message}&access_token={access_key}&v={v}";
+
+
 	private static final String EMAIL_RECIPIENT_ROLE_IN_CASE_ERROR = "BOSS";
 	private static final int ERROR_CODE_INVALID_TOKEN = 5;
 
@@ -117,11 +122,12 @@ public class VkServiceImpl implements VkService {
 		VkProperties vkProperties = getVkPropertiesFromDB();
 		String message = getReportMessage(shift);
 		Map<String, String> variables = new HashMap<>();
-		variables.put("chat_id", vkProperties.getServiceChatId());
+		variables.put("chat_id", vkProperties.getAdminChatId());
 		variables.put("message", message);
-		variables.put("access_token", vkProperties.getAccessToken());
+		variables.put("access_key", vkProperties.getAccessKey());
+		variables.put("random_id", Integer.valueOf(rnd(0, 65000)).toString());
 		variables.put("v", vkProperties.getApiVersion());
-		ResponseEntity<String> response = restTemplate.postForEntity(DAILY_REPORT_URL, null, String.class, variables);
+		ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class, variables);
 		checkForInvalidToken(response);
 
 		return message;
@@ -155,9 +161,10 @@ public class VkServiceImpl implements VkService {
 		Map<String, String> variables = new HashMap<>();
 		variables.put("chat_id", vkProperties.getAdminChatId());
 		variables.put("message", message);
-		variables.put("access_token", vkProperties.getAccessToken());
+		variables.put("access_key", vkProperties.getAccessKey());
+		variables.put("random_id", Integer.valueOf(rnd(0, 65000)).toString());
 		variables.put("v", vkProperties.getApiVersion());
-		ResponseEntity<String> response = restTemplate.postForEntity(DAILY_REPORT_URL, null, String.class, variables);
+		ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class, variables);
 		checkForInvalidToken(response);
 	}
 
@@ -426,5 +433,10 @@ public class VkServiceImpl implements VkService {
 			e.printStackTrace();
 		}
 		return vkProperties;
+	}
+
+	public static int rnd(int min, int max) {
+		max -= min;
+		return (int) (Math.random() * ++max) + min;
 	}
 }
