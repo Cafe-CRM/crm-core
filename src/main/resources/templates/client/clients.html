@@ -162,12 +162,12 @@
                                 <div th:replace="client/clientFragments/timeEditModal :: timeEditModal"
                                      th:remove="tag"></div>
                                 <td style="text-align: center">
-                                    <div class="col-md-2" th:if="${!client.isPause()}">
-                                        <button class="btn btn-success" type="button" th:id="'setClientTimePauseButton'" th:onclick="'setClientTimePause(\'' + ${client.id} + '\')'"><span class="glyphicon glyphicon-pause"></span></button>
-                                    </div>
-                                    <div class="col-md-2" th:if="${client.isPause()}">
-                                        <button class="btn btn-success" type="button" th:id="'setClientTimePlayButton'" th:onclick="'setClientTimeUnpause(\'' + ${client.id} + '\')'"><span class="glyphicon glyphicon-play"></span></button>
-                                    </div>
+<!--                                    <div class="col-md-2" th:if="${!client.isPause()}">-->
+<!--                                        <button class="btn btn-success" type="button" th:id="'setClientTimePauseButton'" th:onclick="'setClientTimePause(\'' + ${client.id} + '\')'"><span class="glyphicon glyphicon-pause"></span></button>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-md-2" th:if="${client.isPause()}">-->
+<!--                                        <button class="btn btn-success" type="button" th:id="'setClientTimePlayButton'" th:onclick="'setClientTimeUnpause(\'' + ${client.id} + '\')'"><span class="glyphicon glyphicon-play"></span></button>-->
+<!--                                    </div>-->
                                 </td>
                                 <td>
                                     <p th:id="'dopDiscount' + ${client.id}" style="float: left;"

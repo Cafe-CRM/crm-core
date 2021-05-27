@@ -88,29 +88,29 @@ public class CalculateController {
 		return modelAndView;
 	}
 
-	@RequestMapping(value = {"/pause"}, method = RequestMethod.POST)
-	public String pause(@RequestParam("clientId") Long clientId) {
-		Calculate calculate = calculateService.findByClientId(clientId);
-		Client client = calculateControllerService.pauseClient(clientId);
+//	@RequestMapping(value = {"/pause"}, method = RequestMethod.POST)
+//	public String pause(@RequestParam("clientId") Long clientId) {
+//		Calculate calculate = calculateService.findByClientId(clientId);
+//		Client client = calculateControllerService.pauseClient(clientId);
+//
+//		logger.info("Клиент с описанием: \"" + client.getDescription() + "\" и id: " + client.getId() +
+//				" был поставлен на паузу\n" +
+//				"Счёт с id: " + calculate.getId() + " и описанием: \"" + calculate.getDescription() + "\"");
+//
+//		return "redirect:/manager";
+//	}
 
-		logger.info("Клиент с описанием: \"" + client.getDescription() + "\" и id: " + client.getId() +
-				" был поставлен на паузу\n" +
-				"Счёт с id: " + calculate.getId() + " и описанием: \"" + calculate.getDescription() + "\"");
-
-		return "redirect:/manager";
-	}
-
-	@RequestMapping(value = {"/unpause"}, method = RequestMethod.POST)
-	public String unpause(@RequestParam("clientId") Long clientId) {
-		Calculate calculate = calculateService.findByClientId(clientId);
-		Client client = calculateControllerService.unpauseClient(clientId);
-
-		logger.info("Клиент с описанием: \"" + client.getDescription() + "\" и id: " + client.getId() +
-				" был снят с паузы" +
-				"Счёт с id: " + calculate.getId() + " и описанием: \"" + calculate.getDescription() + "\"");
-
-		return "redirect:/manager";
-	}
+//	@RequestMapping(value = {"/unpause"}, method = RequestMethod.POST)
+//	public String unpause(@RequestParam("clientId") Long clientId) {
+//		Calculate calculate = calculateService.findByClientId(clientId);
+//		Client client = calculateControllerService.unpauseClient(clientId);
+//
+//		logger.info("Клиент с описанием: \"" + client.getDescription() + "\" и id: " + client.getId() +
+//				" был снят с паузы" +
+//				"Счёт с id: " + calculate.getId() + " и описанием: \"" + calculate.getDescription() + "\"");
+//
+//		return "redirect:/manager";
+//	}
 
 	@RequestMapping(value = "/edit-client-time-start", method = RequestMethod.POST)
 	@ResponseBody
